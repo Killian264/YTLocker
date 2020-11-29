@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+    db:
+        image: mysql:latest
+        restart: always
+        ports:
+            - ${MYSQL_TCP_PORT}:${MYSQL_TCP_PORT}
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_ALLOW_EMPTY_PASSWORD: ${MYSQL_ALLOW_EMPTY_PASSWORD}
+            MYSQL_TCP_PORT: ${MYSQL_TCP_PORT}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
