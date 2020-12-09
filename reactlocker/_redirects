@@ -1,11 +1,2 @@
-[[redirects]]
-  from = "/"
-  to = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "/*"
-  to = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-  status = 301
-  force = true
+/     https://www.youtube.com/watch?v=dQw4w9WgXcQ
+/*    https://www.youtube.com/watch?v=dQw4w9WgXcQ
