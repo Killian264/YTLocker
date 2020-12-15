@@ -1,4 +1,4 @@
-module main.go
+module github.com/Killian264/YTLocker/main
 
 go 1.15
 
