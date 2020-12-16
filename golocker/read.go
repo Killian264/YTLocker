@@ -7,10 +7,11 @@ import (
 
 // YTHookPush is the struct defining a YT hook push notification
 type YTHookPush struct {
-	Link    []YTHookLink `xml:"link"`
-	Title   string       `xml:"title"`
-	Updated time.Time    `xml:"updated"`
-	Video   YTHookVideo  `xml:"entry"`
+	Link     []YTHookLink `xml:"link"`
+	Title    string       `xml:"title"`
+	Updated  time.Time    `xml:"updated"`
+	Video    YTHookVideo  `xml:"entry"`
+	Received time.Time
 }
 
 // YTHookLink holds link data for a YTHookPush
@@ -19,7 +20,7 @@ type YTHookLink struct {
 	URL string `xml:"href,attr"`
 }
 
-// YTHookLink holds video data for a YTHookPush
+// YTHookVideo holds video data for a YTHookPush
 type YTHookVideo struct {
 	ID        string        `xml:"id"`
 	VideoID   string        `xml:"videoId"`
@@ -31,15 +32,16 @@ type YTHookVideo struct {
 	Updated   time.Time     `xml:"updated"`
 }
 
-// YTHookLink holds channel data for a YTHookPush
+// YTHookChannel holds channel data for a YTHookPush
 type YTHookChannel struct {
 	Name string `xml:"name"`
 	URL  string `xml:"uri"`
 }
 
 // ParseYTHook parses the xml data sent with YT Subscription webhooks
-func ParseYTHook(hook_xml string) YTHookPush {
-	var parsed_xml YTHookPush
-	xml.Unmarshal([]byte(hook_xml), &parsed_xml)
-	return parsed_xml
+func ParseYTHook(hookXML string) YTHookPush {
+	var hook YTHookPush
+	xml.Unmarshal([]byte(hookXML), &hook)
+	hook.Received = time.Now()
+	return hook
 }

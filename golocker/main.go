@@ -6,12 +6,15 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 
+	"github.com/google/uuid"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 /* Helper Functions */
@@ -23,12 +26,69 @@ func SetENV(location string) {
 	}
 }
 
-// type Video struct {
-// 	gorm.Model
-// 	video_id   string
-// 	channel_id string
-// 	title      string
-// }
+// TODO: ADD data of playlist managed by ytlocker
+
+type User struct {
+	gorm.Model
+	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
+	UserName  string
+	Email     string
+	Password  string
+	Salt      string
+	Playlists []Playlist
+	Color     string
+}
+
+type Video struct {
+	gorm.Model
+	ID          string
+	VideoID     string
+	Channel     Channel
+	Title       string
+	Description string
+	Playlists   []Playlist `gorm:"many2many:playlist_video;"`
+	Thumbnails  []Thumbnail
+	PublishedAt time.Time
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
+type Playlist struct {
+	gorm.Model
+	ID            uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
+	PlaylistID    string    `gorm:"index"`
+	Name          string
+	Color         string
+	Videos        []Video `gorm:"many2many:playlist_video;"`
+	Subscriptions []Subscription
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+}
+
+type Subscription struct {
+	gorm.Model
+	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
+	Channel   Channel
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type Channel struct {
+	gorm.Model
+	ID          string
+	ChannelID   string
+	Title       string
+	Description string
+	Thumbnails  []Thumbnail
+}
+
+type Thumbnail struct {
+	gorm.Model
+	ID     string
+	URL    string
+	Width  int
+	Height int
+}
 
 /* Main */
 func main() {
@@ -65,9 +125,12 @@ func (a *App) InitializeRouter() {
 }
 
 func (a *App) InitializeDatabase(username string, password string, ip string, port string, name string) {
-	connection_string := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, ip, port, name)
 
-	db, err := gorm.Open(mysql.Open(connection_string), &gorm.Config{})
+	logger := logger.New()
+
+	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, ip, port, name)
+
+	db, err := gorm.Open(mysql.Open(connectionString), &gorm.Config{})
 
 	if err != nil {
 		panic("Error creating db connection")

@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	test_xml = `
+	testXML = `
 	<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns="http://www.w3.org/2005/Atom">
 		<link rel="hub" href="https://pubsubhubbub.appspot.com"/>
 		<link rel="self" href="https://www.youtube.com/xml/feeds/videos.xml?channel_id=CHANNEL_ID"/>
@@ -32,7 +32,7 @@ var (
 
 func TestTitleParse(t *testing.T) {
 
-	parsed := ParseYTHook(test_xml)
+	parsed := ParseYTHook(testXML)
 
 	if parsed.Title != "YouTube video feed" {
 		t.Error("malformed youtube feed title")
@@ -41,7 +41,7 @@ func TestTitleParse(t *testing.T) {
 
 func TestUpdatedDateParse(t *testing.T) {
 
-	parsed := ParseYTHook(test_xml)
+	parsed := ParseYTHook(testXML)
 
 	date := parsed.Updated
 
@@ -61,33 +61,9 @@ func TestUpdatedDateParse(t *testing.T) {
 
 }
 
-/*
-	<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns="http://www.w3.org/2005/Atom">
-		<link rel="hub" href="https://pubsubhubbub.appspot.com"/>
-		<link rel="self" href="https://www.youtube.com/xml/feeds/videos.xml?channel_id=CHANNEL_ID"/>
-		<title>YouTube video feed</title>
-		<updated>2015-04-01T19:05:24.552394234+00:00</updated>
-		<entry>
-			<id>yt:video:VIDEO_ID</id>
-			<yt:videoId>VIDEO_ID</yt:videoId>
-			<yt:channelId>CHANNEL_ID</yt:channelId>
-			<title>Video title</title>
-			<link rel="alternate" href="http://www.youtube.com/watch?v=VIDEO_ID"/>
-			<author>
-				<name>Channel title</name>
-				<uri>http://www.youtube.com/channel/CHANNEL_ID</uri>
-			</author>
-			<published>2015-03-06T21:40:57+00:00</published>
-			<updated>2015-03-09T19:05:24.552394234+00:00</updated>
-		</entry>
-	</feed>
-	`
-
-*/
-
 func TestUpdatedTimeParse(t *testing.T) {
 
-	parsed := ParseYTHook(test_xml)
+	parsed := ParseYTHook(testXML)
 
 	date := parsed.Updated
 
@@ -108,7 +84,7 @@ func TestUpdatedTimeParse(t *testing.T) {
 }
 
 func TestLink(t *testing.T) {
-	parsed := ParseYTHook(test_xml)
+	parsed := ParseYTHook(testXML)
 
 	links := parsed.Link
 
@@ -136,20 +112,20 @@ func TestLink(t *testing.T) {
 
 func TestUpdatedEntryParse(t *testing.T) {
 
-	parsed := ParseYTHook(test_xml)
+	parsed := ParseYTHook(testXML)
 
 	entry := parsed.Video
 
-	video_id := entry.VideoID
+	videoID := entry.VideoID
 
-	if video_id != "VIDEO_ID" {
-		t.Errorf("malformed entry video id expected: %q got %q", "VIDEO_ID", video_id)
+	if videoID != "VIDEO_ID" {
+		t.Errorf("malformed entry video id expected: %q got %q", "VIDEO_ID", videoID)
 	}
 }
 
 func TestUpdatedLinkParse(t *testing.T) {
 
-	parsed := ParseYTHook(test_xml)
+	parsed := ParseYTHook(testXML)
 
 	link := parsed.Video.Link
 
@@ -164,7 +140,7 @@ func TestUpdatedLinkParse(t *testing.T) {
 
 func TestUpdatedAuthorParse(t *testing.T) {
 
-	parsed := ParseYTHook(test_xml)
+	parsed := ParseYTHook(testXML)
 
 	author := parsed.Video.Channel
 
@@ -176,7 +152,7 @@ func TestUpdatedAuthorParse(t *testing.T) {
 }
 
 func Testtest(t *testing.T) {
-	parsed := ParseYTHook(test_xml)
+	parsed := ParseYTHook(testXML)
 
 	got := parsed.Video.Published
 
@@ -203,7 +179,7 @@ func BuildExpected() YTHookPush {
 		URL:  "http://www.youtube.com/channel/CHANNEL_ID",
 	}
 
-	video_link := YTHookLink{
+	videoLink := YTHookLink{
 		Rel: "alternate",
 		URL: "http://www.youtube.com/watch?v=VIDEO_ID",
 	}
@@ -238,23 +214,23 @@ func BuildExpected() YTHookPush {
 		VideoID:   "VIDEO_ID",
 		ChannelID: "CHANNEL_ID",
 		Title:     "Video title",
-		Link:      video_link,
+		Link:      videoLink,
 		Channel:   channel,
 		Published: published,
 		Updated:   updated,
 	}
 
-	hub_link := YTHookLink{
+	hubLink := YTHookLink{
 		Rel: "hub",
 		URL: "https://pubsubhubbub.appspot.com",
 	}
 
-	self_link := YTHookLink{
+	selfLink := YTHookLink{
 		Rel: "self",
 		URL: "https://www.youtube.com/xml/feeds/videos.xml?channel_id=CHANNEL_ID",
 	}
 
-	updated_push := time.Date(
+	updatedPush := time.Date(
 		2015,
 		4,
 		1,
@@ -266,14 +242,14 @@ func BuildExpected() YTHookPush {
 	)
 
 	links := []YTHookLink{
-		hub_link,
-		self_link,
+		hubLink,
+		selfLink,
 	}
 
 	push := YTHookPush{
 		Link:    links,
 		Title:   "YouTube video feed",
-		Updated: updated_push,
+		Updated: updatedPush,
 		Video:   video,
 	}
 
@@ -282,7 +258,7 @@ func BuildExpected() YTHookPush {
 
 func TestParseYTHook(t *testing.T) {
 
-	got := ParseYTHook(test_xml)
+	got := ParseYTHook(testXML)
 
 	expected := BuildExpected()
 
