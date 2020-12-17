@@ -11,10 +11,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 
-	"github.com/google/uuid"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 /* Helper Functions */
@@ -30,24 +28,29 @@ func SetENV(location string) {
 
 type User struct {
 	gorm.Model
-	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
-	UserName  string
-	Email     string
-	Password  string
-	Salt      string
+	ID int `gorm:"primaryKey"`
+	// UUID     uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
+	UserName string
+	Email    string
+	Password string
+	Salt     string
+	Color    string
+
 	Playlists []Playlist
-	Color     string
 }
 
 type Video struct {
 	gorm.Model
-	ID          string
+	ID          int `gorm:"primaryKey"`
 	VideoID     string
-	Channel     Channel
 	Title       string
 	Description string
-	Playlists   []Playlist `gorm:"many2many:playlist_video;"`
-	Thumbnails  []Thumbnail
+
+	Playlists  []Playlist  `gorm:"many2many:playlist_video;"`
+	Thumbnails []Thumbnail `gorm:"polymorphic:Owner;"`
+
+	ChannelID int
+
 	PublishedAt time.Time
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
@@ -55,39 +58,59 @@ type Video struct {
 
 type Playlist struct {
 	gorm.Model
-	ID            uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
-	PlaylistID    string    `gorm:"index"`
-	Name          string
-	Color         string
+	ID int `gorm:"primaryKey"`
+	// UUID       uuid.UUID `gorm:"index:type:uuid;default:uuid_generate_v4()"`
+	PlaylistID string `gorm:"index"`
+	Name       string
+	Color      string
+
 	Videos        []Video `gorm:"many2many:playlist_video;"`
 	Subscriptions []Subscription
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+
+	UserID int
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type Subscription struct {
 	gorm.Model
-	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
-	Channel   Channel
+	ID int `gorm:"primaryKey"`
+	// UUID uuid.UUID `gorm:"index:type:uuid;default:uuid_generate_v4()"`
+
+	ChannelID  int
+	UserID     int
+	PlaylistID int
+
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
 type Channel struct {
 	gorm.Model
-	ID          string
-	ChannelID   string
+	ID          int    `gorm:"primaryKey"`
+	ChannelID   string `gorm:"index"`
 	Title       string
 	Description string
-	Thumbnails  []Thumbnail
+
+	Videos     []Video
+	Thumbnails []Thumbnail `gorm:"polymorphic:Owner;"`
 }
 
 type Thumbnail struct {
 	gorm.Model
-	ID     string
+	ID     int `gorm:"primaryKey"`
 	URL    string
 	Width  int
 	Height int
+
+	OwnerID   int
+	OwnerType ThumbnailType
+}
+
+type ThumbnailType struct {
+	ID   int `gorm:"primaryKey"`
+	Type string
 }
 
 /* Main */
@@ -126,8 +149,6 @@ func (a *App) InitializeRouter() {
 
 func (a *App) InitializeDatabase(username string, password string, ip string, port string, name string) {
 
-	logger := logger.New()
-
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, ip, port, name)
 
 	db, err := gorm.Open(mysql.Open(connectionString), &gorm.Config{})
@@ -135,6 +156,16 @@ func (a *App) InitializeDatabase(username string, password string, ip string, po
 	if err != nil {
 		panic("Error creating db connection")
 	}
+
+	db.AutoMigrate(
+		&User{},
+		&Playlist{},
+		&Channel{},
+		&Subscription{},
+		&Video{},
+		&Thumbnail{},
+		&ThumbnailType{},
+	)
 
 	a.DB = db
 }
