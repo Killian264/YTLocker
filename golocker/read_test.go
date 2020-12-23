@@ -269,6 +269,8 @@ func TestParseYTHook(t *testing.T) {
 
 	expected.Video.Updated = got.Video.Updated
 
+	expected.Received = got.Received
+
 	// t.Errorf(expected.Updated.Location().String())
 	// t.Errorf(got.Updated.Location().String())
 	if !reflect.DeepEqual(got, expected) {
