@@ -1,1 +1,5 @@
 random.json
+
+.env
+.env-prod
+.env-local
