@@ -70,7 +70,7 @@ function App() {
 									control={
 										<Switch checked={checked} onChange={ () => toggleChecked() } />
 									}
-									label="Theme"
+									label="this is super duper cool and awesome"
 								/>
 							</FormGroup>
 							<Avatar>K</Avatar>

@@ -119,10 +119,10 @@ func (a *App) Run(host string, port string) {
 }
 
 func (a *App) InitializeRoutes() {
-	a.Router.HandleFunc("/", a.HomeHandler)
+	a.Router.HandleFunc("/", a.TestHandler)
 }
 
-func (a *App) HomeHandler(w http.ResponseWriter, r *http.Request) {
+func (a *App) TestHandler(w http.ResponseWriter, r *http.Request) {
 
 	hubChallenge := r.URL.Query().Get("hub.challenge")
 
@@ -136,13 +136,18 @@ func (a *App) HomeHandler(w http.ResponseWriter, r *http.Request) {
 
 	body := string(bytes)
 
-	request := models.Request{
-		Body:         body,
-		HubChallenge: hubChallenge,
-		HubTopic:     hubTopic,
-	}
+	fmt.Print("request recieved")
+	fmt.Print("challenge key: %s", hubChallenge)
+	fmt.Print("hub topic: %s", hubTopic)
+	fmt.Print("body: %s", body)
 
-	a.DB.Create(&request)
+	// request := models.Request{
+	// 	Body:         body,
+	// 	HubChallenge: hubChallenge,
+	// 	HubTopic:     hubTopic,
+	// }
+
+	// a.DB.Create(&request)
 
 	fmt.Fprintf(w, hubChallenge)
 
