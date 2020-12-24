@@ -25,6 +25,6 @@ services:
             - /app/node_modules
             - ./reactlocker:/app
         ports:
-            - 3001:3000
+            - ${NPM_PORT}:${NPM_PORT}
         environment:
             CHOKIDAR_USEPOLLING: "true"
