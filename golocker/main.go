@@ -34,8 +34,6 @@ func SetENV(location string) {
 /* Main */
 func main() {
 
-	SetENV("../.env")
-
 	a := App{}
 
 	a.InitializeRouter()
