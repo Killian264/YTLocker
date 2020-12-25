@@ -57,4 +57,4 @@ networks:
             driver: default
             config:
                 - subnet: ${CONTAINER_SUBNET}
-                - gateway: ${CONTAINER_GATEWAY}
+                  gateway: ${CONTAINER_GATEWAY}

@@ -14,6 +14,7 @@ import (
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var (
@@ -68,28 +69,28 @@ func (a *App) InitializeRouter() {
 func (a *App) InitializeDatabase(username string, password string, ip string, port string, name string, logFileLoc string) {
 
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, ip, port, name)
-	// logFile, err := os.OpenFile(
-	// 	logFileLoc,
-	// 	os.O_APPEND|os.O_CREATE|os.O_WRONLY,
-	// 	0644,
-	// )
+	logFile, err := os.OpenFile(
+		logFileLoc,
+		os.O_APPEND|os.O_CREATE|os.O_WRONLY,
+		0644,
+	)
 
-	// if err != nil {
-	// 	panic("Error opening or creating database log file.")
-	// }
+	if err != nil {
+		panic("Error opening or creating database log file.")
+	}
 
-	// logger := logger.New(
-	// 	log.New(logFile, "\r\n", log.LstdFlags),
-	// 	logger.Config{
-	// 		Colorful: true,
-	// 		LogLevel: logger.Warn,
-	// 	},
-	// )
+	logger := logger.New(
+		log.New(logFile, "\r\n", log.LstdFlags),
+		logger.Config{
+			Colorful: true,
+			LogLevel: logger.Warn,
+		},
+	)
 
 	db, err := gorm.Open(
 		mysql.Open(connectionString),
 		&gorm.Config{
-			// Logger: logger,
+			Logger: logger,
 		},
 	)
 
