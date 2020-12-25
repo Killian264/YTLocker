@@ -68,7 +68,6 @@ func (a *App) InitializeRouter() {
 func (a *App) InitializeDatabase(username string, password string, ip string, port string, name string, logFileLoc string) {
 
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, ip, port, name)
-
 	// logFile, err := os.OpenFile(
 	// 	logFileLoc,
 	// 	os.O_APPEND|os.O_CREATE|os.O_WRONLY,

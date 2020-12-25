@@ -5,7 +5,7 @@ services:
             mysqllocker
         restart: always
         ports:
-            - ${MYSQL_TCP_PORT}:${MYSQL_TCP_PORT}
+            - ${MYSQL_TCP_PORT}:${MYSQL_CONTAINER_PORT}
         environment:
             MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
             MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -13,6 +13,10 @@ services:
             MYSQL_TCP_PORT: ${MYSQL_TCP_PORT}
             MYSQL_USER: ${MYSQL_USER}
             MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+        expose:
+            - ${MYSQL_CONTAINER_PORT}
+        networks:
+            - default
     api:
         build:
             golocker
@@ -21,33 +25,14 @@ services:
         depends_on: 
             - db
         ports:
-            - 5000:3000
-        # environment:
-        #     MYSQL_USER: ${"MYSQL_USER"}
-        #     MYSQL_PASSWORD: ${"MYSQL_PASSWORD"}
-        #     MYSQL_HOST: ${"MYSQL_HOST"}
-        #     MYSQL_TCP_PORT: ${"MYSQL_TCP_PORT"}
-        #     MYSQL_DATABASE: ${"MYSQL_DATABASE"}
-        #     GO_API_HOST: ${"GO_API_HOST"}
-        #     GO_API_PORT: ${"GO_API_PORT"}
-            #         args:
-            # - MYSQL_USER
-            # - MYSQL_PASSWORD
-            # - MYSQL_HOST
-            # - MYSQL_TCP_PORT
-            # - MYSQL_DATABASE
-            # - GO_API_HOST
-            # - GO_API_PORT
-        # args:
-        #     - MYSQL_USER = ${MYSQL_USER}
-        #     - MYSQL_PASSWORD = ${MYSQL_PASSWORD}
-        #     - MYSQL_HOST = ${MYSQL_HOST}
-        #     - MYSQL_TCP_PORT = ${MYSQL_TCP_PORT}
-        #     - MYSQL_DATABASE = ${MYSQL_DATABASE}
-        #     - GO_API_HOST = ${GO_API_HOST}
-        #     - GO_API_PORT = ${GO_API_PORT}
+            - ${GO_HOST_PORT}:${GO_CONTAINER_PORT}
         env_file:
             - .env
+        expose:
+            - ${GO_CONTAINER_PORT}
+        networks:
+            - default
+
     web:
         build:
             reactlocker
@@ -59,8 +44,17 @@ services:
             - /app/node_modules
             - ./reactlocker:/app
         ports:
-            - ${NPM_PORT}:${NPM_PORT}
+            - ${NPM_HOST_PORT}:${NPM_CONTAINER_PORT}
         environment:
             CHOKIDAR_USEPOLLING: "true"
-        # depends_on: 
-        #     - api
+        networks:
+            - default
+
+networks:
+    default:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: ${CONTAINER_SUBNET}
+                - gateway: ${CONTAINER_GATEWAY}
