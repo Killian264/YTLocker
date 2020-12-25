@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+  api:
+      build:
+          golocker
+      volumes:
+          - ./golocker:/go/src/app
+      ports:
+          - ${GO_HOST_PORT}:${GO_CONTAINER_PORT}
+      env_file:
+          - .env-prod
+      expose:
+          - ${GO_CONTAINER_PORT}
