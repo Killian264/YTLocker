@@ -1,6 +1,6 @@
 version: "3.8"
 services:
-  api:
+  api-prod:
       build:
           golocker
       volumes:
@@ -8,6 +8,6 @@ services:
       ports:
           - ${GO_HOST_PORT}:${GO_CONTAINER_PORT}
       env_file:
-          - .env-prod
+          - .env
       expose:
           - ${GO_CONTAINER_PORT}
