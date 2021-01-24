@@ -11,4 +11,4 @@ services:
             - .env
         expose:
             - ${GO_CONTAINER_PORT}
-        command: ["go", "run"]
+        command: ["go", "run", "main.go"]

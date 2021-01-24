@@ -1,0 +1,9 @@
+// To get everything working
+Install WSL
+Pull down code
+
+// Run on directory with download
+sudo chown -R <user-name> <directory-name>
+
+// To build
+docker-compose up
