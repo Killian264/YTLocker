@@ -11,11 +11,9 @@ type User struct {
 	gorm.Model
 	ID       int    `gorm:"primaryKey"`
 	UUID     string `gorm:"type:varchar(256);unique;not null"`
-	UserName string `gorm:"type:varchar(256);unique;not null"`
+	Username string `gorm:"type:varchar(256);unique;not null"`
 	Email    string `gorm:"type:varchar(256);unique;not null"`
 	Password string `gorm:"type:varchar(256);not null"`
-	Salt     string `gorm:"type:varchar(256);not null"`
-	Color    string `gorm:"type:varchar(256)"`
 
 	Playlists []Playlist
 
@@ -26,6 +24,7 @@ type User struct {
 type Video struct {
 	gorm.Model
 	ID          int    `gorm:"primaryKey"`
+	UUID        string `gorm:"type:varchar(256);unique;not null"`
 	VideoID     string `gorm:"type:varchar(256);unique;not null"`
 	Title       string `gorm:"type:varchar(256);not null"`
 	Description string `gorm:"type:text;not null"`
@@ -47,7 +46,6 @@ type Playlist struct {
 	UUID       string `gorm:"type:varchar(256);unique;not null"`
 	PlaylistID string `gorm:"index"`
 	Name       string `gorm:"type:varchar(256);not null"`
-	Color      string `gorm:"type:varchar(256)"`
 
 	Videos        []Video `gorm:"many2many:playlist_video;"`
 	Subscriptions []Subscription
