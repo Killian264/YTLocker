@@ -1,0 +1,47 @@
+version: "3.8"
+services:
+    db:
+        build:
+            mysqllocker
+        restart: always
+        ports:
+            - ${MYSQL_TCP_PORT}:${MYSQL_CONTAINER_PORT}
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_ALLOW_EMPTY_PASSWORD: ${MYSQL_ALLOW_EMPTY_PASSWORD}
+            MYSQL_TCP_PORT: ${MYSQL_TCP_PORT}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+        expose:
+            - ${MYSQL_CONTAINER_PORT}
+    api:
+        build:
+            golocker
+        volumes:
+            - ./golocker:/go/src/app
+        depends_on: 
+            - db
+        ports:
+            - ${GO_HOST_PORT}:${GO_CONTAINER_PORT}
+        env_file:
+            - .env
+        expose:
+            - ${GO_CONTAINER_PORT}
+        command: ["gin", "go", "main.go"]
+
+    web:
+        build:
+            reactlocker
+        volumes:
+            # to use local node_modules
+            # - ./reactlocker/node_modules:/app/node_modules
+            # to use container node_modules
+            #- /app/node_modules
+            - /app/node_modules
+            - ./reactlocker:/app
+        ports:
+            - ${NPM_HOST_PORT}:${NPM_CONTAINER_PORT}
+        environment:
+            CHOKIDAR_USEPOLLING: "true"
+        command: ["npm", "start"]
