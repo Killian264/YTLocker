@@ -5,30 +5,41 @@ services:
             mysqllocker
         restart: always
         ports:
-            - ${MYSQL_TCP_PORT}:${MYSQL_CONTAINER_PORT}
+            - 3306:3306
         environment:
-            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-            MYSQL_DATABASE: ${MYSQL_DATABASE}
-            MYSQL_ALLOW_EMPTY_PASSWORD: ${MYSQL_ALLOW_EMPTY_PASSWORD}
-            MYSQL_TCP_PORT: ${MYSQL_TCP_PORT}
-            MYSQL_USER: ${MYSQL_USER}
-            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+            MYSQL_ROOT_PASSWORD: "password"
+            MYSQL_DATABASE: "YTLockerDB"
+            MYSQL_ALLOW_EMPTY_PASSWORD: "YES"
+            MYSQL_TCP_PORT: 3306
+            MYSQL_USER: "root"
+            MYSQL_PASSWORD: "password"
         expose:
-            - ${MYSQL_CONTAINER_PORT}
+            - 3306
+        networks:
+            - default
     api:
         build:
-            golocker
-        volumes:
-            - ./golocker:/go/src/app
+            context: .
+            dockerfile: golocker/.devcontainer/Dockerfile
         depends_on: 
             - db
-        ports:
-            - ${GO_HOST_PORT}:${GO_CONTAINER_PORT}
+        command: "go get"
         env_file:
             - .env
         expose:
-            - ${GO_CONTAINER_PORT}
-        command: ["gin", "go", "main.go"]
+            - 8080
+        environment:
+            MYSQL_USER: "root"
+            MYSQL_PASSWORD: "password"
+            MYSQL_HOST: "172.26.0.1"
+            MYSQL_TCP_PORT: 3306
+            MYSQL_DATABASE: "YTLockerDB"
+            YOUTUBE_API_KEY: ""
+            GO_API_HOST: ""
+            GO_API_PORT: "8080"
+        networks:
+            - default
+
 
     web:
         build:
@@ -41,7 +52,19 @@ services:
             - /app/node_modules
             - ./reactlocker:/app
         ports:
-            - ${NPM_HOST_PORT}:${NPM_CONTAINER_PORT}
+            - 3000:3000
         environment:
             CHOKIDAR_USEPOLLING: "true"
         command: ["npm", "start"]
+        networks:
+            - default
+
+
+networks:
+    default:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.26.0.0/16
+                  gateway: 172.26.0.1

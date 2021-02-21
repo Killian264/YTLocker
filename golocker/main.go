@@ -16,7 +16,6 @@ import (
 	"github.com/Killian264/YTLocker/models"
 
 	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
 
 	"google.golang.org/api/googleapi/transport"
 	"google.golang.org/api/youtube/v3"
@@ -28,21 +27,19 @@ var (
 	dbLogFile  = "dblogs.txt"
 )
 
-/* Helper Functions */
-func SetENV(location string) {
-	err := godotenv.Load(location)
-
-	if err != nil {
-		panic("Error setting ENV.")
-	}
-}
-
 /* Main */
 func main() {
 
+	log.Print("YTLocker: Starting...")
+
 	a := App{}
 
+	log.Print("YTLocker: Creating Router...")
+	
 	a.InitializeRouter()
+
+	log.Print("YTLocker: Creating DB Connection...")
+
 	a.InitializeDatabase(
 		os.Getenv("MYSQL_USER"),
 		os.Getenv("MYSQL_PASSWORD"),
@@ -50,18 +47,25 @@ func main() {
 		os.Getenv("MYSQL_TCP_PORT"),
 		os.Getenv("MYSQL_DATABASE"),
 	)
+
+	log.Print("YTLocker: Initalizing YTService...")
+
 	a.InitializeYTService(
 		os.Getenv("YOUTUBE_API_KEY"),
 	)
+
+	log.Print("YTLocker: Running...")
 
 	a.Run(
 		os.Getenv("GO_API_HOST"),
 		os.Getenv("GO_API_PORT"),
 	)
 
+	log.Print("YTLocker: Exiting...")
+
 }
 
-/* Application Structure */
+// App contains services for handlers
 type App struct {
 	Router    *mux.Router
 	DB        *db.DB
@@ -69,18 +73,22 @@ type App struct {
 	YTService *YTService
 }
 
+// InitializeRouter Creates Router for app
 func (a *App) InitializeRouter() {
+
 	a.Router = mux.NewRouter()
 
 	a.InitializeRoutes()
 }
 
+// InitializeYTService Creates YTService for app
 func (a *App) InitializeYTService(apiKey string) {
 	service := new(YTService)
 	service.InitializeServices(apiKey)
 	a.YTService = service
 }
 
+// InitializeDatabase creates DB Connection for app
 func (a *App) InitializeDatabase(username string, password string, ip string, port string, name string) {
 
 	db := new(db.DB)
@@ -90,16 +98,19 @@ func (a *App) InitializeDatabase(username string, password string, ip string, po
 	a.DB = db
 }
 
+// Run starts the application
 func (a *App) Run(host string, port string) {
 	log.Fatal(http.ListenAndServe(":"+port, a.Router))
 }
 
+// InitializeRoutes creates the routes
 func (a *App) InitializeRoutes() {
 	a.Router.HandleFunc("/", a.TestHandler)
 
 	a.Router.HandleFunc("/channel/{channel_id}", a.ChannelHandler)
 }
 
+// ChannelHandler handler to mess around with yt api
 func (a *App) ChannelHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	channelId := vars["channel_id"]
@@ -126,6 +137,7 @@ func (a *App) ChannelHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Print(channel.Description)
 }
 
+// TestHandler recieves a yt hook and parses it
 func (a *App) TestHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Print("Request Recieved\n")
@@ -201,11 +213,13 @@ func (a *App) TestHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// YTService wraps the yt api for common commands to be used by the application
 type YTService struct {
 	youtubeService *youtube.Service
 	channelService *youtube.ChannelsService
 }
 
+// InitializeServices creates the yt service
 func (s *YTService) InitializeServices(apiKey string) {
 
 	youtubeClient := &http.Client{
