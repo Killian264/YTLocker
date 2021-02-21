@@ -13,4 +13,4 @@ COPY . .
 
 # CMD ["go", "run", "main.go"]
 
-# CMD ["gin", "go", "main.go"]
+CMD ["gin", "go", "main.go"]

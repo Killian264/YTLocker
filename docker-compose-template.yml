@@ -19,11 +19,10 @@ services:
             - default
     api:
         build:
-            context: .
-            dockerfile: golocker/.devcontainer/Dockerfile
+            golocker
         depends_on: 
             - db
-        command: "go get"
+        command: ["gin", "go", "main.go"]
         env_file:
             - .env
         expose:
