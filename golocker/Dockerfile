@@ -1,16 +1,11 @@
-# no work big dumb
 FROM golang:1.14
 
-WORKDIR /go/src/app
-
-RUN go get -d -v ./...
-RUN go install -v ./...
-RUN go get github.com/codegangsta/gin
+WORKDIR /go/src/golocker
 
 COPY . .
 
-# CMD ["./app"]
+RUN go get
+RUN go get github.com/githubnemo/CompileDaemon
 
 # CMD ["go", "run", "main.go"]
-
-CMD ["gin", "go", "main.go"]
+ENTRYPOINT CompileDaemon -log-prefix=false -color=true -build="go build main.go" -command="./main"

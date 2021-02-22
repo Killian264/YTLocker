@@ -21,12 +21,6 @@ import (
 	"google.golang.org/api/youtube/v3"
 )
 
-var (
-	logFolder  = "../logs"
-	apiLogFile = "apilogs.txt"
-	dbLogFile  = "dblogs.txt"
-)
-
 /* Main */
 func main() {
 
@@ -35,7 +29,7 @@ func main() {
 	a := App{}
 
 	log.Print("YTLocker: Creating Router...")
-	
+
 	a.InitializeRouter()
 
 	log.Print("YTLocker: Creating DB Connection...")

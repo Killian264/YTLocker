@@ -28,3 +28,8 @@ docker-compose up
 * npm update "package-name" -- updates a single package
 * npm start -- starts a dev server 
 ------
+
+# Extensions #
+* golang.go -- also install required packages 
+* ms-azuretools.vscode-docker
+* coenraads.bracket-pair-colorizer
