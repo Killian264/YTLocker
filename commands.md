@@ -1,6 +1,7 @@
 # Requirements #
+Docker Desktop: https://www.docker.com/products/docker-desktop  
+WSL 2: https://docs.microsoft.com/en-us/windows/wsl/install-win10  
 Golang: https://golang.org/doc/install  
-WSL:   
 NodeJS: https://github.com/nodesource/distributions/blob/master/README.md
 * curl -fsSL https://deb.nodesource.com/setup_15.x | sudo -E bash -
 * sudo apt-get install -y nodejs
@@ -13,7 +14,7 @@ Git Clone: https://github.com/Killian264/YTLocker
 *Make WSL not be dumb about permissions*  
 sudo chown -R "user-name" "directory-name"
 
-*Build Services*  
+*Run*  
 docker-compose up
 
 # Other Commands #
