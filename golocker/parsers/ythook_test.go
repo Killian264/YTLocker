@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/Killian264/YTLocker/models"
 )
 
 var (
@@ -50,14 +52,6 @@ func TestUpdatedDateParse(t *testing.T) {
 		t.Errorf("malformed date month expected: %q got %q", time.March, month)
 	}
 
-}
-
-func TestUpdatedTimeParse(t *testing.T) {
-
-	parsed := ParseYTHook(testXML)
-
-	date := parsed.Updated
-
 	hour, min, second := date.Clock()
 
 	if hour != 19 {
@@ -74,85 +68,46 @@ func TestUpdatedTimeParse(t *testing.T) {
 
 }
 
-func BuildExpected() YTHookPush {
+func BuildExpected() models.YTHookPush {
 
-	channel := YTHookChannel{
+	channel := models.YTHookChannel{
 		Name: "Channel title",
 		URL:  "http://www.youtube.com/channel/CHANNEL_ID",
 	}
 
-	videoLink := YTHookLink{
+	videoLink := models.YTHookLink{
 		Rel: "alternate",
 		URL: "http://www.youtube.com/watch?v=VIDEO_ID",
 	}
 
-	// UTC prints differently
-	location := time.FixedZone("+0000", 0000)
-
-	published := time.Date(
-		2015,
-		3,
-		06,
-		21,
-		40,
-		57,
-		0,
-		location,
-	)
-
-	updated := time.Date(
-		2015,
-		3,
-		9,
-		19,
-		5,
-		24,
-		0,
-		location,
-	)
-
-	video := YTHookVideo{
+	video := models.YTHookVideo{
 		ID:        "yt:video:VIDEO_ID",
 		VideoID:   "VIDEO_ID",
 		ChannelID: "CHANNEL_ID",
 		Title:     "Video title",
 		Link:      videoLink,
 		Channel:   channel,
-		Published: published,
-		Updated:   updated,
 	}
 
-	hubLink := YTHookLink{
+	hubLink := models.YTHookLink{
 		Rel: "hub",
 		URL: "https://pubsubhubbub.appspot.com",
 	}
 
-	selfLink := YTHookLink{
+	selfLink := models.YTHookLink{
 		Rel: "self",
 		URL: "https://www.youtube.com/xml/feeds/videos.xml?channel_id=CHANNEL_ID",
 	}
 
-	updatedPush := time.Date(
-		2015,
-		4,
-		1,
-		19,
-		5,
-		24,
-		0,
-		location,
-	)
-
-	links := []YTHookLink{
+	links := []models.YTHookLink{
 		hubLink,
 		selfLink,
 	}
 
-	push := YTHookPush{
-		Link:    links,
-		Title:   "YouTube video feed",
-		Updated: updatedPush,
-		Video:   video,
+	push := models.YTHookPush{
+		Link:  links,
+		Title: "YouTube video feed",
+		Video: video,
 	}
 
 	return push
@@ -173,8 +128,6 @@ func TestParseYTHook(t *testing.T) {
 
 	expected.Received = got.Received
 
-	// t.Errorf(expected.Updated.Location().String())
-	// t.Errorf(got.Updated.Location().String())
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("ParseYTHook() = %v, want %v", got, expected)
 	}

@@ -7,6 +7,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 
 	uuid "github.com/satori/go.uuid"
 )
@@ -15,31 +16,14 @@ type DB struct {
 	gormDB *gorm.DB
 }
 
-func (db *DB) Initialize(username string, password string, ip string, port string, name string) {
+func (db *DB) Initialize(username string, password string, ip string, port string, name string, logger logger.Interface) {
 
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, ip, port, name)
-	// logFile, err := os.OpenFile(
-	// 	logFileLoc,
-	// 	os.O_APPEND|os.O_CREATE|os.O_WRONLY,
-	// 	0644,
-	// )
-
-	// if err != nil {
-	// 	panic("Error opening or creating database log file.")
-	// }
-
-	// logger := logger.New(
-	// 	log.New(logFile, "\r\n", log.LstdFlags),
-	// 	logger.Config{
-	// 		Colorful: true,
-	// 		LogLevel: logger.Warn,
-	// 	},
-	// )
 
 	gormDB, err := gorm.Open(
 		mysql.Open(connectionString),
 		&gorm.Config{
-			// Logger: logger,
+			Logger: logger,
 		},
 	)
 

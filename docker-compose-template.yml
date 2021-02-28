@@ -29,7 +29,7 @@ services:
         environment:
             MYSQL_USER: "user"
             MYSQL_PASSWORD: "password"
-            MYSQL_HOST: "172.26.0.1"
+            MYSQL_HOST: ""
             MYSQL_TCP_PORT: 3306
             MYSQL_DATABASE: "YTLockerDB"
             YOUTUBE_API_KEY: ""

@@ -7,34 +7,38 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/Killian264/YTLocker/parsers"
+	"github.com/Killian264/YTLocker/youtube"
+	"gorm.io/gorm/logger"
 
 	"github.com/Killian264/YTLocker/db"
 
 	"github.com/Killian264/YTLocker/models"
 
 	"github.com/gorilla/mux"
-
-	"google.golang.org/api/googleapi/transport"
-	"google.golang.org/api/youtube/v3"
 )
 
 /* Main */
 func main() {
 
-	log.Print("YTLocker: Starting...")
+	log.SetPrefix("YTLocker: ")
 
-	a := App{}
+	log.Print("Starting...")
 
-	log.Print("YTLocker: Creating Router...")
+	s := Services{}
 
-	a.InitializeRouter()
+	log.Print("Creating Router...")
 
-	log.Print("YTLocker: Creating DB Connection...")
+	s.InitializeRouter()
 
-	a.InitializeDatabase(
+	log.Print("Creating Routes...")
+
+	s.InitializeRoutes()
+
+	log.Print("Creating Data Service...")
+
+	s.InitializeDatabase(
 		os.Getenv("MYSQL_USER"),
 		os.Getenv("MYSQL_PASSWORD"),
 		os.Getenv("MYSQL_HOST"),
@@ -42,74 +46,79 @@ func main() {
 		os.Getenv("MYSQL_DATABASE"),
 	)
 
-	log.Print("YTLocker: Initalizing YTService...")
+	log.Print("Creating Youtube Service...")
 
-	a.InitializeYTService(
+	s.InitializeYTService(
 		os.Getenv("YOUTUBE_API_KEY"),
 	)
 
-	log.Print("YTLocker: Running...")
+	log.Print("Running...")
 
-	a.Run(
+	s.Run(
 		os.Getenv("GO_API_HOST"),
 		os.Getenv("GO_API_PORT"),
 	)
 
-	log.Print("YTLocker: Exiting...")
+	log.Print("Exiting...")
 
 }
 
 // App contains services for handlers
-type App struct {
-	Router    *mux.Router
-	DB        *db.DB
-	Logger    *log.Logger
-	YTService *YTService
+type Services struct {
+	router  *mux.Router
+	data    *db.DB
+	logger  *log.Logger
+	youtube *youtube.YTService
 }
 
 // InitializeRouter Creates Router for app
-func (a *App) InitializeRouter() {
+func (s *Services) InitializeRouter() {
 
-	a.Router = mux.NewRouter()
+	s.router = mux.NewRouter()
 
-	a.InitializeRoutes()
-}
-
-// InitializeYTService Creates YTService for app
-func (a *App) InitializeYTService(apiKey string) {
-	service := new(YTService)
-	service.InitializeServices(apiKey)
-	a.YTService = service
-}
-
-// InitializeDatabase creates DB Connection for app
-func (a *App) InitializeDatabase(username string, password string, ip string, port string, name string) {
-
-	db := new(db.DB)
-
-	db.Initialize(username, password, ip, port, name)
-
-	a.DB = db
-}
-
-// Run starts the application
-func (a *App) Run(host string, port string) {
-	log.Fatal(http.ListenAndServe(":"+port, a.Router))
 }
 
 // InitializeRoutes creates the routes
-func (a *App) InitializeRoutes() {
-	a.Router.HandleFunc("/", a.TestHandler)
+func (s *Services) InitializeRoutes() {
+	s.router.HandleFunc("/", s.TestHandler)
 
-	a.Router.HandleFunc("/channel/{channel_id}", a.ChannelHandler)
+	s.router.HandleFunc("/channel/{channel_id}", s.ChannelHandler)
+}
+
+// InitializeYTService Creates YTService for app
+func (s *Services) InitializeYTService(apiKey string) {
+	service := new(youtube.YTService)
+	service.InitializeServices(apiKey)
+	s.youtube = service
+}
+
+// InitializeDatabase creates DB Connection for app
+func (s *Services) InitializeDatabase(username string, password string, ip string, port string, name string) {
+
+	db := new(db.DB)
+
+	logger := logger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags),
+		logger.Config{},
+	)
+
+	db.Initialize(username, password, ip, port, name, logger)
+
+	s.data = db
+}
+
+// Run starts the application
+func (a *Services) Run(host string, port string) {
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", host, port), a.router))
 }
 
 // ChannelHandler handler to mess around with yt api
-func (a *App) ChannelHandler(w http.ResponseWriter, r *http.Request) {
+func (s *Services) ChannelHandler(w http.ResponseWriter, r *http.Request) {
+
 	vars := mux.Vars(r)
 	channelId := vars["channel_id"]
 
-	ytChannel := a.YTService.GetChannelById(channelId)
+	ytChannel := s.youtube.GetChannelById(channelId)
 
 	fmt.Print(ytChannel.Snippet.Title)
 	fmt.Print("\n\n")
@@ -132,7 +141,7 @@ func (a *App) ChannelHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // TestHandler recieves a yt hook and parses it
-func (a *App) TestHandler(w http.ResponseWriter, r *http.Request) {
+func (a *Services) TestHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Print("Request Recieved\n")
 
@@ -153,11 +162,11 @@ func (a *App) TestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	request := models.Request{
-		Body:         body,
-		HubChallenge: hubChallenge,
-		HubTopic:     hubTopic,
+		Body:      body,
+		Challenge: hubChallenge,
+		Topic:     hubTopic,
 	}
-	a.DB.Create(&request)
+	a.data.Create(&request)
 
 	fmt.Print("Request Saved\n")
 
@@ -205,80 +214,4 @@ func (a *App) TestHandler(w http.ResponseWriter, r *http.Request) {
 	// response, err := call.Do()
 	// handleError(err, "")
 
-}
-
-// YTService wraps the yt api for common commands to be used by the application
-type YTService struct {
-	youtubeService *youtube.Service
-	channelService *youtube.ChannelsService
-}
-
-// InitializeServices creates the yt service
-func (s *YTService) InitializeServices(apiKey string) {
-
-	youtubeClient := &http.Client{
-		Transport: &transport.APIKey{Key: apiKey},
-	}
-
-	youtubeService, err := youtube.New(youtubeClient)
-
-	if err != nil {
-		panic("error creating youtube service")
-	}
-
-	s.youtubeService = youtubeService
-
-	channelService := youtube.NewChannelsService(youtubeService)
-
-	s.channelService = channelService
-
-}
-
-// Before this is run there should be a check to see if a channel exists already with this id
-// To do this the best course of action would be to make a interface for the db object and begin building a db layer
-func (s *YTService) GetChannelById(id string) *youtube.Channel {
-	log.Print("Searching for channel with ID: ", id, "\n")
-
-	parts := []string{"id", "snippet"}
-	call := s.channelService.List(parts)
-	call.Id(id)
-
-	response, err := call.Do()
-	if err != nil {
-		log.Print("youtube data api error: ", err)
-	}
-
-	if response == nil || len(response.Items) == 0 {
-		log.Print("Channel with id: ", id, " not found\n")
-		return nil
-	}
-
-	channel := response.Items[0]
-
-	log.Print("Found channel with ID: ", id, "\n")
-	log.Print("Channel Title: ", channel.Snippet.Title, "\n")
-
-	return channel
-}
-
-// response2 := playlistsList(s.youtubeService, "snippet,contentDetails", id)
-
-// for _, playlist := range response2.Items {
-// 	playlistId := playlist.Id
-// 	playlistTitle := playlist.Snippet.Title
-
-// 	// Print the playlist ID and title for the playlist resource.
-// 	fmt.Println(playlistId, ": ", playlistTitle)
-// }
-func playlistsList(service *youtube.Service, part string, channelId string) *youtube.PlaylistListResponse {
-	call := service.Playlists.List(strings.Split(part, ","))
-	if channelId != "" {
-		call = call.ChannelId(channelId)
-	}
-	call = call.MaxResults(2)
-	response, err := call.Do()
-	if err != nil {
-		fmt.Print("\n\nyoutube data api error\n\n", err)
-	}
-	return response
 }
