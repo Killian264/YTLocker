@@ -8,11 +8,10 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/Killian264/YTLocker/data"
 	"github.com/Killian264/YTLocker/parsers"
 	"github.com/Killian264/YTLocker/youtube"
 	"gorm.io/gorm/logger"
-
-	"github.com/Killian264/YTLocker/db"
 
 	"github.com/Killian264/YTLocker/models"
 
@@ -66,7 +65,7 @@ func main() {
 // App contains services for handlers
 type Services struct {
 	router  *mux.Router
-	data    *db.DB
+	data    *data.Data
 	logger  *log.Logger
 	youtube *youtube.YTService
 }
@@ -95,7 +94,7 @@ func (s *Services) InitializeYTService(apiKey string) {
 // InitializeDatabase creates DB Connection for app
 func (s *Services) InitializeDatabase(username string, password string, ip string, port string, name string) {
 
-	db := new(db.DB)
+	db := new(data.Data)
 
 	logger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags),
