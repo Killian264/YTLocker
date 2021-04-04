@@ -83,7 +83,6 @@ func BuildExpected() models.YTHookPush {
 	}
 
 	video := models.YTHookVideo{
-		ID:        "yt:video:VIDEO_ID",
 		VideoID:   "VIDEO_ID",
 		ChannelID: "CHANNEL_ID",
 		Title:     "Video title",

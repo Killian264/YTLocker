@@ -250,19 +250,19 @@ func (s *Subscriber) handleNewVideo(w http.ResponseWriter, r *http.Request) erro
 
 func (s *Subscriber) videoPushed(push models.YTHookPush) error {
 
-	video, err := s.ytService.GetVideo(push.Video.VideoID, push.Video.ChannelID)
+	video, err := s.ytService.GetVideo(push.Video.VideoID)
 	if err != nil {
 		return err
 	}
 
-	if video.Id != push.Video.VideoID || video.Snippet.ChannelId != push.Video.ChannelID {
+	if video != nil {
 		return fmt.Errorf("Failed to get video with id: %s from channel: %s", push.Video.VideoID, push.Video.ChannelID)
 	}
 
-	err = s.dataService.SaveVideo(video)
+	err = s.dataService.SaveVideo(*video)
 
 	if err != nil {
-		return fmt.Errorf("Failed to save new video with video id: '%s' from channel: '%s'", push.Video.ID, push.Video.ChannelID)
+		return fmt.Errorf("Failed to save new video with video id: '%s' from channel: '%s'", push.Video.VideoID, push.Video.ChannelID)
 	}
 
 	return nil

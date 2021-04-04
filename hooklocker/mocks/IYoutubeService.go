@@ -12,20 +12,22 @@ type IYoutubeService struct {
 	mock.Mock
 }
 
-// GetVideo provides a mock function with given fields: videoID, channelID
-func (_m *IYoutubeService) GetVideo(videoID string, channelID string) (youtube.Video, error) {
-	ret := _m.Called(videoID, channelID)
+// GetVideo provides a mock function with given fields: videoID
+func (_m *IYoutubeService) GetVideo(videoID string) (*youtube.Video, error) {
+	ret := _m.Called(videoID)
 
-	var r0 youtube.Video
-	if rf, ok := ret.Get(0).(func(string, string) youtube.Video); ok {
-		r0 = rf(videoID, channelID)
+	var r0 *youtube.Video
+	if rf, ok := ret.Get(0).(func(string) *youtube.Video); ok {
+		r0 = rf(videoID)
 	} else {
-		r0 = ret.Get(0).(youtube.Video)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*youtube.Video)
+		}
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, string) error); ok {
-		r1 = rf(videoID, channelID)
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(videoID)
 	} else {
 		r1 = ret.Error(1)
 	}

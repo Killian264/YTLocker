@@ -21,7 +21,7 @@ type ISubscriptionData interface {
 
 // IYoutubeService Service
 type IYoutubeService interface {
-	GetVideo(videoID string, channelID string) (youtube.Video, error)
+	GetVideo(videoID string) (*youtube.Video, error)
 }
 
 // ISubscription for readability only

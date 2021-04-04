@@ -29,7 +29,6 @@ type YTHookLink struct {
 
 // YTHookVideo holds video data for a YTHookPush
 type YTHookVideo struct {
-	ID        string        `xml:"id"`
 	VideoID   string        `xml:"videoId"`
 	ChannelID string        `xml:"channelId"`
 	Title     string        `xml:"title"`
