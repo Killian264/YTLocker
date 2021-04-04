@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/Killian264/YTLocker/golocker/data"
-	"github.com/Killian264/YTLocker/golocker/youtube"
+	"github.com/Killian264/YTLocker/golocker/services/ytservice"
 	"gorm.io/gorm/logger"
 
 	"github.com/gorilla/mux"
@@ -64,7 +64,7 @@ type Services struct {
 	router  *mux.Router
 	data    *data.Data
 	logger  *log.Logger
-	youtube *youtube.YTService
+	youtube *ytservice.YTService
 }
 
 // InitializeRouter Creates Router for app
@@ -77,13 +77,23 @@ func (s *Services) InitializeRouter() {
 // InitializeRoutes creates the routes
 func (s *Services) InitializeRoutes() {
 
+	s.router.HandleFunc("/channel/{channel_id}", func(w http.ResponseWriter, r *http.Request) {
+		ChannelHandler(w, r, s.youtube)
+	})
+
+	s.router.HandleFunc("/video/{video_id}", func(w http.ResponseWriter, r *http.Request) {
+		VideoHandler(w, r, s.youtube)
+	})
+
 }
 
 // InitializeYTService Creates YTService for app
 func (s *Services) InitializeYTService(apiKey string) {
-	service := new(youtube.YTService)
-	service.InitializeServices(apiKey)
-	s.youtube = service
+	logger := log.New(os.Stdout, "Subscriber: ", log.Ldate|log.Ltime|log.Lshortfile)
+	logger.SetPrefix("YTService: ")
+
+	ytService := ytservice.NewYoutubeService(apiKey, logger)
+	s.youtube = ytService
 }
 
 // InitializeDatabase creates DB Connection for app
@@ -101,7 +111,42 @@ func (s *Services) InitializeDatabase(username string, password string, ip strin
 	s.data = db
 }
 
-// Run starts the application
 func (a *Services) Run(host string, port string) {
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", host, port), a.router))
+}
+
+// ChannelHandler handler to mess around with yt api
+func ChannelHandler(w http.ResponseWriter, r *http.Request, ytService *ytservice.YTService) {
+
+	vars := mux.Vars(r)
+	channel, err := ytService.GetChannel(vars["channel_id"])
+	if err != nil || channel == nil {
+		return
+	}
+
+	fmt.Print("====================================================================\n")
+	fmt.Print(channel.Snippet.Title)
+	fmt.Print("\n\n")
+	fmt.Print(channel.Snippet.Description)
+	fmt.Print("\n\n")
+	fmt.Print("====================================================================\n")
+
+}
+
+// VideoHandler handler to mess around with yt api
+func VideoHandler(w http.ResponseWriter, r *http.Request, ytService *ytservice.YTService) {
+
+	vars := mux.Vars(r)
+	video, err := ytService.GetVideo(vars["video_id"])
+	if err != nil || video == nil {
+		return
+	}
+
+	fmt.Print("====================================================================\n")
+	fmt.Print(video.Snippet.Title)
+	fmt.Print("\n\n")
+	fmt.Print(video.Snippet.Description)
+	fmt.Print("\n\n")
+	fmt.Print("====================================================================\n")
+
 }

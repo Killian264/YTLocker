@@ -12,6 +12,7 @@ type YTService struct {
 	youtubeService *youtube.Service
 	channelService *youtube.ChannelsService
 	videoService   *youtube.VideosService
+	searchService  *youtube.SearchService
 	logger         *log.Logger
 }
 
@@ -36,9 +37,36 @@ func NewYoutubeService(apiKey string, logger *log.Logger) *YTService {
 
 	service.channelService = youtube.NewChannelsService(youtubeService)
 
+	service.searchService = youtube.NewSearchService(youtubeService)
+
 	service.logger = logger
 
 	return &service
+}
+
+// GetLastVideosFromChannel gets the last 25 videos from a channel.
+// pageToken is blank or a pagetoken given by response
+func (s *YTService) GetLastVideosFromChannel(channelID string, pageToken string) (*youtube.SearchListResponse, error) {
+
+	parts := []string{"snippet", "contentDetails"}
+	call := s.searchService.List(parts)
+
+	call.ChannelId(channelID)
+	call.Order("date")
+	call.MaxResults(25)
+
+	if pageToken != "" {
+		call.PageToken(pageToken)
+	}
+
+	response, err := call.Do()
+	if err != nil {
+		s.logger.Print("Youtube data api error: ", err)
+		return nil, err
+	}
+
+	return response, nil
+
 }
 
 // GetVideoById gets a youtube video by id

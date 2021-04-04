@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	models "github.com/Killian264/YTLocker/hooklocker/models"
+	models "github.com/Killian264/YTLocker/golocker/models"
 	mock "github.com/stretchr/testify/mock"
 	youtube "google.golang.org/api/youtube/v3"
 )
@@ -35,11 +35,11 @@ func (_m *ISubscriptionData) ChannelExists(channelID string) (bool, error) {
 }
 
 // DeleteSubscription provides a mock function with given fields: _a0
-func (_m *ISubscriptionData) DeleteSubscription(_a0 models.SubscriptionRequest) error {
+func (_m *ISubscriptionData) DeleteSubscription(_a0 *models.SubscriptionRequest) error {
 	ret := _m.Called(_a0)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(models.SubscriptionRequest) error); ok {
+	if rf, ok := ret.Get(0).(func(*models.SubscriptionRequest) error); ok {
 		r0 = rf(_a0)
 	} else {
 		r0 = ret.Error(0)
@@ -49,14 +49,16 @@ func (_m *ISubscriptionData) DeleteSubscription(_a0 models.SubscriptionRequest) 
 }
 
 // GetInactiveSubscription provides a mock function with given fields:
-func (_m *ISubscriptionData) GetInactiveSubscription() (models.SubscriptionRequest, error) {
+func (_m *ISubscriptionData) GetInactiveSubscription() (*models.SubscriptionRequest, error) {
 	ret := _m.Called()
 
-	var r0 models.SubscriptionRequest
-	if rf, ok := ret.Get(0).(func() models.SubscriptionRequest); ok {
+	var r0 *models.SubscriptionRequest
+	if rf, ok := ret.Get(0).(func() *models.SubscriptionRequest); ok {
 		r0 = rf()
 	} else {
-		r0 = ret.Get(0).(models.SubscriptionRequest)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.SubscriptionRequest)
+		}
 	}
 
 	var r1 error
@@ -70,14 +72,16 @@ func (_m *ISubscriptionData) GetInactiveSubscription() (models.SubscriptionReque
 }
 
 // GetSubscription provides a mock function with given fields: secret, channelID
-func (_m *ISubscriptionData) GetSubscription(secret string, channelID string) (models.SubscriptionRequest, error) {
+func (_m *ISubscriptionData) GetSubscription(secret string, channelID string) (*models.SubscriptionRequest, error) {
 	ret := _m.Called(secret, channelID)
 
-	var r0 models.SubscriptionRequest
-	if rf, ok := ret.Get(0).(func(string, string) models.SubscriptionRequest); ok {
+	var r0 *models.SubscriptionRequest
+	if rf, ok := ret.Get(0).(func(string, string) *models.SubscriptionRequest); ok {
 		r0 = rf(secret, channelID)
 	} else {
-		r0 = ret.Get(0).(models.SubscriptionRequest)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.SubscriptionRequest)
+		}
 	}
 
 	var r1 error
@@ -105,11 +109,11 @@ func (_m *ISubscriptionData) InactivateAllSubscriptions() error {
 }
 
 // SaveSubscription provides a mock function with given fields: request
-func (_m *ISubscriptionData) SaveSubscription(request models.SubscriptionRequest) error {
+func (_m *ISubscriptionData) SaveSubscription(request *models.SubscriptionRequest) error {
 	ret := _m.Called(request)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(models.SubscriptionRequest) error); ok {
+	if rf, ok := ret.Get(0).(func(*models.SubscriptionRequest) error); ok {
 		r0 = rf(request)
 	} else {
 		r0 = ret.Error(0)
@@ -119,11 +123,11 @@ func (_m *ISubscriptionData) SaveSubscription(request models.SubscriptionRequest
 }
 
 // SaveVideo provides a mock function with given fields: video
-func (_m *ISubscriptionData) SaveVideo(video youtube.Video) error {
+func (_m *ISubscriptionData) SaveVideo(video *youtube.Video) error {
 	ret := _m.Called(video)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(youtube.Video) error); ok {
+	if rf, ok := ret.Get(0).(func(*youtube.Video) error); ok {
 		r0 = rf(video)
 	} else {
 		r0 = ret.Error(0)

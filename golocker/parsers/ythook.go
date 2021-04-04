@@ -4,7 +4,7 @@ import (
 	"encoding/xml"
 	"time"
 
-	"github.com/Killian264/YTLocker/hooklocker/models"
+	"github.com/Killian264/YTLocker/golocker/models"
 )
 
 // ParseYTHook parses the xml data sent with YT Subscription webhooks

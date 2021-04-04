@@ -42,6 +42,7 @@ github.com/0xAX/notificator v0.0.0-20191016112426-3962a5ea8da1/go.mod h1:NtXa9Ww
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/Killian264/YTLocker v0.0.0-20210404042326-cce375d3d06e h1:yg3xzpc+rA87UZId6SabhCUMfqSTDLE3W1AEWzmuUeY=
+github.com/Killian264/YTLocker v0.0.0-20210404063534-3f7bc5bb6a2d h1:ragsTfzZrfd2uWqarNLmguU5JVjEWzRp5li3HlY2eYY=
 github.com/Killian264/YTLocker/hooklocker v0.0.0-20210404042326-cce375d3d06e h1:pRabDwfK+SIf229+jGwH0TeUNDeKRAKhE1xZy8hUsGo=
 github.com/Killian264/YTLocker/hooklocker v0.0.0-20210404042326-cce375d3d06e/go.mod h1:KNvR7spUYLKthMIxcrvKD1b/fUkWKwFTKDfoGzMp1lE=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=

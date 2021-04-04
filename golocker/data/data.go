@@ -49,7 +49,7 @@ func (d *Data) Initialize(username string, password string, ip string, port stri
 		&models.Video{},
 		&models.Thumbnail{},
 		&models.ThumbnailType{},
-		&models.Request{},
+		&models.SubscriptionRequest{},
 	)
 
 	d.gormDB = gormDB

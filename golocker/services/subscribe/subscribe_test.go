@@ -11,9 +11,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/Killian264/YTLocker/hooklocker/interfaces"
-	"github.com/Killian264/YTLocker/hooklocker/mocks"
-	"github.com/Killian264/YTLocker/hooklocker/models"
+	"github.com/Killian264/YTLocker/golocker/interfaces"
+	"github.com/Killian264/YTLocker/golocker/mocks"
+	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -43,7 +43,7 @@ func TestCreateSubscription(t *testing.T) {
 
 	got.Secret = sub.Secret
 
-	assert.Equal(t, sub, got)
+	assert.Equal(t, sub, *got)
 
 }
 
@@ -112,7 +112,7 @@ func TestInvalidChallenge(t *testing.T) {
 	req, err := http.NewRequest("GET", url, nil)
 	assert.Nil(t, err)
 
-	data.On("GetSubscription", sub.Secret, sub.ChannelID).Return(models.SubscriptionRequest{}, nil)
+	data.On("GetSubscription", sub.Secret, sub.ChannelID).Return(nil, nil)
 
 	res := sendFakeRequest(service, *req)
 	bytes, err := ioutil.ReadAll(res.Body)
@@ -144,8 +144,8 @@ func TestNewVideoWithSave(t *testing.T) {
 		},
 	}
 
-	yt.On("GetVideo", "VIDEO_ID", "CHANNEL_ID").Return(video, nil)
-	data.On("SaveVideo", video).Return(nil)
+	yt.On("GetVideo", "VIDEO_ID").Return(&video, nil)
+	data.On("SaveVideo", &video).Return(nil)
 
 	response := sendFakeRequest(service, *req)
 
@@ -164,7 +164,7 @@ func TestNewVideoWithoutSave(t *testing.T) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("/subscribe/%s/", secret), bytes.NewBuffer(bodyBytes))
 	assert.Nil(t, err)
 
-	yt.On("GetVideo", "VIDEO_ID", "CHANNEL_ID").Return(youtube.Video{}, nil)
+	yt.On("GetVideo", "VIDEO_ID").Return(nil, nil)
 
 	response := sendFakeRequest(service, *req)
 
@@ -184,7 +184,7 @@ func TestResubscribeAll(t *testing.T) {
 	service.SetYTPubSubUrl(server.URL)
 
 	sub := models.SubscriptionRequest{
-		ID:           "123",
+		ID:           213,
 		ChannelID:    "superchannelid",
 		LeaseSeconds: 8 * 24 * 60 * 60,
 		Topic:        "https://www.youtube.com/xml/feeds/videos.xml?channel_id=superchannelid",
@@ -194,9 +194,9 @@ func TestResubscribeAll(t *testing.T) {
 
 	// ResubscribeAll
 	data.On("InactivateAllSubscriptions").Return(nil).Once()
-	data.On("GetInactiveSubscription").Return(sub, nil).Once()
-	data.On("GetInactiveSubscription").Return(models.SubscriptionRequest{}, nil).Once()
-	data.On("DeleteSubscription", sub).Return(nil).Once()
+	data.On("GetInactiveSubscription").Return(&sub, nil).Once()
+	data.On("GetInactiveSubscription").Return(nil, nil).Once()
+	data.On("DeleteSubscription", &sub).Return(nil).Once()
 
 	err := service.ResubscribeAll()
 	assert.Nil(t, err)

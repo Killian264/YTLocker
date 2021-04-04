@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Killian264/YTLocker/hooklocker/models"
+	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/stretchr/testify/assert"
 )
 

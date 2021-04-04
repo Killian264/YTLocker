@@ -113,9 +113,11 @@ type ThumbnailType struct {
 	Type string `gorm:"type:varchar(256);not null"`
 }
 
-// Request
-type Request struct {
-	ID    int `gorm:"primaryKey"`
-	Body  string
-	Query string
+type SubscriptionRequest struct {
+	ID           int    `gorm:"primaryKey"`
+	ChannelID    string `gorm:"type:varchar(256);not null"`
+	LeaseSeconds int
+	Topic        string `gorm:"type:varchar(256);not null"`
+	Secret       string `gorm:"type:varchar(256);not null"`
+	Active       bool
 }
