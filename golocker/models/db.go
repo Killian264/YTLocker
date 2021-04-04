@@ -48,8 +48,8 @@ type Playlist struct {
 	Name       string `gorm:"type:varchar(256);not null"`
 
 	UserUUID string
-	Videos   []Video
-	Channels []Channel
+	Videos   []Video   `gorm:"many2many:playlist_video;"`
+	Channels []Channel `gorm:"many2many:playlist_channel;"`
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
