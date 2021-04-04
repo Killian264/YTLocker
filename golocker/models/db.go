@@ -9,9 +9,8 @@ import (
 // User DB Model
 type User struct {
 	gorm.Model
-	ID       int    `gorm:"primaryKey"`
-	UUID     string `gorm:"type:varchar(256);unique;not null"`
-	Username string `gorm:"type:varchar(256);unique;not null"`
+	UUID     string `gorm:"type:varchar(256);primaryKey"`
+	Username string `gorm:"type:varchar(256);not null"`
 	Email    string `gorm:"type:varchar(256);unique;not null"`
 	Password string `gorm:"type:varchar(256);not null"`
 
@@ -25,49 +24,32 @@ type User struct {
 // Video DB Model
 type Video struct {
 	gorm.Model
-	ID          int    `gorm:"primaryKey"`
-	UUID        string `gorm:"type:varchar(256);unique;not null"`
+	UUID        string `gorm:"type:varchar(256);primaryKey"`
 	VideoID     string `gorm:"type:varchar(256);unique;not null"`
+	ChannelID   string `gorm:"type:varchar(256);unique;not null"`
 	Title       string `gorm:"type:varchar(256);not null"`
 	Description string `gorm:"type:text;not null"`
 
-	Playlists  []Playlist  `gorm:"many2many:playlist_video;"`
-	Thumbnails []Thumbnail `gorm:"polymorphic:Owner;"`
-
-	ChannelID int
+	ChannelUUID string
+	Thumbnails  []Thumbnail `gorm:"polymorphic:Owner;"`
 
 	PublishedAt time.Time
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	DeletedAt   gorm.DeletedAt
-}
-
-// Playlist DB Model
-type Playlist struct {
-	gorm.Model
-	ID         int    `gorm:"primaryKey"`
-	UUID       string `gorm:"type:varchar(256);unique;not null"`
-	PlaylistID string `gorm:"index"`
-	Name       string `gorm:"type:varchar(256);not null"`
-
-	Videos        []Video `gorm:"many2many:playlist_video;"`
-	Subscriptions []Subscription
-
-	UserID int
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt
 }
 
-// Subscription DB Model
-type Subscription struct {
+// Playlist DB Model
+type Playlist struct {
 	gorm.Model
-	ID int `gorm:"primaryKey"`
+	UUID       string `gorm:"type:varchar(256);primaryKey"`
+	PlaylistID string `gorm:"type:varchar(256);index;"`
+	Name       string `gorm:"type:varchar(256);not null"`
 
-	ChannelID  int
-	UserID     int
-	PlaylistID int
+	UserUUID string
+	Videos   []Video
+	Channels []Channel
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -77,8 +59,8 @@ type Subscription struct {
 // Channel DB Model
 type Channel struct {
 	gorm.Model
-	ID          int    `gorm:"primaryKey"`
-	ChannelID   string `gorm:"index"`
+	UUID        string `gorm:"type:varchar(256);primaryKey"`
+	ChannelID   string `gorm:"type:varchar(256);index"`
 	Title       string `gorm:"type:varchar(256);not null"`
 	Description string `gorm:"type:text;not null"`
 
@@ -93,31 +75,28 @@ type Channel struct {
 // Thumbnail DB Model
 type Thumbnail struct {
 	gorm.Model
-	ID     int    `gorm:"primaryKey"`
+	UUID   string `gorm:"type:varchar(256);primaryKey"`
 	URL    string `gorm:"type:varchar(256);not null"`
 	Width  int    `gorm:"type:int;not null"`
 	Height int    `gorm:"type:int;not null"`
 
-	OwnerID     int
-	OwnerType   ThumbnailType `gorm:"foreignkey:OwnerTypeID"`
-	OwnerTypeID int
+	OwnerID   int
+	OwnerType string
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt
 }
 
-// ThumbnailType DB Model
-type ThumbnailType struct {
-	ID   int    `gorm:"primaryKey"`
-	Type string `gorm:"type:varchar(256);not null"`
-}
-
 type SubscriptionRequest struct {
-	ID           int    `gorm:"primaryKey"`
+	UUID         string `gorm:"type:varchar(256);primaryKey"`
 	ChannelID    string `gorm:"type:varchar(256);not null"`
 	LeaseSeconds int
 	Topic        string `gorm:"type:varchar(256);not null"`
 	Secret       string `gorm:"type:varchar(256);not null"`
 	Active       bool
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt
 }

@@ -184,7 +184,7 @@ func TestResubscribeAll(t *testing.T) {
 	service.SetYTPubSubUrl(server.URL)
 
 	sub := models.SubscriptionRequest{
-		ID:           213,
+		UUID:         "213",
 		ChannelID:    "superchannelid",
 		LeaseSeconds: 8 * 24 * 60 * 60,
 		Topic:        "https://www.youtube.com/xml/feeds/videos.xml?channel_id=superchannelid",

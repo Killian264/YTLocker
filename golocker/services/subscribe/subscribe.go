@@ -150,7 +150,7 @@ func (s *Subscriber) ResubscribeAll() error {
 
 		err = s.dataService.DeleteSubscription(old)
 		if err != nil {
-			s.logger.Print("ERROR: Failed to delete subscription with id: ", old.ID)
+			s.logger.Print("ERROR: Failed to delete subscription with uuid: ", old.UUID)
 			s.logger.Print(err)
 			continue
 		}
