@@ -5,3 +5,7 @@ random.json
 .env-local
 
 docker-compose.yml
+
+golocker/main
+
+hooklocker/main

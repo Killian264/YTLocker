@@ -43,11 +43,6 @@ services:
         build:
             reactlocker
         volumes:
-            # to use local node_modules
-            # - ./reactlocker/node_modules:/app/node_modules
-            # to use container node_modules
-            #- /app/node_modules
-            - /app/node_modules
             - ./reactlocker:/app
         ports:
             - 3000:3000
