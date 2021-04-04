@@ -16,7 +16,9 @@ type YTService struct {
 }
 
 // InitializeServices creates the yt service
-func (s *YTService) Initialize(apiKey string, logger *log.Logger) {
+func NewYoutubeService(apiKey string, logger *log.Logger) *YTService {
+
+	service := YTService{}
 
 	youtubeClient := &http.Client{
 		Transport: &transport.APIKey{Key: apiKey},
@@ -28,13 +30,15 @@ func (s *YTService) Initialize(apiKey string, logger *log.Logger) {
 		panic("error creating youtube service")
 	}
 
-	s.youtubeService = youtubeService
+	service.youtubeService = youtubeService
 
-	s.videoService = youtube.NewVideosService(youtubeService)
+	service.videoService = youtube.NewVideosService(youtubeService)
 
-	s.channelService = youtube.NewChannelsService(youtubeService)
+	service.channelService = youtube.NewChannelsService(youtubeService)
 
-	s.logger = logger
+	service.logger = logger
+
+	return &service
 }
 
 // GetVideoById gets a youtube video by id

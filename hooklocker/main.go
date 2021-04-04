@@ -21,9 +21,7 @@ func main() {
 	logger := log.New(os.Stdout, "Subscriber: ", log.Ldate|log.Ltime|log.Lshortfile)
 	logger.SetPrefix("YTService: ")
 
-	ytService := ytservice.YTService{}
-
-	ytService.Initialize(key, logger)
+	ytService := ytservice.NewYoutubeService(key, logger)
 
 	router := mux.NewRouter()
 
@@ -39,7 +37,7 @@ func main() {
 }
 
 // ChannelHandler handler to mess around with yt api
-func ChannelHandler(w http.ResponseWriter, r *http.Request, ytService ytservice.YTService) {
+func ChannelHandler(w http.ResponseWriter, r *http.Request, ytService *ytservice.YTService) {
 
 	vars := mux.Vars(r)
 	channel, err := ytService.GetChannel(vars["channel_id"])
@@ -57,7 +55,7 @@ func ChannelHandler(w http.ResponseWriter, r *http.Request, ytService ytservice.
 }
 
 // VideoHandler handler to mess around with yt api
-func VideoHandler(w http.ResponseWriter, r *http.Request, ytService ytservice.YTService) {
+func VideoHandler(w http.ResponseWriter, r *http.Request, ytService *ytservice.YTService) {
 
 	vars := mux.Vars(r)
 	video, err := ytService.GetVideo(vars["video_id"])
@@ -73,18 +71,3 @@ func VideoHandler(w http.ResponseWriter, r *http.Request, ytService ytservice.YT
 	fmt.Print("====================================================================\n")
 
 }
-
-// // IYoutubeService Service
-// type IYoutubeService interface {
-// 	GetVideo(videoID string, channelID string) (youtube.Video, error)
-// }
-
-// // ISubscription for readability only
-// type ISubscription interface {
-// 	SetYTPubSubUrl(url string)
-// 	SetSubscribeUrl(base string, path string)
-// 	CreateSubscription(channelID string) (models.SubscriptionRequest, error)
-// 	Subscribe(request models.SubscriptionRequest) error
-// 	HandleSubscription(w http.ResponseWriter, r *http.Request) error
-// 	ResubscribeAll() error
-// }

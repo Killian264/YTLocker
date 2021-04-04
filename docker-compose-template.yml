@@ -38,6 +38,21 @@ services:
         networks:
             - default
 
+    hooks:
+        build:
+            hooklocker
+        depends_on: 
+            - db
+        volumes:
+            - ./hooklocker:/go/src/hooklocker
+        ports:
+            - 9090:9090
+        environment:
+            YOUTUBE_API_KEY: ""
+            GO_API_HOST: ""
+            GO_API_PORT: "9090"
+        networks:
+            - default
 
     web:
         build:
