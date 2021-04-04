@@ -28,3 +28,5 @@ docker-compose up
 * npm update -- updates packages probably
 * npm update "package-name" -- updates a single package
 * npm start -- starts a dev server 
+
+* ~USER_NAME/go/bin/mockery --all

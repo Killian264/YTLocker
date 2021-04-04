@@ -3,11 +3,13 @@ package models
 import "time"
 
 // Incoming requests
-type Request struct {
-	ID        int `gorm:"primaryKey"`
-	Body      string
-	Challenge string
-	Topic     string
+type YTHookTopic struct {
+	Challenge    string
+	Topic        string
+	LeaseSeconds int
+	Token        string
+	Mode         string
+	Body         string
 }
 
 // YTHookPush is the struct defining a YT hook push notification

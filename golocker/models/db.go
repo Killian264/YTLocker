@@ -112,3 +112,10 @@ type ThumbnailType struct {
 	ID   int    `gorm:"primaryKey"`
 	Type string `gorm:"type:varchar(256);not null"`
 }
+
+// Request
+type Request struct {
+	ID    int `gorm:"primaryKey"`
+	Body  string
+	Query string
+}

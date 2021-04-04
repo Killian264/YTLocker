@@ -7,13 +7,14 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
-	"github.com/Killian264/YTLocker/data"
-	"github.com/Killian264/YTLocker/parsers"
-	"github.com/Killian264/YTLocker/youtube"
+	"github.com/Killian264/YTLocker/golocker/data"
+	"github.com/Killian264/YTLocker/golocker/parsers"
+	"github.com/Killian264/YTLocker/golocker/youtube"
 	"gorm.io/gorm/logger"
 
-	"github.com/Killian264/YTLocker/models"
+	"github.com/Killian264/YTLocker/golocker/models"
 
 	"github.com/gorilla/mux"
 )
@@ -79,7 +80,7 @@ func (s *Services) InitializeRouter() {
 
 // InitializeRoutes creates the routes
 func (s *Services) InitializeRoutes() {
-	s.router.HandleFunc("/", s.TestHandler)
+	s.router.HandleFunc("/", s.SubscriptionHandler)
 
 	s.router.HandleFunc("/channel/{channel_id}", s.ChannelHandler)
 }
@@ -140,13 +141,11 @@ func (s *Services) ChannelHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // TestHandler recieves a yt hook and parses it
-func (a *Services) TestHandler(w http.ResponseWriter, r *http.Request) {
+func (a *Services) SubscriptionHandler(w http.ResponseWriter, r *http.Request) {
 
-	fmt.Print("Request Recieved\n")
+	fmt.Print("Subcription Request Recieved\n")
 
-	hubChallenge := r.URL.Query().Get("hub.challenge")
-
-	hubTopic := r.URL.Query().Get("hub.topic")
+	challenge := r.URL.Query().Get("hub.challenge")
 
 	bytes, err := ioutil.ReadAll(r.Body)
 
@@ -156,61 +155,53 @@ func (a *Services) TestHandler(w http.ResponseWriter, r *http.Request) {
 
 	body := string(bytes)
 
+	if challenge == "" {
+		// parse data
+		// send to service
+		// return
+	}
+
+	leaseSeconds, err := strconv.Atoi(r.URL.Query().Get("hub.lease_seconds"))
+
+	if err != nil {
+		panic("Failed to parse new subscription lease seconds")
+	}
+
 	for k, v := range r.URL.Query() {
 		log.Printf("key=%v, value=%v \n", k, v)
 	}
 
-	request := models.Request{
-		Body:      body,
-		Challenge: hubChallenge,
-		Topic:     hubTopic,
+	request := models.YTHookTopic{
+		Body:         body,
+		Challenge:    r.URL.Query().Get("hub.challenge"),
+		Topic:        r.URL.Query().Get("hub.topic"),
+		LeaseSeconds: leaseSeconds,
+		Token:        r.URL.Query().Get("hub.verify_token"),
 	}
-	a.data.Create(&request)
+	fmt.Printf("Request: %v \n", request)
 
 	fmt.Print("Request Saved\n")
 
-	if hubChallenge == "" {
-		hubChallenge = "YOUTUBE"
-	}
-
-	fmt.Print("FROM: ", hubChallenge, "\n\n")
-
-	if hubChallenge != "" {
-		fmt.Fprintf(w, hubChallenge)
-		fmt.Print("Replied to Subscription\n")
-	}
-
-	// hook := ParseYTHook(body)
-
-	// client := &http.Client{
-	// 	Transport: &transport.APIKey{Key: os.Getenv("YOUTUBE_API_KEY")},
-	// }
-
-	// service, err := youtube.New(client)
-	// if err != nil {
-	// 	log.Fatalf("Error creating new YouTube client: %v", err)
-	// }
-
-	// parts := []string{"id", "snippet"}
-	// channelService := youtube.NewChannelsService(service)
-
-	// call := channelService.List(parts)
-	// call.Id(hook.Video.ChannelID)
-
-	// response, err := call.Do()
-	// if err != nil {
-	// 	fmt.Print("youtube data api error")
-	// }
-
-	// channel := response.Items[0]
-
-	// if response.Items[]
-
-	// Make the API call to YouTube.
-	// call := service.Search.List(paramThingies).
-	// 	Q(*query).
-	// 	MaxResults(*maxResults)
-	// response, err := call.Do()
-	// handleError(err, "")
-
 }
+
+// curl "https://pubsubhubbub.appspot.com/subscribe" ^
+//   -H "authority: pubsubhubbub.appspot.com" ^
+//   -H "cache-control: max-age=0" ^
+//   -H "upgrade-insecure-requests: 1" ^
+//   -H "origin: https://pubsubhubbub.appspot.com" ^
+//   -H "content-type: application/x-www-form-urlencoded" ^
+//   -H "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36" ^
+//   -H "accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9" ^
+//   -H "sec-fetch-site: same-origin" ^
+//   -H "sec-fetch-mode: navigate" ^
+//   -H "sec-fetch-user: ?1" ^
+//   -H "sec-fetch-dest: document" ^
+//   -H "referer: https://pubsubhubbub.appspot.com/subscribe" ^
+//   -H "accept-language: en-US,en;q=0.9" ^
+//   --data-raw "hub.callback=https^%^3A^%^2F^%^2Fdroplet.ytlocker.com^%^2F&hub.topic=https^%^3A^%^2F^%^2Fwww.youtube.com^%^2Fxml^%^2Ffeeds^%^2Fvideos.xml^%^3Fchannel_id^%^3DUCfJvn8LAFkRRPJNt8tTJumA&hub.verify=async&hub.mode=subscribe&hub.verify_token=&hub.secret=&hub.lease_seconds=691200" ^
+//   --compressed
+
+// subscribe
+// recieve subscribe
+// create playlist
+//

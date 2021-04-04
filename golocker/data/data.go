@@ -3,7 +3,7 @@ package data
 import (
 	"fmt"
 
-	"github.com/Killian264/YTLocker/models"
+	"github.com/Killian264/YTLocker/golocker/models"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -11,6 +11,16 @@ import (
 
 	uuid "github.com/satori/go.uuid"
 )
+
+// Request
+type Request struct {
+	ID           int
+	ChannelID    string
+	LeaseSeconds int
+	Secret       string
+	Mode         string
+	Active       bool
+}
 
 type Data struct {
 	gormDB *gorm.DB

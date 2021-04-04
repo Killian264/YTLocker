@@ -5,7 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Killian264/YTLocker/models"
+	"github.com/Killian264/YTLocker/hooklocker/models"
+	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -34,7 +35,8 @@ var (
 
 func TestUpdatedDateParse(t *testing.T) {
 
-	parsed := ParseYTHook(testXML)
+	parsed, err := ParseYTHook(testXML)
+	assert.Nil(t, err)
 
 	date := parsed.Updated
 
@@ -115,7 +117,8 @@ func BuildExpected() models.YTHookPush {
 
 func TestParseYTHook(t *testing.T) {
 
-	got := ParseYTHook(testXML)
+	got, err := ParseYTHook(testXML)
+	assert.Nil(t, err)
 
 	expected := BuildExpected()
 
