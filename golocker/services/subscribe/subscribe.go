@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -13,8 +12,6 @@ import (
 
 	"github.com/Killian264/YTLocker/golocker/interfaces"
 	"github.com/Killian264/YTLocker/golocker/models"
-	"github.com/Killian264/YTLocker/golocker/parsers"
-	"github.com/gorilla/mux"
 )
 
 // var YoutubeSubscribeUrl = "https://pubsubhubbub.appspot.com/subscribe"
@@ -57,7 +54,7 @@ func (s *Subscriber) CreateSubscription(channelID string) (*models.SubscriptionR
 
 	request := models.SubscriptionRequest{
 		ChannelID:    channelID,
-		LeaseSeconds: leaseSeconds,
+		LeaseSeconds: uint(leaseSeconds),
 		Topic:        topic,
 		Secret:       secret,
 		Active:       true,
@@ -95,7 +92,7 @@ func (s *Subscriber) postSubscription(request *models.SubscriptionRequest, pushS
 			"hub.topic":         {request.Topic},
 			"hub.verify":        {"async"},
 			"hub.mode":          {"subscribe"},
-			"hub.lease_seconds": {strconv.Itoa(request.LeaseSeconds)},
+			"hub.lease_seconds": {strconv.Itoa(int(request.LeaseSeconds))},
 		},
 	)
 
@@ -160,54 +157,6 @@ func (s *Subscriber) ResubscribeAll() error {
 	return nil
 }
 
-// HandleSubscriptionNoError handles a new subscription request wrap in a middleware that handles errors
-func (s *Subscriber) HandleSubscription(w http.ResponseWriter, r *http.Request) error {
-
-	challenge := r.URL.Query().Get("hub.challenge")
-
-	if challenge != "" {
-		s.logger.Print("Challenge Request Recieved\n")
-		return s.handleChallenge(w, r)
-	}
-
-	s.logger.Print("New Video Request Recieved\n")
-	return s.handleNewVideo(w, r)
-}
-
-func (s *Subscriber) handleChallenge(w http.ResponseWriter, r *http.Request) error {
-
-	secret := mux.Vars(r)["secret"]
-	challenge := r.URL.Query().Get("hub.challenge")
-	topic := r.URL.Query().Get("hub.topic")
-	channelID := strings.Replace(topic, "https://www.youtube.com/xml/feeds/videos.xml?channel_id=", "", 1)
-	leaseStr := r.URL.Query().Get("hub.lease_seconds")
-
-	lease, err := strconv.Atoi(leaseStr)
-
-	if err != nil {
-		return fmt.Errorf("Failed to parse lease_seconds got: %s", leaseStr)
-	}
-
-	request := models.SubscriptionRequest{
-		ChannelID:    channelID,
-		Topic:        topic,
-		Secret:       secret,
-		LeaseSeconds: lease,
-		Active:       true,
-	}
-
-	isValid, err := s.subscriptionIsValid(&request)
-	if err != nil {
-		return err
-	}
-
-	if isValid {
-		fmt.Fprintf(w, challenge)
-	}
-
-	return nil
-}
-
 func (s *Subscriber) subscriptionIsValid(request *models.SubscriptionRequest) (bool, error) {
 	saved, err := s.dataService.GetSubscription(request.Secret, request.ChannelID)
 
@@ -228,23 +177,6 @@ func (s *Subscriber) subscriptionIsValid(request *models.SubscriptionRequest) (b
 	}
 
 	return true, nil
-}
-
-func (s *Subscriber) handleNewVideo(w http.ResponseWriter, r *http.Request) error {
-	bytes, err := ioutil.ReadAll(r.Body)
-
-	if err != nil {
-		return err
-	}
-
-	body := string(bytes)
-
-	push, err := parsers.ParseYTHook(body)
-	if err != nil {
-		return err
-	}
-
-	return s.videoPushed(&push)
 }
 
 func (s *Subscriber) videoPushed(push *models.YTHookPush) error {

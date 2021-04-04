@@ -78,11 +78,15 @@ func (s *Services) InitializeRouter() {
 func (s *Services) InitializeRoutes() {
 
 	s.router.HandleFunc("/channel/{channel_id}", func(w http.ResponseWriter, r *http.Request) {
-		ChannelHandler(w, r, s.youtube)
+		s.ChannelHandler(w, r)
 	})
 
 	s.router.HandleFunc("/video/{video_id}", func(w http.ResponseWriter, r *http.Request) {
-		VideoHandler(w, r, s.youtube)
+		s.VideoHandler(w, r)
+	})
+
+	s.router.HandleFunc("/channel2/{channel_id}", func(w http.ResponseWriter, r *http.Request) {
+		s.Channel2Handler(w, r)
 	})
 
 }
@@ -102,7 +106,7 @@ func (s *Services) InitializeDatabase(username string, password string, ip strin
 	db := new(data.Data)
 
 	logger := logger.New(
-		log.New(os.Stdout, "\r\n", log.LstdFlags),
+		s.logger,
 		logger.Config{},
 	)
 
@@ -115,11 +119,16 @@ func (a *Services) Run(host string, port string) {
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", host, port), a.router))
 }
 
+func (s *Services) Channel2Handler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	s.data.GetChannel(vars["channel_id"])
+}
+
 // ChannelHandler handler to mess around with yt api
-func ChannelHandler(w http.ResponseWriter, r *http.Request, ytService *ytservice.YTService) {
+func (s *Services) ChannelHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-	channel, err := ytService.GetChannel(vars["channel_id"])
+	channel, err := s.youtube.GetChannel(vars["channel_id"])
 	if err != nil || channel == nil {
 		return
 	}
@@ -131,13 +140,14 @@ func ChannelHandler(w http.ResponseWriter, r *http.Request, ytService *ytservice
 	fmt.Print("\n\n")
 	fmt.Print("====================================================================\n")
 
+	s.data.NewChannel(channel)
 }
 
 // VideoHandler handler to mess around with yt api
-func VideoHandler(w http.ResponseWriter, r *http.Request, ytService *ytservice.YTService) {
+func (s *Services) VideoHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-	video, err := ytService.GetVideo(vars["video_id"])
+	video, err := s.youtube.GetVideo(vars["video_id"])
 	if err != nil || video == nil {
 		return
 	}
@@ -148,5 +158,7 @@ func VideoHandler(w http.ResponseWriter, r *http.Request, ytService *ytservice.Y
 	fmt.Print(video.Snippet.Description)
 	fmt.Print("\n\n")
 	fmt.Print("====================================================================\n")
+
+	s.data.NewVideo(video)
 
 }
