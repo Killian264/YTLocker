@@ -12,6 +12,7 @@ import (
 
 	"github.com/Killian264/YTLocker/golocker/interfaces"
 	"github.com/Killian264/YTLocker/golocker/models"
+	"github.com/Killian264/YTLocker/golocker/parsers"
 )
 
 // var YoutubeSubscribeUrl = "https://pubsubhubbub.appspot.com/subscribe"
@@ -66,12 +67,12 @@ func (s *Subscriber) CreateSubscription(channelID string) (*models.SubscriptionR
 // Subscribe subscribes to a Subscription feed
 func (s *Subscriber) Subscribe(request *models.SubscriptionRequest) error {
 
-	exists, err := s.dataService.ChannelExists(request.ChannelID)
+	channel, err := s.dataService.GetChannel(request.ChannelID)
 	if err != nil {
 		return err
 	}
 
-	if !exists {
+	if channel == nil {
 		return fmt.Errorf("Failed to find channel with id %s", request.ChannelID)
 	}
 
@@ -80,7 +81,7 @@ func (s *Subscriber) Subscribe(request *models.SubscriptionRequest) error {
 		return err
 	}
 
-	return s.dataService.SaveSubscription(request)
+	return s.dataService.NewSubscription(request)
 }
 
 func (s *Subscriber) postSubscription(request *models.SubscriptionRequest, pushSubscribeURL string, pushHandlerURL string) error {
@@ -190,7 +191,9 @@ func (s *Subscriber) videoPushed(push *models.YTHookPush) error {
 		return fmt.Errorf("Failed to get video with id: %s from channel: %s", push.Video.VideoID, push.Video.ChannelID)
 	}
 
-	err = s.dataService.SaveVideo(video)
+	parsedVideo, channelID := parsers.ParseYTVideo(video)
+
+	err = s.dataService.NewVideo(parsedVideo, channelID)
 
 	if err != nil {
 		return fmt.Errorf("Failed to save new video with video id: '%s' from channel: '%s'", push.Video.VideoID, push.Video.ChannelID)

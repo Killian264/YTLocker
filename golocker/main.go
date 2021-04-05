@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/Killian264/YTLocker/golocker/data"
+	"github.com/Killian264/YTLocker/golocker/parsers"
 	"github.com/Killian264/YTLocker/golocker/services/ytservice"
 	"gorm.io/gorm/logger"
 
@@ -119,6 +120,8 @@ func (a *Services) Run(host string, port string) {
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", host, port), a.router))
 }
 
+/// FOR TESTING ONLY
+
 func (s *Services) Channel2Handler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	s.data.GetChannel(vars["channel_id"])
@@ -140,7 +143,21 @@ func (s *Services) ChannelHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Print("\n\n")
 	fmt.Print("====================================================================\n")
 
-	s.data.NewChannel(channel)
+	parsedChannel := parsers.ParseYTChannel(channel)
+
+	err = s.data.NewChannel(&parsedChannel)
+
+	if err != nil {
+		log.Print(err)
+	}
+
+	log.Print("Channel ID: ", parsedChannel.ChannelID)
+
+	log.Print("Description: ", parsedChannel.Description, "\n\n")
+
+	for _, thumbnail := range parsedChannel.Thumbnails {
+		log.Print(thumbnail.Height)
+	}
 }
 
 // VideoHandler handler to mess around with yt api
@@ -159,6 +176,8 @@ func (s *Services) VideoHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Print("\n\n")
 	fmt.Print("====================================================================\n")
 
-	s.data.NewVideo(video)
+	parsedVideo, channelID := parsers.ParseYTVideo(video)
+
+	s.data.NewVideo(&parsedVideo, channelID)
 
 }

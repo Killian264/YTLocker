@@ -6,7 +6,6 @@ import (
 
 	"github.com/Killian264/YTLocker/golocker/models"
 	uuid "github.com/satori/go.uuid"
-	"google.golang.org/api/youtube/v3"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -24,75 +23,6 @@ type Request struct {
 
 type Data struct {
 	gormDB *gorm.DB
-}
-
-func (d *Data) GetChannel(channelID string) {
-
-	channel := models.Channel{
-		ChannelID: channelID,
-	}
-
-	// result := d.gormDB.Joins("JOIN thumbnails ON thumbnails.owner_id = channels.id AND thumbnails.owner_type = 'channels' ").Find(&channel.Thumbnails).Where(&channel).First(&channel)
-
-	result := d.gormDB.Where(&channel).First(&channel)
-
-	result = d.gormDB.Joins("thumbnails").Find(&channel.Thumbnails)
-
-	if result.Error != nil {
-		log.Print(result.Error)
-	}
-
-	log.Print("Channel ID: ", channel.ChannelID)
-
-	log.Print("Description: ", channel.Description, "\n\n")
-
-	for _, thumbnail := range channel.Thumbnails {
-		log.Print(thumbnail.Height)
-	}
-}
-
-func (d *Data) NewChannel(channel *youtube.Channel) {
-
-	ytThumbnails := []*youtube.Thumbnail{}
-
-	ytThumbnails = append(ytThumbnails, channel.Snippet.Thumbnails.Default)
-	ytThumbnails = append(ytThumbnails, channel.Snippet.Thumbnails.Standard)
-	ytThumbnails = append(ytThumbnails, channel.Snippet.Thumbnails.Medium)
-	ytThumbnails = append(ytThumbnails, channel.Snippet.Thumbnails.High)
-	ytThumbnails = append(ytThumbnails, channel.Snippet.Thumbnails.Maxres)
-
-	thumbnails := []models.Thumbnail{}
-
-	for _, thumbnail := range ytThumbnails {
-		if thumbnail == nil {
-			continue
-		}
-		thumbnails = append(thumbnails, models.Thumbnail{
-			UUID:   uuid.NewV4().String(),
-			URL:    thumbnail.Url,
-			Width:  uint(thumbnail.Width),
-			Height: uint(thumbnail.Width),
-		})
-	}
-
-	dbChannel := models.Channel{
-		UUID:        uuid.NewV4().String(),
-		ChannelID:   channel.Id,
-		Title:       channel.Snippet.Title,
-		Description: channel.Snippet.Description,
-
-		Thumbnails: thumbnails,
-	}
-
-	result := d.gormDB.Create(&dbChannel)
-
-	if result.Error != nil {
-		log.Print(result.Error)
-	}
-}
-
-func (d *Data) NewVideo(video *youtube.Video) {
-
 }
 
 func (d *Data) Initialize(username string, password string, ip string, port string, name string, logger logger.Interface) {
@@ -124,28 +54,114 @@ func (d *Data) Initialize(username string, password string, ip string, port stri
 	d.gormDB = gormDB
 }
 
-func (d *Data) SaveSubscription(request *models.SubscriptionRequest) error {
-	return nil
+func (d *Data) GetChannel(channelID string) (*models.Channel, error) {
+
+	channel := models.Channel{
+		ChannelID: channelID,
+	}
+
+	result := d.gormDB.Where(&channel).First(&channel)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	if result.RowsAffected != 1 {
+		return nil, nil
+	}
+
+	result = d.gormDB.Where(models.Thumbnail{OwnerID: channel.ID, OwnerType: "channels"}).Find(&channel.Thumbnails)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &channel, nil
+}
+
+func (d *Data) NewChannel(channel *models.Channel) error {
+
+	channel.UUID = uuid.NewV4().String()
+
+	for _, thumbnail := range channel.Thumbnails {
+		thumbnail.UUID = uuid.NewV4().String()
+	}
+
+	result := d.gormDB.Create(&channel)
+
+	return result.Error
+}
+
+func (d *Data) NewVideo(video *models.Video, channelID string) error {
+
+	channel := models.Channel{}
+
+	result := d.gormDB.Where("channel_id = ?", channelID).First(&channel)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	video.UUID = uuid.NewV4().String()
+	video.ChannelID = channel.ID
+
+	for _, thumbnail := range video.Thumbnails {
+		thumbnail.UUID = uuid.NewV4().String()
+	}
+
+	result = d.gormDB.Create(&video)
+
+	return result.Error
+}
+
+func (d *Data) NewSubscription(request *models.SubscriptionRequest) error {
+	request.UUID = uuid.NewV4().String()
+	result := d.gormDB.Create(request)
+	return result.Error
 }
 
 func (d *Data) GetSubscription(secret string, channelID string) (*models.SubscriptionRequest, error) {
-	return nil, nil
+
+	request := models.SubscriptionRequest{}
+
+	result := d.gormDB.Where("channel_id = ? AND secret = ? ", channelID, secret).First(&request)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	if result.RowsAffected != 1 {
+		return nil, nil
+	}
+
+	return &request, result.Error
+
 }
-func (d *Data) ChannelExists(channelID string) (bool, error) {
-	return true, nil
-}
-func (d *Data) SaveVideo(video *youtube.Video) error {
-	return nil
+
+func (d *Data) GetChannelFromYoutubeId(channelID string) (*models.Channel, error) {
+	channel := models.Channel{
+		ChannelID: channelID,
+	}
+
+	result := d.gormDB.Where(&channel).First(&channel)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	if result.RowsAffected != 1 {
+		return nil, nil
+	}
+
+	return &channel, nil
 }
 
 func (d *Data) InactivateAllSubscriptions() error {
 	return nil
 }
-
 func (d *Data) GetInactiveSubscription() (*models.SubscriptionRequest, error) {
 	return nil, nil
 }
-
 func (d *Data) DeleteSubscription(*models.SubscriptionRequest) error {
 	return nil
 }

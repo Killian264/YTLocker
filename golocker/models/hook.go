@@ -14,11 +14,10 @@ type YTHookTopic struct {
 
 // YTHookPush is the struct defining a YT hook push notification
 type YTHookPush struct {
-	Link     []YTHookLink `xml:"link"`
-	Title    string       `xml:"title"`
-	Updated  time.Time    `xml:"updated"`
-	Video    YTHookVideo  `xml:"entry"`
-	Received time.Time
+	Link    []YTHookLink `xml:"link"`
+	Title   string       `xml:"title"`
+	Updated time.Time    `xml:"updated"`
+	Video   YTHookVideo  `xml:"entry"`
 }
 
 // YTHookLink holds link data for a YTHookPush

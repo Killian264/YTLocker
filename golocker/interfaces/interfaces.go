@@ -9,10 +9,10 @@ import (
 
 // ISubscriptionData Service
 type ISubscriptionData interface {
-	SaveSubscription(request *models.SubscriptionRequest) error
+	NewSubscription(request *models.SubscriptionRequest) error
 	GetSubscription(secret string, channelID string) (*models.SubscriptionRequest, error)
-	ChannelExists(channelID string) (bool, error)
-	SaveVideo(video *youtube.Video) error
+	GetChannel(channelID string) (*models.Channel, error)
+	NewVideo(video models.Video, channelID string) error
 
 	InactivateAllSubscriptions() error
 	GetInactiveSubscription() (*models.SubscriptionRequest, error)

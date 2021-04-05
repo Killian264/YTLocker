@@ -14,6 +14,7 @@ import (
 	"github.com/Killian264/YTLocker/golocker/interfaces"
 	"github.com/Killian264/YTLocker/golocker/mocks"
 	"github.com/Killian264/YTLocker/golocker/models"
+	"github.com/Killian264/YTLocker/golocker/parsers"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -67,8 +68,8 @@ func TestSubscribe(t *testing.T) {
 
 	service.SetYTPubSubUrl(server.URL)
 
-	data.On("ChannelExists", channelID).Return(true, nil)
-	data.On("SaveSubscription", sub).Return(nil)
+	data.On("GetChannel", channelID).Return(&models.Channel{}, nil)
+	data.On("NewSubscription", sub).Return(nil)
 
 	err = service.Subscribe(sub)
 	assert.Nil(t, err)
@@ -140,12 +141,17 @@ func TestNewVideoWithSave(t *testing.T) {
 	video := youtube.Video{
 		Id: "VIDEO_ID",
 		Snippet: &youtube.VideoSnippet{
-			ChannelId: "CHANNEL_ID",
+			ChannelId:   "CHANNEL_ID",
+			Title:       "Test title",
+			Description: "Test description",
+			Thumbnails:  &youtube.ThumbnailDetails{},
 		},
 	}
 
+	parsed, channelID := parsers.ParseYTVideo(&video)
+
 	yt.On("GetVideo", "VIDEO_ID").Return(&video, nil)
-	data.On("SaveVideo", &video).Return(nil)
+	data.On("NewVideo", parsed, channelID).Return(nil)
 
 	response := sendFakeRequest(service, *req)
 
@@ -179,8 +185,8 @@ func TestResubscribeAll(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(201)
 	}))
-	data.On("ChannelExists", mock.Anything).Return(true, nil)
-	data.On("SaveSubscription", mock.Anything).Return(nil)
+	data.On("GetChannel", mock.Anything).Return(models.Channel{}, nil)
+	data.On("NewSubscription", mock.Anything, mock.Anything).Return(nil)
 	service.SetYTPubSubUrl(server.URL)
 
 	sub := models.SubscriptionRequest{

@@ -128,8 +128,6 @@ func TestParseYTHook(t *testing.T) {
 
 	expected.Video.Updated = got.Video.Updated
 
-	expected.Received = got.Received
-
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("ParseYTHook() = %v, want %v", got, expected)
 	}

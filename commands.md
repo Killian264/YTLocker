@@ -1,6 +1,8 @@
 # Requirements #
-Docker Desktop: https://www.docker.com/products/docker-desktop  
 WSL 2: https://docs.microsoft.com/en-us/windows/wsl/install-win10  
+Get Ubuntu From microsoft Store
+Get Windows Terminal From Microsoft Store
+Docker Desktop: https://www.docker.com/products/docker-desktop  
 Golang: https://golang.org/doc/install  
 NodeJS: https://github.com/nodesource/distributions/blob/master/README.md
 * curl -fsSL https://deb.nodesource.com/setup_15.x | sudo -E bash -
@@ -18,6 +20,8 @@ docker-compose up
 * golang.go -- also install required packages 
 * ms-azuretools.vscode-docker
 * coenraads.bracket-pair-colorizer
+* cweijan.vscode-mysql-client2
+* ms-vscode-remote.remote-wsl
 
 # Other Commands #
 * go version -- check version, use after install

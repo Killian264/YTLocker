@@ -28,14 +28,11 @@ type Video struct {
 	ID          uint   `gorm:"primaryKey" json:"-"`
 	UUID        string `gorm:"type:varchar(256);not null;unique"`
 	VideoID     string `gorm:"type:varchar(256);not null;unique"`
-	ChannelID   string `gorm:"type:varchar(256);not null"`
 	Title       string `gorm:"type:varchar(256);not null"`
 	Description string `gorm:"type:text;not null"`
 
-	ChannelUUID string      `json:"-"`
-	Thumbnails  []Thumbnail `gorm:"polymorphic:Owner;"`
-
-	PublishedAt time.Time
+	ChannelID  uint        `json:"-"`
+	Thumbnails []Thumbnail `gorm:"polymorphic:Owner;"`
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -85,7 +82,7 @@ type Thumbnail struct {
 	Width  uint   `gorm:"not null"`
 	Height uint   `gorm:"not null"`
 
-	OwnerID   string `json:"-"`
+	OwnerID   uint   `json:"-"`
 	OwnerType string `json:"-"`
 
 	CreatedAt time.Time
