@@ -15,14 +15,20 @@ import (
 	"github.com/Killian264/YTLocker/golocker/parsers"
 )
 
-// var YoutubeSubscribeUrl = "https://pubsubhubbub.appspot.com/subscribe"
-
 type Subscriber struct {
 	pushSubscribeURL string
 	pushHandlerURL   string
 	ytService        interfaces.IYoutubeService
 	dataService      interfaces.ISubscriptionData
 	logger           *log.Logger
+}
+
+func NewSubscriber(data interfaces.ISubscriptionData, yt interfaces.IYoutubeService, logger *log.Logger) *Subscriber {
+	return &Subscriber{
+		dataService: data,
+		ytService:   yt,
+		logger:      logger,
+	}
 }
 
 func (s *Subscriber) SetYTPubSubUrl(url string) {
@@ -158,7 +164,7 @@ func (s *Subscriber) ResubscribeAll() error {
 	return nil
 }
 
-func (s *Subscriber) subscriptionIsValid(request *models.SubscriptionRequest) (bool, error) {
+func (s *Subscriber) HandleChallenge(request *models.SubscriptionRequest) (bool, error) {
 	saved, err := s.dataService.GetSubscription(request.Secret, request.ChannelID)
 
 	if err != nil {
@@ -180,7 +186,13 @@ func (s *Subscriber) subscriptionIsValid(request *models.SubscriptionRequest) (b
 	return true, nil
 }
 
-func (s *Subscriber) videoPushed(push *models.YTHookPush) error {
+func (s *Subscriber) HandleVideoPush(push *models.YTHookPush, secret string) error {
+
+	saved, err := s.dataService.GetSubscription(secret, push.Video.ChannelID)
+
+	if err != nil || saved == nil {
+		return fmt.Errorf("Failed to get subsciption with secret: '%s' and id: '%s'", secret, push.Video.ChannelID)
+	}
 
 	video, err := s.ytService.GetVideo(push.Video.VideoID)
 	if err != nil {

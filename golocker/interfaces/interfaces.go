@@ -1,8 +1,6 @@
 package interfaces
 
 import (
-	"net/http"
-
 	"github.com/Killian264/YTLocker/golocker/models"
 	"google.golang.org/api/youtube/v3"
 )
@@ -28,8 +26,12 @@ type IYoutubeService interface {
 type ISubscription interface {
 	SetYTPubSubUrl(url string)
 	SetSubscribeUrl(base string, path string)
+
+	HandleChallenge(request *models.SubscriptionRequest) (bool, error)
+	HandleVideoPush(push *models.YTHookPush, secret string) error
+
 	CreateSubscription(channelID string) (*models.SubscriptionRequest, error)
 	Subscribe(request *models.SubscriptionRequest) error
-	HandleSubscription(w http.ResponseWriter, r *http.Request) error
+
 	ResubscribeAll() error
 }

@@ -1,4 +1,4 @@
-package subscribe
+package handlers
 
 import (
 	"fmt"
@@ -7,26 +7,25 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Killian264/YTLocker/golocker/interfaces"
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/Killian264/YTLocker/golocker/parsers"
 	"github.com/gorilla/mux"
 )
 
 // HandleSubscriptionNoError handles a new subscription request wrap in a middleware that handles errors
-func (s *Subscriber) HandleSubscription(w http.ResponseWriter, r *http.Request) error {
+func HandleYoutubePush(w http.ResponseWriter, r *http.Request, s interfaces.ISubscription) error {
 
 	challenge := r.URL.Query().Get("hub.challenge")
 
 	if challenge != "" {
-		s.logger.Print("Challenge Request Recieved\n")
-		return s.handleChallenge(w, r)
+		return handleChallenge(w, r, s)
 	}
 
-	s.logger.Print("New Video Request Recieved\n")
-	return s.handlePush(w, r)
+	return handleNewVideoPush(w, r, s)
 }
 
-func (s *Subscriber) handleChallenge(w http.ResponseWriter, r *http.Request) error {
+func handleChallenge(w http.ResponseWriter, r *http.Request, s interfaces.ISubscription) error {
 
 	secret := mux.Vars(r)["secret"]
 	challenge := r.URL.Query().Get("hub.challenge")
@@ -48,15 +47,23 @@ func (s *Subscriber) handleChallenge(w http.ResponseWriter, r *http.Request) err
 		Active:       true,
 	}
 
-	isValid, err := s.subscriptionIsValid(&request)
-	if err == nil && isValid {
-		fmt.Fprintf(w, challenge)
+	isValid, err := s.HandleChallenge(&request)
+
+	if err != nil {
+		return err
 	}
 
-	return err
+	if !isValid {
+		return fmt.Errorf("Invalid")
+	}
+
+	fmt.Fprintf(w, challenge)
+	return nil
 }
 
-func (s *Subscriber) handlePush(w http.ResponseWriter, r *http.Request) error {
+func handleNewVideoPush(w http.ResponseWriter, r *http.Request, s interfaces.ISubscription) error {
+
+	secret := mux.Vars(r)["secret"]
 	bytes, err := ioutil.ReadAll(r.Body)
 
 	if err != nil {
@@ -70,5 +77,5 @@ func (s *Subscriber) handlePush(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	return s.videoPushed(&push)
+	return s.HandleVideoPush(&push, secret)
 }

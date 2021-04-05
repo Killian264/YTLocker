@@ -1,13 +1,10 @@
 package subscribe
 
 import (
-	"bytes"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"os"
 	"testing"
 
@@ -15,15 +12,9 @@ import (
 	"github.com/Killian264/YTLocker/golocker/mocks"
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/Killian264/YTLocker/golocker/parsers"
-	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"google.golang.org/api/youtube/v3"
-)
-
-var (
-	pushHandlerBase  = "/subscribe/{secret}/"
-	pushHandlerPrint = "/subscribe/%s/"
 )
 
 func TestCreateSubscription(t *testing.T) {
@@ -39,28 +30,25 @@ func TestCreateSubscription(t *testing.T) {
 	}
 
 	got, err := service.CreateSubscription(sub.ChannelID)
-
-	assert.Nil(t, err)
-
 	got.Secret = sub.Secret
 
+	assert.Nil(t, err)
 	assert.Equal(t, sub, *got)
-
 }
 
 func TestSubscribe(t *testing.T) {
 
 	service, data, _ := createMockServices()
 
-	channelID := "channel-id"
-
-	sub, err := service.CreateSubscription(channelID)
+	sub, err := service.CreateSubscription("channel-id")
 	assert.Nil(t, err)
+
+	service.SetSubscribeUrl("", "/subscribe/{secret}/")
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(201)
 		assert.Equal(t, sub.Topic, r.FormValue("hub.topic"))
-		assert.Contains(t, r.FormValue("hub.callback"), fmt.Sprintf(pushHandlerPrint, sub.Secret))
+		assert.Contains(t, r.FormValue("hub.callback"), fmt.Sprintf("/subscribe/%s/", sub.Secret))
 		assert.Equal(t, fmt.Sprint(sub.LeaseSeconds), r.FormValue("hub.lease_seconds"))
 	}
 
@@ -68,74 +56,41 @@ func TestSubscribe(t *testing.T) {
 
 	service.SetYTPubSubUrl(server.URL)
 
-	data.On("GetChannel", channelID).Return(&models.Channel{}, nil)
+	data.On("GetChannel", "channel-id").Return(&models.Channel{}, nil)
 	data.On("NewSubscription", sub).Return(nil)
 
 	err = service.Subscribe(sub)
 	assert.Nil(t, err)
-
 }
 
-func TestValidChallenge(t *testing.T) {
+func TestHandleChallenge(t *testing.T) {
 
 	service, data, _ := createMockServices()
-	challenge := "test-challenge"
 
 	sub, err := service.CreateSubscription("channel-id")
 	assert.Nil(t, err)
 
-	url := createFakeChallenge(fmt.Sprintf(pushHandlerPrint, sub.Secret), challenge, sub.ChannelID, fmt.Sprint(sub.LeaseSeconds))
-	req, err := http.NewRequest("GET", url, nil)
+	data.On("GetSubscription", sub.Secret, sub.ChannelID).Return(sub, nil).Once()
+	isValid, err := service.HandleChallenge(sub)
 	assert.Nil(t, err)
+	assert.True(t, isValid)
 
-	data.On("GetSubscription", sub.Secret, sub.ChannelID).Return(sub, nil)
+	data.On("GetSubscription", sub.Secret, sub.ChannelID).Return(nil, nil).Once()
+	isValid, err = service.HandleChallenge(sub)
+	assert.NotNil(t, err)
+	assert.False(t, isValid)
 
-	res := sendFakeRequest(service, *req)
-	bytes, err := ioutil.ReadAll(res.Body)
-	assert.Nil(t, err)
-	body := string(bytes)
-
-	assert.Nil(t, err, "should not error")
-	assert.Equal(t, challenge, body, "route should respond with challenge")
-	assert.Equal(t, 200, res.StatusCode)
-
-}
-
-func TestInvalidChallenge(t *testing.T) {
-
-	service, data, _ := createMockServices()
-	challenge := "test-challenge"
-
-	sub, err := service.CreateSubscription("channel-id")
-	assert.Nil(t, err)
-
-	url := createFakeChallenge(fmt.Sprintf(pushHandlerPrint, sub.Secret), challenge, sub.ChannelID, fmt.Sprint(sub.LeaseSeconds))
-	req, err := http.NewRequest("GET", url, nil)
-	assert.Nil(t, err)
-
-	data.On("GetSubscription", sub.Secret, sub.ChannelID).Return(nil, nil)
-
-	res := sendFakeRequest(service, *req)
-	bytes, err := ioutil.ReadAll(res.Body)
-	assert.Nil(t, err)
-
-	body := string(bytes)
-
-	assert.Nil(t, err, "should not error")
-	assert.Equal(t, "", body, "route should not respond with challenge")
-	assert.Equal(t, 500, res.StatusCode)
-
+	data.On("GetSubscription", sub.Secret, sub.ChannelID).Return(nil, fmt.Errorf("hello")).Once()
+	isValid, err = service.HandleChallenge(sub)
+	assert.NotNil(t, err)
+	assert.False(t, isValid)
 }
 
 func TestNewVideoWithSave(t *testing.T) {
 
 	service, data, yt := createMockServices()
 
-	secret := "test-secret"
-
-	bodyBytes := []byte(pushXML)
-
-	req, err := http.NewRequest("GET", fmt.Sprintf("/subscribe/%s/", secret), bytes.NewBuffer(bodyBytes))
+	push, err := parsers.ParseYTHook(pushXML)
 	assert.Nil(t, err)
 
 	video := youtube.Video{
@@ -150,32 +105,30 @@ func TestNewVideoWithSave(t *testing.T) {
 
 	parsed, channelID := parsers.ParseYTVideo(&video)
 
-	yt.On("GetVideo", "VIDEO_ID").Return(&video, nil)
-	data.On("NewVideo", parsed, channelID).Return(nil)
+	yt.On("GetVideo", "VIDEO_ID").Return(&video, nil).Once()
+	data.On("NewVideo", parsed, channelID).Return(nil).Once()
+	data.On("GetSubscription", "test-secret", push.Video.ChannelID).Return(&models.SubscriptionRequest{}, nil).Once()
 
-	response := sendFakeRequest(service, *req)
+	err = service.HandleVideoPush(&push, "test-secret")
+	assert.Nil(t, err)
 
-	assert.Equal(t, 200, response.StatusCode)
-
+	data.AssertExpectations(t)
 }
 
 func TestNewVideoWithoutSave(t *testing.T) {
 
-	service, _, yt := createMockServices()
+	service, data, yt := createMockServices()
 
-	secret := "test-secret"
-
-	bodyBytes := []byte(pushXML)
-
-	req, err := http.NewRequest("GET", fmt.Sprintf("/subscribe/%s/", secret), bytes.NewBuffer(bodyBytes))
+	push, err := parsers.ParseYTHook(pushXML)
 	assert.Nil(t, err)
 
 	yt.On("GetVideo", "VIDEO_ID").Return(nil, nil)
+	data.On("GetSubscription", "test-secret", push.Video.ChannelID).Return(&models.SubscriptionRequest{}, nil).Once()
 
-	response := sendFakeRequest(service, *req)
+	err = service.HandleVideoPush(&push, "test-secret")
+	assert.NotNil(t, err)
 
-	assert.Equal(t, 500, response.StatusCode)
-
+	data.AssertExpectations(t)
 }
 
 func TestResubscribeAll(t *testing.T) {
@@ -185,7 +138,7 @@ func TestResubscribeAll(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(201)
 	}))
-	data.On("GetChannel", mock.Anything).Return(models.Channel{}, nil)
+	data.On("GetChannel", mock.Anything).Return(&models.Channel{}, nil)
 	data.On("NewSubscription", mock.Anything, mock.Anything).Return(nil)
 	service.SetYTPubSubUrl(server.URL)
 
@@ -212,60 +165,18 @@ func TestResubscribeAll(t *testing.T) {
 
 // **************************************** HELPERS **************************************** //
 // **************************************** HELPERS **************************************** //
-func createFakeChallenge(route string, challenge string, channelID string, lease_seconds string) string {
-
-	topic := "https://www.youtube.com/xml/feeds/videos.xml?channel_id=" + channelID
-
-	values := url.Values{}
-	values.Add("hub.challenge", challenge)
-	values.Add("hub.topic", topic)
-	values.Add("hub.lease_seconds", lease_seconds)
-
-	params := values.Encode()
-
-	return fmt.Sprintf("%s?%s", route, params)
-
-}
-
 func createMockServices() (*Subscriber, *mocks.ISubscriptionData, *mocks.IYoutubeService) {
 
 	dataMock := &mocks.ISubscriptionData{}
 	ytMock := &mocks.IYoutubeService{}
 
-	data := interfaces.ISubscriptionData(dataMock)
-	yt := interfaces.IYoutubeService(ytMock)
-	logger := log.New(os.Stdout, "Subscriber: ", log.Ldate|log.Ltime|log.Lshortfile)
-
-	service := &Subscriber{
-		dataService: data,
-		ytService:   yt,
-		logger:      logger,
-	}
-
-	service.SetSubscribeUrl("", pushHandlerBase)
-
-	return service, dataMock, ytMock
-}
-
-func sendFakeRequest(subscriber *Subscriber, req http.Request) *http.Response {
-
-	rr := httptest.NewRecorder()
-	router := mux.NewRouter()
-	router.HandleFunc(
-		pushHandlerBase,
-		func(w http.ResponseWriter, r *http.Request) {
-			err := subscriber.HandleSubscription(w, r)
-
-			if err != nil {
-				fmt.Print(err.Error(), "\n")
-				w.WriteHeader(500)
-			}
-		},
+	service := NewSubscriber(
+		interfaces.ISubscriptionData(dataMock),
+		interfaces.IYoutubeService(ytMock),
+		log.New(os.Stdout, "Subscriber: ", log.Ldate|log.Ltime|log.Lshortfile),
 	)
 
-	router.ServeHTTP(rr, &req)
-
-	return rr.Result()
+	return service, dataMock, ytMock
 }
 
 var pushXML = `
