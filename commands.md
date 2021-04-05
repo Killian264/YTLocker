@@ -1,12 +1,12 @@
 # Requirements #
 WSL 2: https://docs.microsoft.com/en-us/windows/wsl/install-win10  
-Get Ubuntu From microsoft Store
-Get Windows Terminal From Microsoft Store
+Get Ubuntu From microsoft Store  
+Get Windows Terminal From Microsoft Store  
 Docker Desktop: https://www.docker.com/products/docker-desktop  
 Golang: https://golang.org/doc/install  
-NodeJS: https://github.com/nodesource/distributions/blob/master/README.md
-* curl -fsSL https://deb.nodesource.com/setup_15.x | sudo -E bash -
-* sudo apt-get install -y nodejs
+NodeJS: https://github.com/nodesource/distributions/blob/master/README.md  
+* curl -fsSL https://deb.nodesource.com/setup_15.x | sudo -E bash -  
+* sudo apt-get install -y nodejs  
 
 
 # Steps #
