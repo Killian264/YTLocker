@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './styles/index.css';
-import './styles/main.css'
+import './styles/tailwind.css'
 import Base from './components/Base';
 import reportWebVitals from './reportWebVitals';
 

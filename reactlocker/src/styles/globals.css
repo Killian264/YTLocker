@@ -1,0 +1,27 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+
+:root {
+    font-size: 14px;
+  
+    --color-primary-100: #dee3ea;
+    --color-primary-200: #b2bdcd;
+    --color-primary-300: #5d7290;
+    --color-primary-600: #323d4d;
+    --color-primary-700: #242c37;
+    --color-primary-800: #151a21;
+    --color-primary-900: #0b0e11;
+  
+  
+    --color-secondary: #242c37;
+    --color-secondary-hover:#151a21;
+    --color-secondary-disabled: #151a21;
+    --color-secondary-text: #ffffff;
+
+    --color-accent: #00fbff;
+    --color-accent-hover: #00d0d4;
+    --color-accent-disabled: #00d0d4;
+    --color-accent-text: #000000;
+  }

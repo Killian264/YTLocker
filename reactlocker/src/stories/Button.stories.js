@@ -1,36 +1,30 @@
 import React from 'react';
-
-import { Button } from './Button';
+import { Button } from '../components/Button';
+import { toEnum, toBoolean} from "./utils/utils"
 
 export default {
-  title: 'Example/Button',
+  title: 'Button',
   component: Button,
-  argTypes: {
-    backgroundColor: { control: 'color' },
-  },
+  argTypes: { onClick: { action: "clicked" } },
 };
 
-const Template = (args) => <Button {...args} />;
-
-export const Primary = Template.bind({});
-Primary.args = {
-  primary: true,
-  label: 'Button',
+const Mocked = ({
+  children,
+  ...props
+}) => {
+	return (
+	<Button {...props} >
+		{children || "New Playlist"}
+	</Button>
+	);
 };
 
-export const Secondary = Template.bind({});
-Secondary.args = {
-  label: 'Button',
-};
 
-export const Large = Template.bind({});
-Large.args = {
-  size: 'large',
-  label: 'Button',
-};
+export const Primary = Mocked.bind({})
 
-export const Small = Template.bind({});
-Small.args = {
-  size: 'small',
-  label: 'Button',
+Primary.argTypes = {
+	size: toEnum(["small", "large"]),
+	color: toEnum(["primary", "secondary"]),
+	disabled: toBoolean(),
+	loading: toBoolean(),
 };

@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "tailwind-scrollbar": "^1.2.4"
+  }
+}
