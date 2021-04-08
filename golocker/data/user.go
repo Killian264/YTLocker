@@ -5,7 +5,6 @@ import (
 
 	"github.com/Killian264/YTLocker/golocker/models"
 	uuid "github.com/satori/go.uuid"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func (d *Data) Create(obj interface{}) error {
@@ -34,12 +33,6 @@ func (d *Data) CreateUser(user *models.User) error {
 
 	gormDB := d.gormDB
 
-	encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return err
-	}
-
-	user.Password = string(encryptedPassword)
 	user.UUID = uuid.NewV4().String()
 
 	result := gormDB.Create(user)
