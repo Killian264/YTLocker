@@ -13,9 +13,9 @@ const Mocked = ({
   ...props
 }) => {
 	return (
-	<Button {...props} >
-		{children || "New Playlist"}
-	</Button>
+		<Button {...props} >
+			{children || "New Playlist"}
+		</Button>
 	);
 };
 

@@ -9,8 +9,8 @@ const sizes = {
 }
 
 const colors = {
-	primary: "text-accent-text bg-accent hover:bg-accent-hover disabled:text-primary-300 disabled:bg-accent-disabled",
-	secondary: "text-secondary-text bg-secondary hover:bg-secondary-hover disabled:text-primary-300 diabled:bg-secondary-disabled"
+	primary:   "text-accent-text    bg-accent    hover:bg-accent-hover    disabled:bg-accent-disabled    disabled:text-accent-text-disabled",
+	secondary: "text-secondary-text bg-secondary hover:bg-secondary-hover disabled:bg-secondary-disabled disabled:text-secondary-text-disabled"
 }
 
 

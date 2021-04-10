@@ -35,23 +35,29 @@ module.exports = {
       primary: {
         100: "var(--color-primary-100)",
         200: "var(--color-primary-200)",
-        300: "var(--color-primary-300)",
+        // 300: "var(--color-primary-300)",
         600: "var(--color-primary-600)",
         700: "var(--color-primary-700)",
         800: "var(--color-primary-800)",
-        900: "var(--color-primary-900)",
+        // 900: "var(--color-primary-900)",
       },
       secondary: {
         DEFAULT: "var(--color-secondary)",
         hover: "var(--color-secondary-hover)",
         disabled: "var(--color-secondary-disabled)",
-        text: "var(--color-secondary-text)",
+        text: {
+          DEFAULT: "var(--color-secondary-text)",
+          disabled: "var(--color-secondary-text-disabled)",
+        },
       },
       accent: {
         DEFAULT: "var(--color-accent)",
         hover: "var(--color-accent-hover)",
         disabled: "var(--color-accent-disabled)",
-        text: "var(--color-accent-text)",
+        text: {
+          DEFAULT: "var(--color-accent-text)",
+          disabled: "var(--color-accent-text-disabled)",
+        },
       },
     },
     spacing: {
@@ -68,18 +74,6 @@ module.exports = {
       "n1/2": "-50%",
       24: "24rem",
       400: "400px",
-    },
-    borderWidth: {
-      DEFAULT: "1px",
-    },
-    extend: {
-      borderRadius: {
-        5: "5px",
-        8: "8px",
-      },
-      outline: {
-        "no-chrome": 'none',
-      }
     },
   },
   variants: {
