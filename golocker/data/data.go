@@ -11,16 +11,6 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-// Request
-type Request struct {
-	ID           int
-	ChannelID    string
-	LeaseSeconds int
-	Secret       string
-	Mode         string
-	Active       bool
-}
-
 type Data struct {
 	gormDB *gorm.DB
 }

@@ -1,6 +1,6 @@
 version: "3.8"
 services:
-    db:
+    mysql_db:
         build:
             mysqllocker
         restart: always
@@ -9,7 +9,6 @@ services:
         environment:
             MYSQL_ROOT_PASSWORD: "password"
             MYSQL_DATABASE: "YTLockerDB"
-            MYSQL_ALLOW_EMPTY_PASSWORD: "YES"
             MYSQL_TCP_PORT: 3306
             MYSQL_USER: "user"
             MYSQL_PASSWORD: "password"
@@ -17,11 +16,12 @@ services:
             - 3306
         networks:
             - default
-    api:
+
+    golang_api:
         build:
             golocker
         depends_on: 
-            - db
+            - mysql_db
         volumes:
             - ./golocker:/go/src/golocker
         ports:
@@ -38,7 +38,7 @@ services:
         networks:
             - default
 
-    web:
+    react_web:
         build:
             reactlocker
         volumes:
@@ -47,7 +47,22 @@ services:
             - 3000:3000
         environment:
             CHOKIDAR_USEPOLLING: "true"
-        command: ["npm", "start"]
+            SKIP_PREFLIGHT_CHECK: "true"
+        command: ["yarn", "start"]
+        networks:
+            - default
+
+    story_book:
+        build:
+            reactlocker
+        volumes:
+            - ./reactlocker:/app
+        ports:
+            - 6006:6006
+        environment:
+            CHOKIDAR_USEPOLLING: "true"
+            SKIP_PREFLIGHT_CHECK: "true"
+        command: ["yarn", "storybook"]
         networks:
             - default
 
