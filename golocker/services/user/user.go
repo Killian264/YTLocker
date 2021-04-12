@@ -21,32 +21,12 @@ func NewUser(data data.Data) *User {
 
 func (u *User) RegisterUser(user *models.User) error {
 
-	err := validateString(user.Username)
-
-	if err != nil {
-		return err
-	}
-
-	err = validateString(user.Password)
-
-	if err != nil {
-		return err
-	}
-
-	err = validateString(user.Email)
-
-	if err != nil {
-		return err
-	}
-
-	err = judgePasswordStrength(user.Password)
-
+	err := validateRegistrationInfo(user)
 	if err != nil {
 		return err
 	}
 
 	encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-
 	if err != nil {
 		return err
 	}
@@ -54,7 +34,6 @@ func (u *User) RegisterUser(user *models.User) error {
 	user.Password = string(encryptedPassword)
 
 	result, err := u.dataService.GetUserByEmail(user.Email)
-
 	if err != nil {
 		return err
 	}
@@ -79,6 +58,7 @@ func validateString(str string) error {
 	if result != nil {
 		return fmt.Errorf("Registration information cannot contain: " + string(result))
 	}
+
 	return nil
 }
 
@@ -91,4 +71,26 @@ func judgePasswordStrength(pass string) error {
 	}
 
 	return fmt.Errorf("Password strength does not meet requirements")
+}
+
+func validateRegistrationInfo(user *models.User) error {
+
+	err := validateString(user.Username)
+	if err != nil {
+		return err
+	}
+
+	err = validateString(user.Password)
+	if err != nil {
+		return err
+	}
+
+	err = validateString(user.Email)
+	if err != nil {
+		return err
+	}
+
+	err = judgePasswordStrength(user.Password)
+
+	return err
 }

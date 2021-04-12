@@ -12,8 +12,8 @@ import (
 func HandleRegistration(w http.ResponseWriter, r *http.Request, u *user.User) error {
 	//body, err := ioutil.ReadAll(r.Body)
 	var user models.User
-	err := json.NewDecoder(r.Body).Decode(&user)
 
+	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		return err
 	}
