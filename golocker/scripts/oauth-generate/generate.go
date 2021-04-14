@@ -10,7 +10,6 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
-	"os/user"
 	"path/filepath"
 	"runtime"
 
@@ -43,23 +42,12 @@ import (
 //      authorization code from the browser and enter it on the command line.
 const launchWebServer = true
 
-const missingClientSecretsMessage = `
-Please configure OAuth 2.0
-To make this sample run, you need to populate the client_secrets.json file
-found at:
-   %v
-with information from the {{ Google Cloud Console }}
-{{ https://cloud.google.com/console }}
-For more information about the client_secrets.json file format, please visit:
-https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
-`
-
 // getClient uses a Context and Config to retrieve a Token
 // then generate a Client. It returns the generated Client.
-func getClient(scope string) *http.Client {
+func getClient(scope string, filePath string) *http.Client {
 	ctx := context.Background()
 
-	b, err := ioutil.ReadFile("client_secret.json")
+	b, err := ioutil.ReadFile(fmt.Sprintf("%s%s", filePath, "client_secret.json"))
 	if err != nil {
 		log.Fatalf("Unable to read client secret file: %v", err)
 	}
@@ -77,24 +65,27 @@ func getClient(scope string) *http.Client {
 	// Use the following redirect URI if launchWebServer=false in oauth2.go
 	// config.RedirectURL = "urn:ietf:wg:oauth:2.0:oob"
 
-	cacheFile, err := tokenCacheFile()
+	cacheFile, err := tokenCacheFile(filePath)
 	if err != nil {
 		log.Fatalf("Unable to get path to cached credential file. %v", err)
 	}
 	tok, err := tokenFromFile(cacheFile)
 	if err != nil {
-		authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
-		if launchWebServer {
-			fmt.Println("Trying to get token from web")
-			tok, err = getTokenFromWeb(config, authURL)
-		} else {
-			fmt.Println("Trying to get token from prompt")
-			tok, err = getTokenFromPrompt(config, authURL)
-		}
-		if err == nil {
-			saveToken(cacheFile, tok)
-		}
+		return config.Client(ctx, tok)
 	}
+
+	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
+	if launchWebServer {
+		fmt.Println("Trying to get token from web")
+		tok, err = getTokenFromWeb(config, authURL)
+	} else {
+		fmt.Println("Trying to get token from prompt")
+		tok, err = getTokenFromPrompt(config, authURL)
+	}
+	if err == nil {
+		saveToken(cacheFile, tok)
+	}
+
 	return config.Client(ctx, tok)
 }
 
@@ -174,7 +165,7 @@ func getTokenFromWeb(config *oauth2.Config, authURL string) (*oauth2.Token, erro
 		log.Fatalf("Unable to open authorization URL in web server: %v", err)
 	} else {
 		fmt.Println("Your browser has been opened to an authorization URL.",
-			" This program will resume once authorization has been provided.\n")
+			" This program will resume once authorization has been provided.")
 		fmt.Println(authURL)
 	}
 
@@ -185,39 +176,38 @@ func getTokenFromWeb(config *oauth2.Config, authURL string) (*oauth2.Token, erro
 
 // tokenCacheFile generates credential file path/filename.
 // It returns the generated credential path/filename.
-func tokenCacheFile() (string, error) {
-	usr, err := user.Current()
-	if err != nil {
-		return "", err
-	}
-	tokenCacheDir := filepath.Join(usr.HomeDir, ".credentials")
-	os.MkdirAll(tokenCacheDir, 0700)
-	return filepath.Join(tokenCacheDir,
-		url.QueryEscape("youtube-go.json")), err
+func tokenCacheFile(filePath string) (string, error) {
+
+	os.MkdirAll(filePath, 0700)
+
+	return filepath.Join(filePath, url.QueryEscape("access-secret.json")), nil
 }
 
 // tokenFromFile retrieves a Token from a given file path.
 // It returns the retrieved Token and any read error encountered.
 func tokenFromFile(file string) (*oauth2.Token, error) {
 	f, err := os.Open(file)
+
 	if err != nil {
 		return nil, err
 	}
+	defer f.Close()
+
 	t := &oauth2.Token{}
 	err = json.NewDecoder(f).Decode(t)
-	defer f.Close()
 	return t, err
 }
 
 // saveToken uses a file path to create a file and store the
 // token in it.
 func saveToken(file string, token *oauth2.Token) {
-	fmt.Println("trying to save token")
 	fmt.Printf("Saving credential file to: %s\n", file)
+
 	f, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		log.Fatalf("Unable to cache oauth token: %v", err)
 	}
 	defer f.Close()
+
 	json.NewEncoder(f).Encode(token)
 }

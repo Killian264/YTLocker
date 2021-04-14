@@ -3,5 +3,7 @@ package main
 func main() {
 	scope := "https://www.googleapis.com/auth/youtube"
 
-	getClient(scope)
+	filePath := "../../secrets/"
+
+	getClient(scope, filePath)
 }

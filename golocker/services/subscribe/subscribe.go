@@ -205,6 +205,8 @@ func (s *Subscriber) HandleVideoPush(push *models.YTHookPush, secret string) err
 
 	parsedVideo, channelID := parsers.ParseYTVideo(video)
 
+	parsedVideo.State = "unprocessed"
+
 	err = s.dataService.NewVideo(parsedVideo, channelID)
 
 	if err != nil {

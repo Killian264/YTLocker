@@ -2,12 +2,17 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/Killian264/YTLocker/golocker/data"
+	"github.com/Killian264/YTLocker/golocker/interfaces"
+	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/Killian264/YTLocker/golocker/parsers"
+	"github.com/Killian264/YTLocker/golocker/services/playlist"
+	"github.com/Killian264/YTLocker/golocker/services/subscribe"
 	"github.com/Killian264/YTLocker/golocker/services/ytservice"
 	"gorm.io/gorm/logger"
 
@@ -43,6 +48,12 @@ func main() {
 		os.Getenv("MYSQL_DATABASE"),
 	)
 
+	logger.Print("Creating Playlist Service...")
+
+	s.InitalizePlaylistService(
+		"secrets/",
+	)
+
 	logger.Print("Creating Youtube Service...")
 
 	s.InitializeYTService(
@@ -62,10 +73,12 @@ func main() {
 
 // App contains services for handlers
 type Services struct {
-	router  *mux.Router
-	data    *data.Data
-	logger  *log.Logger
-	youtube *ytservice.YTService
+	router    *mux.Router
+	data      *data.Data
+	logger    *log.Logger
+	youtube   *ytservice.YTService
+	playlist  *playlist.Playlister
+	subscribe *subscribe.Subscriber
 }
 
 // InitializeRouter Creates Router for app
@@ -99,6 +112,58 @@ func (s *Services) InitializeYTService(apiKey string) {
 
 	ytService := ytservice.NewYoutubeService(apiKey, logger)
 	s.youtube = ytService
+}
+
+func (s *Services) InitalizePlaylistService(secretsDir string) {
+
+	logger := log.New(os.Stdout, "Subscriber: ", log.Ldate|log.Ltime|log.Lshortfile)
+	logger.SetPrefix("PlaylistService: ")
+
+	playlister := playlist.NewPlaylister(interfaces.IPlaylistData(s.data), logger)
+
+	clientData, err := readInClientSecret(fmt.Sprintf("%s%s", secretsDir, "client_secret.json"))
+	if err != nil {
+		s.logger.Fatalf("Unable to read client secret file: %v", err)
+	}
+
+	tokenData, err := readInAccessToken(fmt.Sprintf("%s%s", secretsDir, "access_secret.json"))
+	if err != nil {
+		s.logger.Fatalf("Unable to read access secret file: %v", err)
+	}
+
+	err = playlister.SetDefaultConfig(clientData)
+	if err != nil {
+		logger.Print(err)
+	}
+
+	err = playlister.SetDefaultToken(tokenData)
+	if err != nil {
+		logger.Print(err)
+	}
+
+	s.playlist = playlister
+
+	s.playlist.Initalize()
+	s.playlist.CreatePlaylist()
+
+}
+
+func readInClientSecret(path string) (models.YoutubeClientConfig, error) {
+	b, err := ioutil.ReadFile(path)
+	if err != nil {
+		return models.YoutubeClientConfig{}, err
+	}
+
+	return parsers.ParseClientJson(string(b))
+}
+
+func readInAccessToken(path string) (models.YoutubeToken, error) {
+	b, err := ioutil.ReadFile(path)
+	if err != nil {
+		return models.YoutubeToken{}, err
+	}
+
+	return parsers.ParseAccessTokenJson(string(b))
 }
 
 // InitializeDatabase creates DB Connection for app
