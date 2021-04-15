@@ -105,6 +105,8 @@ func TestNewVideoWithSave(t *testing.T) {
 
 	parsed, channelID := parsers.ParseYTVideo(&video)
 
+	parsed.State = "unprocessed"
+
 	yt.On("GetVideo", "VIDEO_ID").Return(&video, nil).Once()
 	data.On("NewVideo", parsed, channelID).Return(nil).Once()
 	data.On("GetSubscription", "test-secret", push.Video.ChannelID).Return(&models.SubscriptionRequest{}, nil).Once()

@@ -2,7 +2,6 @@ package data
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/Killian264/YTLocker/golocker/models"
 	uuid "github.com/satori/go.uuid"
@@ -37,9 +36,9 @@ func (d *Data) Initialize(username string, password string, ip string, port stri
 		&models.Video{},
 		&models.Thumbnail{},
 		&models.SubscriptionRequest{},
+		&models.YoutubeClientConfig{},
+		&models.YoutubeToken{},
 	)
-
-	log.Print(err)
 
 	d.gormDB = gormDB
 }
@@ -154,4 +153,52 @@ func (d *Data) GetInactiveSubscription() (*models.SubscriptionRequest, error) {
 }
 func (d *Data) DeleteSubscription(*models.SubscriptionRequest) error {
 	return nil
+}
+
+// IPLAYLISTDATA
+func (d *Data) NewYoutubeClientConfig(config *models.YoutubeClientConfig) error {
+	config.UUID = uuid.NewV4().String()
+
+	result := d.gormDB.Create(&config)
+
+	return result.Error
+}
+
+func (d *Data) NewYoutubeToken(token *models.YoutubeToken) error {
+	token.UUID = uuid.NewV4().String()
+
+	result := d.gormDB.Create(&token)
+
+	return result.Error
+}
+
+func (d *Data) GetFirstYoutubeClientConfig() (*models.YoutubeClientConfig, error) {
+	config := models.YoutubeClientConfig{}
+
+	result := d.gormDB.First(&config)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return nil, nil
+	}
+
+	return &config, nil
+}
+func (d *Data) GetFirstYoutubeToken() (*models.YoutubeToken, error) {
+	token := models.YoutubeToken{}
+
+	result := d.gormDB.First(&token)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return nil, nil
+	}
+
+	return &token, nil
 }
