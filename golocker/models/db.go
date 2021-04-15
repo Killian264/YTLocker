@@ -43,10 +43,11 @@ type Video struct {
 // Playlist DB Model
 type Playlist struct {
 	gorm.Model
-	ID         uint   `gorm:"primaryKey" json:"-"`
-	UUID       string `gorm:"type:varchar(256);not null;unique"`
-	PlaylistID string `gorm:"type:varchar(256);index;"`
-	Name       string `gorm:"type:varchar(256);not null"`
+	ID          uint   `gorm:"primaryKey" json:"-"`
+	UUID        string `gorm:"type:varchar(256);not null;unique"`
+	PlaylistID  string `gorm:"type:varchar(256);index;"`
+	Title       string `gorm:"type:varchar(256);not null"`
+	Description string `gorm:"type:varchar(512);not null"`
 
 	UserID   uint      `json:"-"`
 	Videos   []Video   `gorm:"many2many:playlist_video;"`

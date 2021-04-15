@@ -163,18 +163,13 @@ func (d *Data) NewYoutubeClientConfig(config *models.YoutubeClientConfig) error 
 
 	return result.Error
 }
-func (d *Data) GetYoutubeClientConfigByClientID(clientID string) (*models.YoutubeClientConfig, error) {
-	return nil, nil
-}
+
 func (d *Data) NewYoutubeToken(token *models.YoutubeToken) error {
 	token.UUID = uuid.NewV4().String()
 
 	result := d.gormDB.Create(&token)
 
 	return result.Error
-}
-func (d *Data) GetYoutubeTokenByAccessToken(accessToken string) (*models.YoutubeToken, error) {
-	return nil, nil
 }
 
 func (d *Data) GetFirstYoutubeClientConfig() (*models.YoutubeClientConfig, error) {
