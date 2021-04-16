@@ -68,7 +68,7 @@ func TestHandleInValidChallenge(t *testing.T) {
 	body, err := ioutil.ReadAll(res.Body)
 	assert.Nil(t, err)
 
-	assert.Equal(t, "", string(body), "route should respond with challenge")
+	assert.Equal(t, "", string(body), "route should not respond with challenge")
 	assert.Equal(t, 500, res.StatusCode)
 
 	// return error
@@ -79,7 +79,7 @@ func TestHandleInValidChallenge(t *testing.T) {
 	body, err = ioutil.ReadAll(res.Body)
 	assert.Nil(t, err)
 
-	assert.Equal(t, "", string(body), "route should respond with challenge")
+	assert.Equal(t, "", string(body), "route should not respond with challenge")
 	assert.Equal(t, 500, res.StatusCode)
 }
 

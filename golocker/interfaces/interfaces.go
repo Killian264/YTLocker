@@ -35,3 +35,14 @@ type ISubscription interface {
 
 	ResubscribeAll() error
 }
+
+type IPlaylistData interface {
+	NewYoutubeClientConfig(config *models.YoutubeClientConfig) error
+	GetYoutubeClientConfigByClientID(clientID string) (*models.YoutubeClientConfig, error)
+
+	NewYoutubeToken(config *models.YoutubeToken) error
+	GetYoutubeTokenByAccessToken(accessToken string) (*models.YoutubeToken, error)
+
+	GetFirstYoutubeClientConfig() (*models.YoutubeClientConfig, error)
+	GetFirstYoutubeToken() (*models.YoutubeToken, error)
+}

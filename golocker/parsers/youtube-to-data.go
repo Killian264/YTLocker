@@ -1,9 +1,14 @@
 package parsers
 
 import (
+	"encoding/json"
 	"encoding/xml"
+	"errors"
+	"fmt"
+	"time"
 
 	"github.com/Killian264/YTLocker/golocker/models"
+	"golang.org/x/oauth2"
 	"google.golang.org/api/youtube/v3"
 )
 
@@ -73,3 +78,96 @@ func ParseYTThumbnails(details *youtube.ThumbnailDetails) []models.Thumbnail {
 
 	return thumbnails
 }
+
+// Heavily edited version of code originally found in google oauth2 ConfigFromJSON
+func ParseClientJson(jsonData string) (models.YoutubeClientConfig, error) {
+	type config struct {
+		ClientID     string   `json:"client_id"`
+		ClientSecret string   `json:"client_secret"`
+		RedirectURIs []string `json:"redirect_uris"`
+		AuthURI      string   `json:"auth_uri"`
+		TokenURI     string   `json:"token_uri"`
+	}
+
+	var wrapper struct {
+		Installed *config `json:"installed"`
+	}
+
+	if err := json.Unmarshal([]byte(jsonData), &wrapper); err != nil {
+		return models.YoutubeClientConfig{}, err
+	}
+
+	if wrapper.Installed == nil {
+		return models.YoutubeClientConfig{}, fmt.Errorf("oauth2/google: no credentials found")
+	}
+
+	c := wrapper.Installed
+
+	if len(c.RedirectURIs) < 1 {
+		return models.YoutubeClientConfig{}, errors.New("oauth2/google: missing redirect URL in the client_credentials.json")
+	}
+
+	return models.YoutubeClientConfig{
+		ClientID:     c.ClientID,
+		ClientSecret: c.ClientSecret,
+		RedirectURL:  c.RedirectURIs[0],
+		AuthURL:      c.AuthURI,
+		TokenURL:     c.TokenURI,
+	}, nil
+}
+
+func ParseAccessTokenJson(jsonData string) (models.YoutubeToken, error) {
+	var token struct {
+		AccessToken  string `json:"access_token"`
+		TokenType    string `json:"token_type"`
+		RefreshToken string `json:"refresh_token"`
+		Expiry       string `json:"expiry"`
+	}
+
+	err := json.Unmarshal([]byte(jsonData), &token)
+	if err != nil {
+		return models.YoutubeToken{}, err
+	}
+
+	return models.YoutubeToken{
+		AccessToken:  token.AccessToken,
+		TokenType:    token.TokenType,
+		RefreshToken: token.RefreshToken,
+		Expiry:       token.Expiry,
+	}, nil
+
+}
+
+func ParseYoutubeClient(config models.YoutubeClientConfig) oauth2.Config {
+	return oauth2.Config{
+		ClientID:     config.ClientID,
+		ClientSecret: config.ClientSecret,
+		RedirectURL:  config.RedirectURL,
+		Scopes:       []string{config.Scope},
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  config.AuthURL,
+			TokenURL: config.TokenURL,
+		},
+	}
+}
+
+func ParseYoutubeToken(token models.YoutubeToken) oauth2.Token {
+
+	expiry, err := time.Parse("2006-01-02T15:04:05.0000000-07:00", token.Expiry)
+
+	if err != nil {
+		expiry = time.Now()
+	}
+
+	return oauth2.Token{
+		AccessToken:  token.AccessToken,
+		TokenType:    token.TokenType,
+		RefreshToken: token.RefreshToken,
+		Expiry:       expiry,
+	}
+}
+
+// TODO
+// Switch Config Parse to use DB Model
+// Finish the save in main.go
+// Begin work on playlist service

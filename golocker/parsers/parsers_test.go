@@ -7,6 +7,7 @@ import (
 
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/oauth2"
 )
 
 var (
@@ -131,4 +132,114 @@ func TestParseYTHook(t *testing.T) {
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("ParseYTHook() = %v, want %v", got, expected)
 	}
+}
+
+func TestParseClientJson(t *testing.T) {
+
+	clientJson := `{
+		"installed": {
+			"client_id": "11223534584-asdfhasdjfhwieyrwqejhkflasd.apps.googleusercontent.com",
+			"project_id": "ytlocker-123325",
+			"auth_uri": "https://accounts.google.com/o/oauth2/auth",
+			"token_uri": "https://oauth2.googleapis.com/token",
+			"auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+			"client_secret": "qwerHSwer_asdhwuerJHFDJqkqw",
+			"redirect_uris": ["urn:ietf:wg:oauth:2.0:oob", "http://localhost"]
+		}
+	}`
+
+	expected := models.YoutubeClientConfig{
+		ClientID:     "11223534584-asdfhasdjfhwieyrwqejhkflasd.apps.googleusercontent.com",
+		ClientSecret: "qwerHSwer_asdhwuerJHFDJqkqw",
+		RedirectURL:  "urn:ietf:wg:oauth:2.0:oob",
+		AuthURL:      "https://accounts.google.com/o/oauth2/auth",
+		TokenURL:     "https://oauth2.googleapis.com/token",
+	}
+
+	actual, err := ParseClientJson(clientJson)
+	assert.Nil(t, err)
+
+	assert.Equal(t, expected, actual)
+}
+
+func TestAccessTokenJson(t *testing.T) {
+
+	clientJson := `{
+		"access_token": "sa23.345234524623sdfasdfq-qegehgower9505034jfeworrjwertw_qqwerjfldssgert345sdgdgew-bheiyqeotleqjrljdfluao23423_QwekjfuI023kjasdfwer",
+		"token_type": "Bearer",
+		"refresh_token": "asdfjqwekj23//2342329asqq-ajfdki22399jjIjiJIWJFfwerw_qwefdasferw_zwaehwejlkWW",
+		"expiry": "2021-04-13T23:30:06.1139442-05:00"
+	}`
+
+	expected := models.YoutubeToken{
+		AccessToken:  "sa23.345234524623sdfasdfq-qegehgower9505034jfeworrjwertw_qqwerjfldssgert345sdgdgew-bheiyqeotleqjrljdfluao23423_QwekjfuI023kjasdfwer",
+		TokenType:    "Bearer",
+		RefreshToken: "asdfjqwekj23//2342329asqq-ajfdki22399jjIjiJIWJFfwerw_qwefdasferw_zwaehwejlkWW",
+		Expiry:       "2021-04-13T23:30:06.1139442-05:00",
+	}
+
+	actual, err := ParseAccessTokenJson(clientJson)
+	assert.Nil(t, err)
+	assert.Equal(t, expected, actual)
+}
+
+func TestParseYoutubeClient(t *testing.T) {
+
+	input := models.YoutubeClientConfig{
+		ClientID:     "11223534584-asdfhasdjfhwieyrwqejhkflasd.apps.googleusercontent.com",
+		ClientSecret: "qwerHSwer_asdhwuerJHFDJqkqw",
+		RedirectURL:  "urn:ietf:wg:oauth:2.0:oob",
+		Scope:        "youtube.com/wowee",
+		AuthURL:      "https://accounts.google.com/o/oauth2/auth",
+		TokenURL:     "https://oauth2.googleapis.com/token",
+	}
+
+	expected := oauth2.Config{
+		ClientID:     "11223534584-asdfhasdjfhwieyrwqejhkflasd.apps.googleusercontent.com",
+		ClientSecret: "qwerHSwer_asdhwuerJHFDJqkqw",
+		RedirectURL:  "urn:ietf:wg:oauth:2.0:oob",
+		Scopes:       []string{"youtube.com/wowee"},
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  "https://accounts.google.com/o/oauth2/auth",
+			TokenURL: "https://oauth2.googleapis.com/token",
+		},
+	}
+
+	actual := ParseYoutubeClient(input)
+
+	assert.Equal(t, expected, actual)
+
+}
+
+func TestParseYoutubeToken(t *testing.T) {
+	input := models.YoutubeToken{
+		AccessToken:  "sa23.345234524623sdfasdfq-qegehgower9505034jfeworrjwertw_qqwerjfldssgert345sdgdgew-bheiyqeotleqjrljdfluao23423_QwekjfuI023kjasdfwer",
+		TokenType:    "Bearer",
+		RefreshToken: "asdfjqwekj23//2342329asqq-ajfdki22399jjIjiJIWJFfwerw_qwefdasferw_zwaehwejlkWW",
+		Expiry:       "2021-04-13T23:30:06.1139442-09:00",
+	}
+
+	expected := oauth2.Token{
+		AccessToken:  "sa23.345234524623sdfasdfq-qegehgower9505034jfeworrjwertw_qqwerjfldssgert345sdgdgew-bheiyqeotleqjrljdfluao23423_QwekjfuI023kjasdfwer",
+		TokenType:    "Bearer",
+		RefreshToken: "asdfjqwekj23//2342329asqq-ajfdki22399jjIjiJIWJFfwerw_qwefdasferw_zwaehwejlkWW",
+	}
+
+	actual := ParseYoutubeToken(input)
+
+	expected.Expiry = actual.Expiry
+
+	assert.Equal(t, expected, actual)
+
+	year, month, day := actual.Expiry.Date()
+
+	assert.Equal(t, 2021, year)
+	assert.Equal(t, time.Month(4), month)
+	assert.Equal(t, 13, day)
+
+	hour, min, sec := actual.Expiry.Clock()
+
+	assert.Equal(t, 23, hour)
+	assert.Equal(t, 30, min)
+	assert.Equal(t, 6, sec)
 }
