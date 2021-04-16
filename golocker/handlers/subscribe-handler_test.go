@@ -13,6 +13,7 @@ import (
 	"github.com/Killian264/YTLocker/golocker/mocks"
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/Killian264/YTLocker/golocker/parsers"
+	"github.com/Killian264/YTLocker/golocker/services"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 )
@@ -120,8 +121,12 @@ func sendFakeRequest(service interfaces.ISubscription, req *http.Request, route 
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
 
+	services := &services.Services{
+		Subscribe: service,
+	}
+
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		err := HandleYoutubePush(w, r, service)
+		err := HandleYoutubePush(w, r, services)
 
 		if err != nil {
 			fmt.Print(err.Error(), "\n")

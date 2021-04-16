@@ -12,13 +12,13 @@ type ISubscriptionData struct {
 	mock.Mock
 }
 
-// DeleteSubscription provides a mock function with given fields: _a0
-func (_m *ISubscriptionData) DeleteSubscription(_a0 *models.SubscriptionRequest) error {
-	ret := _m.Called(_a0)
+// DeleteSubscription provides a mock function with given fields: sub
+func (_m *ISubscriptionData) DeleteSubscription(sub *models.SubscriptionRequest) error {
+	ret := _m.Called(sub)
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(*models.SubscriptionRequest) error); ok {
-		r0 = rf(_a0)
+		r0 = rf(sub)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -124,11 +124,11 @@ func (_m *ISubscriptionData) NewSubscription(request *models.SubscriptionRequest
 }
 
 // NewVideo provides a mock function with given fields: video, channelID
-func (_m *ISubscriptionData) NewVideo(video models.Video, channelID string) error {
+func (_m *ISubscriptionData) NewVideo(video *models.Video, channelID string) error {
 	ret := _m.Called(video, channelID)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(models.Video, string) error); ok {
+	if rf, ok := ret.Get(0).(func(*models.Video, string) error); ok {
 		r0 = rf(video, channelID)
 	} else {
 		r0 = ret.Error(0)

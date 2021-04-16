@@ -1,7 +1,6 @@
 package ytservice
 
 import (
-	"log"
 	"net/http"
 
 	"google.golang.org/api/googleapi/transport"
@@ -13,11 +12,10 @@ type YTService struct {
 	channelService *youtube.ChannelsService
 	videoService   *youtube.VideosService
 	searchService  *youtube.SearchService
-	logger         *log.Logger
 }
 
 // InitializeServices creates the yt service
-func NewYoutubeService(apiKey string, logger *log.Logger) *YTService {
+func NewYoutubeService(apiKey string) *YTService {
 
 	service := YTService{}
 
@@ -39,8 +37,6 @@ func NewYoutubeService(apiKey string, logger *log.Logger) *YTService {
 
 	service.searchService = youtube.NewSearchService(youtubeService)
 
-	service.logger = logger
-
 	return &service
 }
 
@@ -61,7 +57,6 @@ func (s *YTService) GetLastVideosFromChannel(channelID string, pageToken string)
 
 	response, err := call.Do()
 	if err != nil {
-		s.logger.Print("Youtube data api error: ", err)
 		return nil, err
 	}
 
@@ -78,12 +73,10 @@ func (s *YTService) GetVideo(videoID string) (*youtube.Video, error) {
 
 	response, err := call.Do()
 	if err != nil {
-		s.logger.Print("Youtube data api error: ", err)
 		return nil, err
 	}
 
 	if response == nil || len(response.Items) == 0 {
-		s.logger.Printf("Video with id: %s not found\n", videoID)
 		return nil, nil
 	}
 
@@ -101,12 +94,10 @@ func (s *YTService) GetChannel(channelID string) (*youtube.Channel, error) {
 
 	response, err := call.Do()
 	if err != nil {
-		s.logger.Print("youtube data api error: ", err)
 		return nil, err
 	}
 
 	if response == nil || len(response.Items) == 0 {
-		s.logger.Print("Channel with id: ", channelID, " not found\n")
 		return nil, nil
 	}
 

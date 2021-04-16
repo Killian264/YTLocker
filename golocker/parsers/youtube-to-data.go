@@ -166,8 +166,3 @@ func ParseYoutubeToken(token models.YoutubeToken) oauth2.Token {
 		Expiry:       expiry,
 	}
 }
-
-// TODO
-// Switch Config Parse to use DB Model
-// Finish the save in main.go
-// Begin work on playlist service

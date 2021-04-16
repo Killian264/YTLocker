@@ -205,9 +205,7 @@ func (s *Subscriber) HandleVideoPush(push *models.YTHookPush, secret string) err
 
 	parsedVideo, channelID := parsers.ParseYTVideo(video)
 
-	parsedVideo.State = "unprocessed"
-
-	err = s.dataService.NewVideo(parsedVideo, channelID)
+	err = s.dataService.NewVideo(&parsedVideo, channelID)
 
 	if err != nil {
 		return fmt.Errorf("Failed to save new video with video id: '%s' from channel: '%s'", push.Video.VideoID, push.Video.ChannelID)

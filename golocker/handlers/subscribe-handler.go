@@ -10,19 +10,20 @@ import (
 	"github.com/Killian264/YTLocker/golocker/interfaces"
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/Killian264/YTLocker/golocker/parsers"
+	"github.com/Killian264/YTLocker/golocker/services"
 	"github.com/gorilla/mux"
 )
 
 // HandleSubscriptionNoError handles a new subscription request wrap in a middleware that handles errors
-func HandleYoutubePush(w http.ResponseWriter, r *http.Request, s interfaces.ISubscription) error {
+func HandleYoutubePush(w http.ResponseWriter, r *http.Request, s *services.Services) error {
 
 	challenge := r.URL.Query().Get("hub.challenge")
 
 	if challenge != "" {
-		return handleChallenge(w, r, s)
+		return handleChallenge(w, r, s.Subscribe)
 	}
 
-	return handleNewVideoPush(w, r, s)
+	return handleNewVideoPush(w, r, s.Subscribe)
 }
 
 func handleChallenge(w http.ResponseWriter, r *http.Request, s interfaces.ISubscription) error {

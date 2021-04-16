@@ -30,7 +30,6 @@ type Video struct {
 	VideoID     string `gorm:"type:varchar(256);not null;unique"`
 	Title       string `gorm:"type:varchar(256);not null"`
 	Description string `gorm:"type:text;not null"`
-	State       string `gorm:"type:enum('unprocessed', 'processing', 'processed', 'error');not null"`
 
 	ChannelID  uint        `json:"-"`
 	Thumbnails []Thumbnail `gorm:"polymorphic:Owner;"`

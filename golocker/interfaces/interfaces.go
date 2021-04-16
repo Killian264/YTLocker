@@ -10,11 +10,11 @@ type ISubscriptionData interface {
 	NewSubscription(request *models.SubscriptionRequest) error
 	GetSubscription(secret string, channelID string) (*models.SubscriptionRequest, error)
 	GetChannel(channelID string) (*models.Channel, error)
-	NewVideo(video models.Video, channelID string) error
+	NewVideo(video *models.Video, channelID string) error
 
 	InactivateAllSubscriptions() error
 	GetInactiveSubscription() (*models.SubscriptionRequest, error)
-	DeleteSubscription(*models.SubscriptionRequest) error
+	DeleteSubscription(sub *models.SubscriptionRequest) error
 }
 
 // IYoutubeService Service
@@ -34,15 +34,4 @@ type ISubscription interface {
 	Subscribe(request *models.SubscriptionRequest) error
 
 	ResubscribeAll() error
-}
-
-type IPlaylistData interface {
-	NewYoutubeClientConfig(config *models.YoutubeClientConfig) error
-	GetYoutubeClientConfigByClientID(clientID string) (*models.YoutubeClientConfig, error)
-
-	NewYoutubeToken(config *models.YoutubeToken) error
-	GetYoutubeTokenByAccessToken(accessToken string) (*models.YoutubeToken, error)
-
-	GetFirstYoutubeClientConfig() (*models.YoutubeClientConfig, error)
-	GetFirstYoutubeToken() (*models.YoutubeToken, error)
 }

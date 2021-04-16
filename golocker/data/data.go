@@ -119,7 +119,7 @@ func (d *Data) GetSubscription(secret string, channelID string) (*models.Subscri
 		return nil, result.Error
 	}
 
-	if result.RowsAffected != 1 {
+	if result.RowsAffected == 0 {
 		return nil, nil
 	}
 
@@ -138,7 +138,7 @@ func (d *Data) GetChannelFromYoutubeId(channelID string) (*models.Channel, error
 		return nil, result.Error
 	}
 
-	if result.RowsAffected != 1 {
+	if result.RowsAffected == 0 {
 		return nil, nil
 	}
 
@@ -146,13 +146,35 @@ func (d *Data) GetChannelFromYoutubeId(channelID string) (*models.Channel, error
 }
 
 func (d *Data) InactivateAllSubscriptions() error {
-	return nil
+
+	result := d.gormDB.Model(&models.SubscriptionRequest{}).Where(&models.SubscriptionRequest{Active: true}).Update("active", false)
+
+	return result.Error
+
 }
+
 func (d *Data) GetInactiveSubscription() (*models.SubscriptionRequest, error) {
-	return nil, nil
+
+	sub := models.SubscriptionRequest{}
+
+	result := d.gormDB.First(&sub)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return nil, nil
+	}
+
+	return &sub, nil
 }
-func (d *Data) DeleteSubscription(*models.SubscriptionRequest) error {
-	return nil
+func (d *Data) DeleteSubscription(sub *models.SubscriptionRequest) error {
+
+	result := d.gormDB.Delete(&models.SubscriptionRequest{UUID: sub.UUID})
+
+	return result.Error
+
 }
 
 func (d *Data) GetUserByEmail(email string) (*models.User, error) {
