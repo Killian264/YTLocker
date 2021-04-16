@@ -155,6 +155,24 @@ func (d *Data) DeleteSubscription(*models.SubscriptionRequest) error {
 	return nil
 }
 
+func (d *Data) GetUserByEmail(email string) (*models.User, error) {
+	user := models.User{
+		Email: email,
+	}
+
+	result := d.gormDB.Where(&user).First(&user)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return nil, nil
+	}
+
+	return &user, nil
+}
+
 // IPLAYLISTDATA
 func (d *Data) NewYoutubeClientConfig(config *models.YoutubeClientConfig) error {
 	config.UUID = uuid.NewV4().String()
