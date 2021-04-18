@@ -18,6 +18,8 @@ import (
 	"github.com/Killian264/YTLocker/golocker/services/ytservice"
 	"gorm.io/gorm/logger"
 
+	muxhandler "github.com/gorilla/handlers"
+
 	"github.com/gorilla/mux"
 )
 
@@ -108,6 +110,8 @@ func InitalizeSubscribeService(s *services.Services, apiURL string) {
 func InitializeRouter(s *services.Services) {
 
 	s.Router = mux.NewRouter()
+
+	s.Router.Use(muxhandler.RecoveryHandler())
 
 	// s.Router.Use(handlers.LoggingMiddlewareTest)
 

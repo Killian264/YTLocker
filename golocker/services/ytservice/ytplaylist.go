@@ -34,7 +34,7 @@ func (s *YTPlaylist) Initalize(configData models.YoutubeClientConfig, tokenData 
 	return nil
 }
 
-func (s *YTPlaylist) CreatePlaylist(playlist models.Playlist) (models.Playlist, error) {
+func (s *YTPlaylist) Create(playlist models.Playlist) (models.Playlist, error) {
 
 	parts := []string{"id", "snippet", "status"}
 
@@ -59,7 +59,7 @@ func (s *YTPlaylist) CreatePlaylist(playlist models.Playlist) (models.Playlist, 
 	return playlist, err
 }
 
-func (s *YTPlaylist) PlaylistInsert(playlist models.Playlist, video models.Video) error {
+func (s *YTPlaylist) Insert(playlist models.Playlist, video models.Video) error {
 
 	parts := []string{"id", "snippet"}
 

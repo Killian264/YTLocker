@@ -242,3 +242,19 @@ func (d *Data) GetFirstYoutubeToken() (*models.YoutubeToken, error) {
 
 	return &token, nil
 }
+
+func (d *Data) GetFirstUser() (*models.User, error) {
+	user := models.User{}
+
+	result := d.gormDB.First(&user)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return nil, nil
+	}
+
+	return &user, nil
+}

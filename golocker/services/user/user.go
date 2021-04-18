@@ -2,64 +2,45 @@ package user
 
 import (
 	"fmt"
+	"net/http"
 	"regexp"
 
-	"github.com/Killian264/YTLocker/golocker/data"
+	"github.com/Killian264/YTLocker/golocker/interfaces"
 	"github.com/Killian264/YTLocker/golocker/models"
+	"github.com/Killian264/YTLocker/golocker/parsers"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
-	dataService data.Data
+	data interfaces.IUserData
 }
 
-func NewUser(data data.Data) *User {
+func NewUser(data interfaces.IUserData) *User {
 	return &User{
-		dataService: data,
+		data: data,
 	}
 }
 
 func (u *User) RegisterUser(user *models.User) error {
 
-	err := validateRegistrationInfo(user)
+	err := parsers.ValidateStringArray([]string{user.Username, user.Email, user.Password})
 	if err != nil {
 		return err
 	}
 
-	encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	err = judgePasswordStrength(user.Password)
 	if err != nil {
 		return err
 	}
 
-	user.Password = string(encryptedPassword)
-
-	result, err := u.dataService.GetUserByEmail(user.Email)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
 
-	if result != nil {
-		return fmt.Errorf("A user has already registered under that email")
-	}
+	user.Password = string(hashedPassword)
 
-	return u.dataService.CreateUser(user)
-}
-
-func validateString(str string) error {
-	//TODO: may need separate sanatize function later anyway?
-	if str == "" {
-		return fmt.Errorf("Registration information cannot be empty")
-	}
-
-	re := regexp.MustCompile(`<(.|\n)*?>`)
-
-	result := re.Find([]byte(str))
-
-	if result != nil {
-		return fmt.Errorf("Registration information cannot contain: " + string(result))
-	}
-
-	return nil
+	return u.data.NewUser(user)
 }
 
 func judgePasswordStrength(pass string) error {
@@ -73,24 +54,30 @@ func judgePasswordStrength(pass string) error {
 	return fmt.Errorf("Password strength does not meet requirements")
 }
 
-func validateRegistrationInfo(user *models.User) error {
-
-	err := validateString(user.Username)
+func (u *User) ValidEmail(email string) (bool, error) {
+	result, err := u.data.GetUserByEmail(email)
 	if err != nil {
-		return err
+		return false, err
 	}
 
-	err = validateString(user.Password)
-	if err != nil {
-		return err
+	return result == nil, nil
+}
+
+// TEMP until actual login is implemented
+func (u *User) GetUserFromRequest(r *http.Request) (*models.User, error) {
+
+	header := r.Header["Authorization"]
+
+	if len(header) != 1 {
+		return nil, fmt.Errorf("No or Invalid Authorization Header")
 	}
 
-	err = validateString(user.Email)
-	if err != nil {
-		return err
+	token := header[0]
+
+	if token != "TEMP_API_BEARER" {
+		return nil, fmt.Errorf("Invalid Bearer")
 	}
 
-	err = judgePasswordStrength(user.Password)
+	return u.data.GetFirstUser()
 
-	return err
 }

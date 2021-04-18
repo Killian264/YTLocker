@@ -9,11 +9,14 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// App contains services for handlers
+// Services to be injected into handlers and cron jobs
 type Services struct {
 	Router    *mux.Router
 	Data      *data.Data
 	Logger    *log.Logger
 	Youtube   *ytservice.YTService
 	Subscribe interfaces.ISubscription
+	Channel   interfaces.IChannel
+	Playlist  interfaces.IPlaylistManager
+	User      interfaces.IUser
 }
