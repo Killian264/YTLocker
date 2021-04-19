@@ -1,17 +1,48 @@
 package handlers
 
 import (
+	"bytes"
+	"encoding/json"
 	"net/http"
 	"testing"
 
+	"github.com/Killian264/YTLocker/golocker/helpers/test"
+	"github.com/Killian264/YTLocker/golocker/interfaces"
+	"github.com/Killian264/YTLocker/golocker/mocks"
+	"github.com/Killian264/YTLocker/golocker/models"
+	"github.com/Killian264/YTLocker/golocker/services"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetUserFromRequest(t *testing.T) {
+func TestHandleRegistration(t *testing.T) {
 
-	req, err := http.NewRequest("GET", "/adsfasdf/asdf", nil)
+	service := &mocks.IUser{}
+
+	user := models.User{
+		Username: "killian",
+		Email:    "killian@ytlocker.com",
+		Password: "coolstorybro",
+	}
+
+	body, err := json.Marshal(user)
 	assert.Nil(t, err)
 
-	req.Header["Authorization"] = []string{"TEMP_API_BEARER"}
+	request, err := http.NewRequest("GET", "/registration", bytes.NewBuffer(body))
+	assert.Nil(t, err)
+
+	fake := test.FakeRequest{
+		Services: &services.Services{
+			User: interfaces.IUser(service),
+		},
+		Route:   "/registration",
+		Request: request,
+		Handler: HandleRegistration,
+	}
+
+	service.On("ValidEmail", user.Email).Return(true, nil)
+	service.On("RegisterUser", &user).Return(nil)
+
+	res := test.SendFakeRequest(fake)
+	assert.Equal(t, res.StatusCode, 200)
 
 }

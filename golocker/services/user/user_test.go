@@ -101,7 +101,6 @@ func TestRegisterUser(t *testing.T) {
 			assert.NotNil(t, err)
 		}
 	}
-
 }
 
 ////////////////////// ValidEmail //////////////////////
@@ -124,7 +123,6 @@ func TestValidEmail(t *testing.T) {
 	valid, err = service.ValidEmail("sadjfka")
 	assert.True(t, valid)
 	assert.Nil(t, err)
-
 }
 
 func createMockServices() (*User, *mocks.IUserData) {

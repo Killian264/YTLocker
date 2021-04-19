@@ -10,7 +10,7 @@ import (
 )
 
 //TODO: implement service features
-func HandleRegistration(w http.ResponseWriter, r *http.Request, s services.Services) error {
+func HandleRegistration(w http.ResponseWriter, r *http.Request, s *services.Services) error {
 	//body, err := ioutil.ReadAll(r.Body)
 	var user models.User
 

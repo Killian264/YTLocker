@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/Killian264/YTLocker/golocker/helpers/parsers"
 	"github.com/Killian264/YTLocker/golocker/models"
-	"github.com/Killian264/YTLocker/golocker/parsers"
 	"google.golang.org/api/youtube/v3"
 )
 
