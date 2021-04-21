@@ -9,7 +9,7 @@ import (
 
 type SimpleTest struct {
 	input    string
-	expected error
+	expected bool
 }
 
 //TODO: Add more tests here
@@ -19,21 +19,29 @@ func TestValidateString(t *testing.T) {
 	tests := []SimpleTest{
 		{
 			input:    "qqq",
-			expected: nil,
+			expected: true,
 		},
 		{
 			input:    "",
-			expected: fmt.Errorf("Registration information cannot be empty"),
+			expected: false,
 		},
 		{
 			input:    "qqqq<(.qq|\nq)*q?q>qqqqq",
-			expected: fmt.Errorf("Registration information cannot contain: " + "<(.qq|\nq)*q?q>"),
+			expected: false,
 		},
 	}
 
 	for _, test := range tests {
-		actual := ValidateString(test.input)
+		actual := StringIsValid(test.input)
 		assert.Equal(t, test.expected, actual)
 	}
 
+}
+
+func TestSanitizeString(t *testing.T) {
+	str := fmt.Sprint(`>qqqq <q qqq. q?q q\q q*q q&q q)q q(q q"q q'q q;q q:q q`, "`", "qqqq")
+
+	stripped := SanitizeString(str)
+
+	assert.Equal(t, "qqqq q qqq qq qq qq qq qq qq qq qq qq qq qqqqq", stripped)
 }
