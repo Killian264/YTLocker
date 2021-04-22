@@ -190,11 +190,18 @@ func (s *Subscriber) validSubscription(secret string, channelID string) error {
 }
 
 func generateSecret(n int) (string, error) {
-	b := make([]byte, 64)
-	_, err := rand.Read(b)
-
 	h := sha256.New()
-	h.Write(b)
+	b := make([]byte, 64)
 
-	return fmt.Sprintf("%x", h.Sum(nil)), err
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
+
+	_, err = h.Write(b)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%x", b), nil
 }
