@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// StringIsValid checks if an array is valid
+// StringIsValid runs StringIsValid on multiple elements
 func StringArrayIsValid(strings []string) bool {
 
 	for _, str := range strings {
@@ -32,9 +32,9 @@ func StringIsValid(str string) bool {
 // Sanitize string removes html tags and removes these characters ` " ' > < . ? \ * & ( ) ; : } {
 func SanitizeString(str string) string {
 
-	result := stripTags(str)
-	result = stripIllegal(result)
-	return result
+	str = stripTags(str)
+	str = stripIllegal(str)
+	return str
 }
 
 func stripTags(str string) string {

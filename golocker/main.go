@@ -182,8 +182,6 @@ func readInAccessToken(path string) (models.YoutubeToken, error) {
 // InitializeDatabase creates DB Connection for app
 func InitializeDatabase(s *services.Services, username string, password string, ip string, port string, name string) {
 
-	s.Data = new(data.Data)
-
 	logBase := log.New(os.Stdout, "Data: ", log.Lshortfile)
 
 	logger := logger.New(
@@ -191,7 +189,7 @@ func InitializeDatabase(s *services.Services, username string, password string, 
 		logger.Config{},
 	)
 
-	s.Data.Initialize(username, password, ip, port, name, logger)
+	s.Data = data.MySQLConnectAndInitialize(username, password, ip, port, name, logger)
 
 }
 

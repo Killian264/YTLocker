@@ -14,7 +14,7 @@ type Data struct {
 	gormDB *gorm.DB
 }
 
-func (d *Data) Initialize(username string, password string, ip string, port string, name string, logger logger.Interface) {
+func MySQLConnectAndInitialize(username string, password string, ip string, port string, name string, logger logger.Interface) *Data {
 
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, ip, port, name)
 
@@ -29,7 +29,22 @@ func (d *Data) Initialize(username string, password string, ip string, port stri
 		panic("Error creating db connection")
 	}
 
-	err = gormDB.AutoMigrate(
+	data := Data{
+		gormDB: gormDB,
+	}
+
+	err = data.initalize()
+
+	if err != nil {
+		panic("error initializing db")
+	}
+
+	return &data
+}
+
+func (d *Data) initalize() error {
+
+	err := d.gormDB.AutoMigrate(
 		&models.User{},
 		&models.Playlist{},
 		&models.Channel{},
@@ -40,7 +55,7 @@ func (d *Data) Initialize(username string, password string, ip string, port stri
 		&models.YoutubeToken{},
 	)
 
-	d.gormDB = gormDB
+	return err
 }
 
 func (d *Data) GetChannel(channelID string) (*models.Channel, error) {
