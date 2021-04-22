@@ -14,37 +14,14 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestSubscribeValidChannel(t *testing.T) {
-
-	service, yt := createMockServices(t)
-
-	yt.On("GetChannel", "test-channel-id").Return(&models.Channel{}, nil)
-
-	actual, err := service.Subscribe("test-channel-id")
-	assert.Nil(t, err)
-
-	saved, err := service.GetSubscription("test-channel-id")
-	assert.Nil(t, err)
-
-	assert.Equal(t, actual.ChannelID, saved.ChannelID)
-	assert.Equal(t, actual.Secret, saved.Secret)
+var hook = models.YTHookPush{
+	Video: models.YTHookVideo{
+		VideoID:   "test-video-id",
+		ChannelID: "test-channel-id",
+	},
 }
 
-func TestSubscribeInValidChannel(t *testing.T) {
-
-	service, yt := createMockServices(t)
-
-	yt.On("GetChannel", "test-channel-id").Return(nil, nil)
-
-	_, err := service.Subscribe("test-channel-id")
-	assert.NotNil(t, err)
-
-	sub, err := service.GetSubscription("test-channel-id")
-	assert.Nil(t, sub)
-	assert.Nil(t, err)
-}
-
-func TestValidChallenge(t *testing.T) {
+func Test_Valid_Challenge(t *testing.T) {
 
 	service, yt := createMockServices(t)
 
@@ -57,7 +34,7 @@ func TestValidChallenge(t *testing.T) {
 	assert.True(t, valid)
 }
 
-func TestInValidChallenge(t *testing.T) {
+func Test_InValid_Challenge(t *testing.T) {
 
 	service, _ := createMockServices(t)
 
@@ -71,7 +48,20 @@ func TestInValidChallenge(t *testing.T) {
 	assert.False(t, valid)
 }
 
-func TestHandleValidVideoPush(t *testing.T) {
+func Test_InValid_Channel_Challenge(t *testing.T) {
+
+	service, yt := createMockServices(t)
+
+	yt.On("GetChannel", "test-channel-id").Return(nil, nil)
+
+	_, err := service.Subscribe("test-channel-id")
+	assert.NotNil(t, err)
+
+	sub, _ := service.GetSubscription("test-channel-id")
+	assert.Nil(t, sub)
+}
+
+func Test_Valid_Video_Push(t *testing.T) {
 
 	service, yt := createMockServices(t)
 
@@ -79,32 +69,21 @@ func TestHandleValidVideoPush(t *testing.T) {
 	yt.On("CreateVideo", "test-video-id", "test-channel-id").Return(&models.Video{}, nil)
 
 	sub, _ := service.Subscribe("test-channel-id")
-
-	err := service.HandleVideoPush(&models.YTHookPush{
-		Video: models.YTHookVideo{
-			VideoID:   "test-video-id",
-			ChannelID: "test-channel-id",
-		},
-	}, sub.Secret)
+	err := service.HandleVideoPush(&hook, sub.Secret)
 
 	assert.Nil(t, err)
 }
 
-func TestHandleInvalidVideoPush(t *testing.T) {
+func Test_InValid_Video_Push(t *testing.T) {
 
 	service, _ := createMockServices(t)
 
-	err := service.HandleVideoPush(&models.YTHookPush{
-		Video: models.YTHookVideo{
-			VideoID:   "test-video-id",
-			ChannelID: "test-channel-id",
-		},
-	}, "super fake secret")
+	err := service.HandleVideoPush(&hook, "super fake secret")
 
 	assert.NotNil(t, err)
 }
 
-func TestHandleInvalidVideoVideoPush(t *testing.T) {
+func Test_InValid_Video_Video_Push(t *testing.T) {
 
 	service, yt := createMockServices(t)
 
@@ -112,18 +91,12 @@ func TestHandleInvalidVideoVideoPush(t *testing.T) {
 	yt.On("CreateVideo", "test-video-id", "test-channel-id").Return(nil, fmt.Errorf("123"))
 
 	sub, _ := service.Subscribe("test-channel-id")
-
-	err := service.HandleVideoPush(&models.YTHookPush{
-		Video: models.YTHookVideo{
-			VideoID:   "test-video-id",
-			ChannelID: "test-channel-id",
-		},
-	}, sub.Secret)
+	err := service.HandleVideoPush(&hook, sub.Secret)
 
 	assert.NotNil(t, err)
 }
 
-func TestResubscribeAll(t *testing.T) {
+func Test_ResubscribeAll(t *testing.T) {
 
 	service, yt := createMockServices(t)
 
@@ -138,8 +111,8 @@ func TestResubscribeAll(t *testing.T) {
 	sub3, _ := service.GetSubscription("test-channel-id")
 	sub4, _ := service.GetSubscription("test-channel-id2")
 
-	assert.NotEqual(t, sub1.Secret, sub3.Secret)
-	assert.NotEqual(t, sub2.Secret, sub4.Secret)
+	assert.NotEqual(t, sub1.UUID, sub3.UUID)
+	assert.NotEqual(t, sub2.UUID, sub4.UUID)
 }
 
 func createMockServices(t *testing.T) (*Subscriber, *mocks.IYoutubeManager) {
