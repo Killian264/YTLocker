@@ -122,17 +122,3 @@ func (_m *ISubscriptionData) NewSubscription(request *models.SubscriptionRequest
 
 	return r0
 }
-
-// NewVideo provides a mock function with given fields: video, channelID
-func (_m *ISubscriptionData) NewVideo(video *models.Video, channelID string) error {
-	ret := _m.Called(video, channelID)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.Video, string) error); ok {
-		r0 = rf(video, channelID)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}

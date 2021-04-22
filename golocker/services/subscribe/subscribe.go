@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -44,7 +43,7 @@ func (s *Subscriber) SetSubscribeUrl(base string, path string) {
 	s.pushHandlerURL = fmt.Sprintf("%s/%s/", base, path)
 }
 
-// Subscribe subscribes to a Subscription feed
+// Subscribe subscribes to a Subscription feed for a given channel
 func (s *Subscriber) Subscribe(channelID string) (*models.SubscriptionRequest, error) {
 
 	channel, err := s.ytmanager.GetChannel(channelID)
@@ -80,15 +79,13 @@ func createSubscription(channelID string) (*models.SubscriptionRequest, error) {
 		return nil, err
 	}
 
-	request := models.SubscriptionRequest{
+	return &models.SubscriptionRequest{
 		ChannelID:    channelID,
 		LeaseSeconds: uint(691200),
 		Topic:        fmt.Sprintf("https://www.youtube.com/xml/feeds/videos.xml?channel_id=%s", channelID),
 		Secret:       secret,
 		Active:       true,
-	}
-
-	return &request, nil
+	}, nil
 }
 
 func (s *Subscriber) postSubscription(request *models.SubscriptionRequest, pushSubscribeURL string, pushHandlerURL string) error {
@@ -123,18 +120,11 @@ func (s *Subscriber) ResubscribeAll() error {
 		return fmt.Errorf("Failed to inactivate all subscriptions got error %s", err.Error())
 	}
 
-	run := true
-
-	for run {
+	for true {
 
 		old, err := s.dataService.GetInactiveSubscription()
-		if err != nil {
+		if err != nil || old == nil {
 			return err
-		}
-
-		if old == nil {
-			run = false
-			continue
 		}
 
 		_, err = s.Subscribe(old.ChannelID)
@@ -146,16 +136,17 @@ func (s *Subscriber) ResubscribeAll() error {
 		if err != nil {
 			return err
 		}
-
 	}
 
 	return nil
 }
 
+// GetSubscription gets a subscription request
 func (s *Subscriber) GetSubscription(channelID string) (*models.SubscriptionRequest, error) {
 	return s.dataService.GetSubscriptionFromChannelID(channelID)
 }
 
+// HandleChallenge handles a challenge on a new subscription
 func (s *Subscriber) HandleChallenge(request *models.SubscriptionRequest) (bool, error) {
 	saved, err := s.dataService.GetSubscription(request.Secret, request.ChannelID)
 
@@ -167,17 +158,10 @@ func (s *Subscriber) HandleChallenge(request *models.SubscriptionRequest) (bool,
 		return false, fmt.Errorf("Invalid secret or channel id: '%s' and id: '%s'", request.Secret, request.ChannelID)
 	}
 
-	if !saved.Active {
-		log.Printf("Subscriber: Warning using inactive subscription")
-	}
-
-	if request.LeaseSeconds != saved.LeaseSeconds {
-		log.Printf("Subscriber: Warning lease seconds do not match ")
-	}
-
 	return true, nil
 }
 
+// HandleVideoPush handles a new video push from youtube
 func (s *Subscriber) HandleVideoPush(push *models.YTHookPush, secret string) error {
 
 	saved, err := s.dataService.GetSubscription(secret, push.Video.ChannelID)
