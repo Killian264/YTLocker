@@ -12,5 +12,6 @@ require (
 	golang.org/x/oauth2 v0.0.0-20210313182246-cd4f82c27b84
 	google.golang.org/api v0.43.0
 	gorm.io/driver/mysql v1.0.3
+	gorm.io/driver/sqlite v1.1.4
 	gorm.io/gorm v1.20.7
 )

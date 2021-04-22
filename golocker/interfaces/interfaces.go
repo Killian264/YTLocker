@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/Killian264/YTLocker/golocker/models"
-	"google.golang.org/api/youtube/v3"
 )
 
 //// SUBSCRIBE //////////////////////////////////////////////////////////
@@ -13,17 +12,16 @@ import (
 type ISubscriptionData interface {
 	NewSubscription(request *models.SubscriptionRequest) error
 	GetSubscription(secret string, channelID string) (*models.SubscriptionRequest, error)
-	GetChannel(channelID string) (*models.Channel, error)
-	NewVideo(video *models.Video, channelID string) error
+	GetSubscriptionFromChannelID(channelID string) (*models.SubscriptionRequest, error)
 
 	InactivateAllSubscriptions() error
 	GetInactiveSubscription() (*models.SubscriptionRequest, error)
 	DeleteSubscription(sub *models.SubscriptionRequest) error
 }
 
-// IYoutubeService Youtube Service Requirements
-type IYoutubeService interface {
-	GetVideo(videoID string) (*youtube.Video, error)
+type IYoutubeManager interface {
+	CreateVideo(videoID string, channelID string) (*models.Video, error)
+	GetChannel(channelID string) (*models.Channel, error)
 }
 
 // ISubscription Requirements
@@ -34,8 +32,8 @@ type ISubscription interface {
 	HandleChallenge(request *models.SubscriptionRequest) (bool, error)
 	HandleVideoPush(push *models.YTHookPush, secret string) error
 
-	CreateSubscription(channelID string) (*models.SubscriptionRequest, error)
-	Subscribe(request *models.SubscriptionRequest) error
+	Subscribe(channelID string) (*models.SubscriptionRequest, error)
+	GetSubscription(channelID string) (*models.SubscriptionRequest, error)
 
 	ResubscribeAll() error
 }

@@ -11,10 +11,8 @@ import (
 	"github.com/Killian264/YTLocker/golocker/data"
 	"github.com/Killian264/YTLocker/golocker/handlers"
 	"github.com/Killian264/YTLocker/golocker/helpers/parsers"
-	"github.com/Killian264/YTLocker/golocker/interfaces"
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/Killian264/YTLocker/golocker/services"
-	"github.com/Killian264/YTLocker/golocker/services/subscribe"
 	"github.com/Killian264/YTLocker/golocker/services/ytservice"
 	"gorm.io/gorm/logger"
 
@@ -93,16 +91,16 @@ func NewServices(logger *log.Logger) services.Services {
 
 func InitalizeSubscribeService(s *services.Services, apiURL string) {
 
-	service := subscribe.NewSubscriber(
-		interfaces.ISubscriptionData(s.Data),
-		interfaces.IYoutubeService(s.Youtube),
-		log.New(os.Stdout, "Sub: ", log.Lshortfile),
-	)
+	// service := subscribe.NewSubscriber(
+	// 	interfaces.ISubscriptionData(s.Data),
+	// 	interfaces.IYoutubeService(s.Youtube),
+	// 	log.New(os.Stdout, "Sub: ", log.Lshortfile),
+	// )
 
-	service.SetYTPubSubUrl("https://pubsubhubbub.appspot.com/subscribe")
-	service.SetSubscribeUrl(apiURL, "/subscribe/{secret}")
+	// service.SetYTPubSubUrl("https://pubsubhubbub.appspot.com/subscribe")
+	// service.SetSubscribeUrl(apiURL, "/subscribe/{secret}")
 
-	s.Subscribe = service
+	// s.Subscribe = service
 
 }
 

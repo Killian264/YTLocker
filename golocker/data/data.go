@@ -2,16 +2,51 @@ package data
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"strings"
 
 	"github.com/Killian264/YTLocker/golocker/models"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/driver/mysql"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
 type Data struct {
 	gormDB *gorm.DB
+}
+
+func SQLiteConnectAndInitalize() *Data {
+
+	logBase := log.New(os.Stdout, "Data: ", log.Lshortfile)
+
+	logger := logger.New(
+		logBase,
+		logger.Config{},
+	)
+
+	gormDB, err := gorm.Open(sqlite.Open(`file:memdb1?mode=memory`), &gorm.Config{
+		Logger: logger,
+	})
+
+	if err != nil {
+		panic("Error creating db connection")
+	}
+
+	data := Data{
+		gormDB: gormDB,
+	}
+
+	err = data.initalize()
+
+	if err != nil {
+		panic("error initializing db")
+	}
+
+	return &data
+
 }
 
 func MySQLConnectAndInitialize(username string, password string, ip string, port string, name string, logger logger.Interface) *Data {
@@ -142,6 +177,24 @@ func (d *Data) GetSubscription(secret string, channelID string) (*models.Subscri
 
 }
 
+func (d *Data) GetSubscriptionFromChannelID(channelID string) (*models.SubscriptionRequest, error) {
+
+	request := models.SubscriptionRequest{}
+
+	result := d.gormDB.Where("channel_id = ?", channelID).First(&request)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return nil, nil
+	}
+
+	return &request, result.Error
+
+}
+
 func (d *Data) GetChannelFromYoutubeId(channelID string) (*models.Channel, error) {
 	channel := models.Channel{
 		ChannelID: channelID,
@@ -172,9 +225,9 @@ func (d *Data) GetInactiveSubscription() (*models.SubscriptionRequest, error) {
 
 	sub := models.SubscriptionRequest{}
 
-	result := d.gormDB.First(&sub)
+	result := d.gormDB.Where("active = false").First(&sub)
 
-	if result.Error != nil {
+	if result.Error != nil && !strings.Contains(result.Error.Error(), "record not found") {
 		return nil, result.Error
 	}
 
@@ -186,7 +239,7 @@ func (d *Data) GetInactiveSubscription() (*models.SubscriptionRequest, error) {
 }
 func (d *Data) DeleteSubscription(sub *models.SubscriptionRequest) error {
 
-	result := d.gormDB.Delete(&models.SubscriptionRequest{UUID: sub.UUID})
+	result := d.gormDB.Where(&models.SubscriptionRequest{UUID: sub.UUID}).Delete(&models.SubscriptionRequest{UUID: sub.UUID})
 
 	return result.Error
 

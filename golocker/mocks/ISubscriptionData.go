@@ -26,29 +26,6 @@ func (_m *ISubscriptionData) DeleteSubscription(sub *models.SubscriptionRequest)
 	return r0
 }
 
-// GetChannel provides a mock function with given fields: channelID
-func (_m *ISubscriptionData) GetChannel(channelID string) (*models.Channel, error) {
-	ret := _m.Called(channelID)
-
-	var r0 *models.Channel
-	if rf, ok := ret.Get(0).(func(string) *models.Channel); ok {
-		r0 = rf(channelID)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Channel)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(channelID)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // GetInactiveSubscription provides a mock function with given fields:
 func (_m *ISubscriptionData) GetInactiveSubscription() (*models.SubscriptionRequest, error) {
 	ret := _m.Called()
@@ -88,6 +65,29 @@ func (_m *ISubscriptionData) GetSubscription(secret string, channelID string) (*
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string, string) error); ok {
 		r1 = rf(secret, channelID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetSubscriptionFromChannelID provides a mock function with given fields: channelID
+func (_m *ISubscriptionData) GetSubscriptionFromChannelID(channelID string) (*models.SubscriptionRequest, error) {
+	ret := _m.Called(channelID)
+
+	var r0 *models.SubscriptionRequest
+	if rf, ok := ret.Get(0).(func(string) *models.SubscriptionRequest); ok {
+		r0 = rf(channelID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.SubscriptionRequest)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(channelID)
 	} else {
 		r1 = ret.Error(1)
 	}
