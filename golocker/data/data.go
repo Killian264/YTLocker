@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 
 	"github.com/Killian264/YTLocker/golocker/models"
 	uuid "github.com/satori/go.uuid"
@@ -20,10 +19,8 @@ type Data struct {
 
 func SQLiteConnectAndInitalize() *Data {
 
-	logBase := log.New(os.Stdout, "Data: ", log.Lshortfile)
-
 	logger := logger.New(
-		logBase,
+		log.New(os.Stdout, "Data: ", log.Lshortfile),
 		logger.Config{},
 	)
 
@@ -149,29 +146,7 @@ func (d *Data) NewVideo(video *models.Video, channelID string) error {
 	return result.Error
 }
 
-func (d *Data) NewSubscription(request *models.SubscriptionRequest) error {
-	request.UUID = uuid.NewV4().String()
-
-	result := d.gormDB.Create(request)
-
-	return result.Error
-}
-
-func (d *Data) GetSubscription(channelID string) (*models.SubscriptionRequest, error) {
-
-	request := models.SubscriptionRequest{}
-
-	result := d.gormDB.Where("channel_id = ?", channelID).First(&request)
-
-	if result.Error != nil || NotFound(result.Error) {
-		return nil, RemoveNotFound(result.Error)
-	}
-
-	return &request, nil
-
-}
-
-func (d *Data) GetChannelFromYoutubeId(channelID string) (*models.Channel, error) {
+func (d *Data) GetChannelFromYoutubeID(channelID string) (*models.Channel, error) {
 	channel := models.Channel{
 		ChannelID: channelID,
 	}
@@ -183,112 +158,4 @@ func (d *Data) GetChannelFromYoutubeId(channelID string) (*models.Channel, error
 	}
 
 	return &channel, nil
-}
-
-func (d *Data) InactivateAllSubscriptions() error {
-
-	result := d.gormDB.Model(&models.SubscriptionRequest{}).Where(&models.SubscriptionRequest{Active: true}).Update("active", false)
-
-	return result.Error
-}
-
-func (d *Data) GetInactiveSubscription() (*models.SubscriptionRequest, error) {
-
-	sub := models.SubscriptionRequest{}
-
-	result := d.gormDB.Where("active = false").First(&sub)
-
-	if result.Error != nil || NotFound(result.Error) {
-		return nil, RemoveNotFound(result.Error)
-	}
-
-	return &sub, nil
-}
-func (d *Data) DeleteSubscription(sub *models.SubscriptionRequest) error {
-
-	result := d.gormDB.Where(&models.SubscriptionRequest{UUID: sub.UUID}).Delete(&models.SubscriptionRequest{UUID: sub.UUID})
-
-	return result.Error
-
-}
-
-func (d *Data) GetUserByEmail(email string) (*models.User, error) {
-	user := models.User{
-		Email: email,
-	}
-
-	result := d.gormDB.Where(&user).First(&user)
-
-	if result.Error != nil || NotFound(result.Error) {
-		return nil, RemoveNotFound(result.Error)
-	}
-
-	return &user, nil
-}
-
-// IPLAYLISTDATA
-func (d *Data) NewYoutubeClientConfig(config *models.YoutubeClientConfig) error {
-	config.UUID = uuid.NewV4().String()
-
-	result := d.gormDB.Create(&config)
-
-	return result.Error
-}
-
-func (d *Data) NewYoutubeToken(token *models.YoutubeToken) error {
-	token.UUID = uuid.NewV4().String()
-
-	result := d.gormDB.Create(&token)
-
-	return result.Error
-}
-
-func (d *Data) GetFirstYoutubeClientConfig() (*models.YoutubeClientConfig, error) {
-	config := models.YoutubeClientConfig{}
-
-	result := d.gormDB.First(&config)
-
-	if result.Error != nil || NotFound(result.Error) {
-		return nil, RemoveNotFound(result.Error)
-	}
-
-	return &config, nil
-}
-func (d *Data) GetFirstYoutubeToken() (*models.YoutubeToken, error) {
-	token := models.YoutubeToken{}
-
-	result := d.gormDB.First(&token)
-
-	if result.Error != nil || NotFound(result.Error) {
-		return nil, RemoveNotFound(result.Error)
-	}
-
-	return &token, nil
-}
-
-func (d *Data) GetFirstUser() (*models.User, error) {
-	user := models.User{}
-
-	result := d.gormDB.First(&user)
-
-	if result.Error != nil || NotFound(result.Error) {
-		return nil, RemoveNotFound(result.Error)
-	}
-
-	return &user, nil
-}
-
-func NotFound(err error) bool {
-	if err == nil {
-		return false
-	}
-	return strings.Contains(err.Error(), "record not found")
-}
-
-func RemoveNotFound(err error) error {
-	if NotFound(err) {
-		return nil
-	}
-
-	return err
 }
