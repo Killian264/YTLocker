@@ -143,30 +143,23 @@ func (s *Subscriber) ResubscribeAll() error {
 
 // GetSubscription gets a subscription request
 func (s *Subscriber) GetSubscription(channelID string) (*models.SubscriptionRequest, error) {
-	return s.dataService.GetSubscriptionFromChannelID(channelID)
+	return s.dataService.GetSubscription(channelID)
 }
 
 // HandleChallenge handles a challenge on a new subscription
 func (s *Subscriber) HandleChallenge(request *models.SubscriptionRequest) (bool, error) {
-	saved, err := s.dataService.GetSubscription(request.Secret, request.ChannelID)
 
-	if err != nil {
-		return false, fmt.Errorf("Failed to get subsciption with secret: '%s' and id: '%s'", request.Secret, request.ChannelID)
-	}
+	err := s.validSubscription(request.Secret, request.ChannelID)
 
-	if saved == nil {
-		return false, fmt.Errorf("Invalid secret or channel id: '%s' and id: '%s'", request.Secret, request.ChannelID)
-	}
-
-	return true, nil
+	return err == nil, err
 }
 
 // HandleVideoPush handles a new video push from youtube
 func (s *Subscriber) HandleVideoPush(push *models.YTHookPush, secret string) error {
 
-	saved, err := s.dataService.GetSubscription(secret, push.Video.ChannelID)
-	if err != nil || saved == nil {
-		return fmt.Errorf("Failed to get subsciption with secret: '%s' and id: '%s'", secret, push.Video.ChannelID)
+	err := s.validSubscription(secret, push.Video.ChannelID)
+	if err != nil {
+		return err
 	}
 
 	_, err = s.ytmanager.CreateVideo(push.Video.VideoID, push.Video.ChannelID)
@@ -175,6 +168,25 @@ func (s *Subscriber) HandleVideoPush(push *models.YTHookPush, secret string) err
 	}
 
 	return nil
+}
+
+func (s *Subscriber) validSubscription(secret string, channelID string) error {
+
+	saved, err := s.dataService.GetSubscription(channelID)
+	if err != nil {
+		return err
+	}
+
+	if saved == nil {
+		return fmt.Errorf("Failed to get subsciption with secret: '%s' and id: '%s'", secret, channelID)
+	}
+
+	if saved.Secret != secret {
+		return fmt.Errorf("Invalid secret: '%s' and id: '%s'", secret, channelID)
+	}
+
+	return nil
+
 }
 
 func generateSecret(n int) (string, error) {

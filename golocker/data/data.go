@@ -101,18 +101,14 @@ func (d *Data) GetChannel(channelID string) (*models.Channel, error) {
 
 	result := d.gormDB.Where(&channel).First(&channel)
 
-	if result.Error != nil {
-		return nil, result.Error
-	}
-
-	if result.RowsAffected != 1 {
-		return nil, nil
+	if result.Error != nil || NotFound(result.Error) {
+		return nil, RemoveNotFound(result.Error)
 	}
 
 	result = d.gormDB.Where(models.Thumbnail{OwnerID: channel.ID, OwnerType: "channels"}).Find(&channel.Thumbnails)
 
-	if result.Error != nil {
-		return nil, result.Error
+	if result.Error != nil || NotFound(result.Error) {
+		return nil, RemoveNotFound(result.Error)
 	}
 
 	return &channel, nil
@@ -155,43 +151,23 @@ func (d *Data) NewVideo(video *models.Video, channelID string) error {
 
 func (d *Data) NewSubscription(request *models.SubscriptionRequest) error {
 	request.UUID = uuid.NewV4().String()
+
 	result := d.gormDB.Create(request)
+
 	return result.Error
 }
 
-func (d *Data) GetSubscription(secret string, channelID string) (*models.SubscriptionRequest, error) {
-
-	request := models.SubscriptionRequest{}
-
-	result := d.gormDB.Where("channel_id = ? AND secret = ? ", channelID, secret).First(&request)
-
-	if result.Error != nil {
-		return nil, result.Error
-	}
-
-	if result.RowsAffected == 0 {
-		return nil, nil
-	}
-
-	return &request, result.Error
-
-}
-
-func (d *Data) GetSubscriptionFromChannelID(channelID string) (*models.SubscriptionRequest, error) {
+func (d *Data) GetSubscription(channelID string) (*models.SubscriptionRequest, error) {
 
 	request := models.SubscriptionRequest{}
 
 	result := d.gormDB.Where("channel_id = ?", channelID).First(&request)
 
-	if result.Error != nil {
-		return nil, result.Error
+	if result.Error != nil || NotFound(result.Error) {
+		return nil, RemoveNotFound(result.Error)
 	}
 
-	if result.RowsAffected == 0 {
-		return nil, nil
-	}
-
-	return &request, result.Error
+	return &request, nil
 
 }
 
@@ -202,12 +178,8 @@ func (d *Data) GetChannelFromYoutubeId(channelID string) (*models.Channel, error
 
 	result := d.gormDB.Where(&channel).First(&channel)
 
-	if result.Error != nil {
-		return nil, result.Error
-	}
-
-	if result.RowsAffected == 0 {
-		return nil, nil
+	if result.Error != nil || NotFound(result.Error) {
+		return nil, RemoveNotFound(result.Error)
 	}
 
 	return &channel, nil
@@ -218,7 +190,6 @@ func (d *Data) InactivateAllSubscriptions() error {
 	result := d.gormDB.Model(&models.SubscriptionRequest{}).Where(&models.SubscriptionRequest{Active: true}).Update("active", false)
 
 	return result.Error
-
 }
 
 func (d *Data) GetInactiveSubscription() (*models.SubscriptionRequest, error) {
@@ -227,12 +198,8 @@ func (d *Data) GetInactiveSubscription() (*models.SubscriptionRequest, error) {
 
 	result := d.gormDB.Where("active = false").First(&sub)
 
-	if result.Error != nil && !strings.Contains(result.Error.Error(), "record not found") {
-		return nil, result.Error
-	}
-
-	if result.RowsAffected == 0 {
-		return nil, nil
+	if result.Error != nil || NotFound(result.Error) {
+		return nil, RemoveNotFound(result.Error)
 	}
 
 	return &sub, nil
@@ -252,12 +219,8 @@ func (d *Data) GetUserByEmail(email string) (*models.User, error) {
 
 	result := d.gormDB.Where(&user).First(&user)
 
-	if result.Error != nil {
-		return nil, result.Error
-	}
-
-	if result.RowsAffected == 0 {
-		return nil, nil
+	if result.Error != nil || NotFound(result.Error) {
+		return nil, RemoveNotFound(result.Error)
 	}
 
 	return &user, nil
@@ -285,12 +248,8 @@ func (d *Data) GetFirstYoutubeClientConfig() (*models.YoutubeClientConfig, error
 
 	result := d.gormDB.First(&config)
 
-	if result.Error != nil {
-		return nil, result.Error
-	}
-
-	if result.RowsAffected == 0 {
-		return nil, nil
+	if result.Error != nil || NotFound(result.Error) {
+		return nil, RemoveNotFound(result.Error)
 	}
 
 	return &config, nil
@@ -300,12 +259,8 @@ func (d *Data) GetFirstYoutubeToken() (*models.YoutubeToken, error) {
 
 	result := d.gormDB.First(&token)
 
-	if result.Error != nil {
-		return nil, result.Error
-	}
-
-	if result.RowsAffected == 0 {
-		return nil, nil
+	if result.Error != nil || NotFound(result.Error) {
+		return nil, RemoveNotFound(result.Error)
 	}
 
 	return &token, nil
@@ -316,13 +271,24 @@ func (d *Data) GetFirstUser() (*models.User, error) {
 
 	result := d.gormDB.First(&user)
 
-	if result.Error != nil {
-		return nil, result.Error
-	}
-
-	if result.RowsAffected == 0 {
-		return nil, nil
+	if result.Error != nil || NotFound(result.Error) {
+		return nil, RemoveNotFound(result.Error)
 	}
 
 	return &user, nil
+}
+
+func NotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	return strings.Contains(err.Error(), "record not found")
+}
+
+func RemoveNotFound(err error) error {
+	if NotFound(err) {
+		return nil
+	}
+
+	return err
 }

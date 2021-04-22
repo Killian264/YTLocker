@@ -11,8 +11,7 @@ import (
 // ISubscriptionData Data Requirements
 type ISubscriptionData interface {
 	NewSubscription(request *models.SubscriptionRequest) error
-	GetSubscription(secret string, channelID string) (*models.SubscriptionRequest, error)
-	GetSubscriptionFromChannelID(channelID string) (*models.SubscriptionRequest, error)
+	GetSubscription(channelID string) (*models.SubscriptionRequest, error)
 
 	InactivateAllSubscriptions() error
 	GetInactiveSubscription() (*models.SubscriptionRequest, error)

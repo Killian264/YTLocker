@@ -39,8 +39,9 @@ func TestSubscribeInValidChannel(t *testing.T) {
 	_, err := service.Subscribe("test-channel-id")
 	assert.NotNil(t, err)
 
-	_, err = service.GetSubscription("test-channel-id")
-	assert.NotNil(t, err)
+	sub, err := service.GetSubscription("test-channel-id")
+	assert.Nil(t, sub)
+	assert.Nil(t, err)
 }
 
 func TestValidChallenge(t *testing.T) {
