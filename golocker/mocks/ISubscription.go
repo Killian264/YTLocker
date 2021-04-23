@@ -12,8 +12,8 @@ type ISubscription struct {
 	mock.Mock
 }
 
-// CreateSubscription provides a mock function with given fields: channelID
-func (_m *ISubscription) CreateSubscription(channelID string) (*models.SubscriptionRequest, error) {
+// GetSubscription provides a mock function with given fields: channelID
+func (_m *ISubscription) GetSubscription(channelID string) (*models.SubscriptionRequest, error) {
 	ret := _m.Called(channelID)
 
 	var r0 *models.SubscriptionRequest
@@ -94,16 +94,25 @@ func (_m *ISubscription) SetYTPubSubUrl(url string) {
 	_m.Called(url)
 }
 
-// Subscribe provides a mock function with given fields: request
-func (_m *ISubscription) Subscribe(request *models.SubscriptionRequest) error {
-	ret := _m.Called(request)
+// Subscribe provides a mock function with given fields: channelID
+func (_m *ISubscription) Subscribe(channelID string) (*models.SubscriptionRequest, error) {
+	ret := _m.Called(channelID)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.SubscriptionRequest) error); ok {
-		r0 = rf(request)
+	var r0 *models.SubscriptionRequest
+	if rf, ok := ret.Get(0).(func(string) *models.SubscriptionRequest); ok {
+		r0 = rf(channelID)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.SubscriptionRequest)
+		}
 	}
 
-	return r0
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(channelID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }

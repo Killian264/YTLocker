@@ -1,35 +1,57 @@
 package parsers
 
 import (
-	"fmt"
 	"regexp"
+	"strings"
 )
 
-func ValidateStringArray(strings []string) error {
+// StringIsValid runs StringIsValid on multiple elements
+func StringArrayIsValid(strings []string) bool {
 
 	for _, str := range strings {
-		err := ValidateString(str)
-		if err != nil {
-			return err
+		if !StringIsValid(str) {
+			return false
 		}
 	}
-	return nil
+	return true
 
 }
 
-func ValidateString(str string) error {
-	//TODO: may need separate sanatize function later anyway?
+// StringIsValid checks if a string is non empty and has no illegal characters
+func StringIsValid(str string) bool {
+
 	if str == "" {
-		return fmt.Errorf("Registration information cannot be empty")
+		return false
 	}
 
+	sanitized := SanitizeString(str)
+
+	return str == sanitized
+}
+
+// Sanitize string removes html tags and removes these characters ` " ' > < . ? \ * & ( ) ; : } {
+func SanitizeString(str string) string {
+
+	str = stripTags(str)
+	str = stripIllegal(str)
+	return str
+}
+
+func stripTags(str string) string {
 	re := regexp.MustCompile(`<(.|\n)*?>`)
 
-	result := re.Find([]byte(str))
+	result := re.ReplaceAll([]byte(str), []byte(""))
 
-	if result != nil {
-		return fmt.Errorf("Registration information cannot contain: " + string(result))
+	return string(result)
+}
+
+func stripIllegal(str string) string {
+
+	remove := []rune{'`', '"', '\'', '>', '<', '.', '?', '\\', '*', '&', '(', ')', ';', ':', '}', '{'}
+
+	for _, char := range remove {
+		str = strings.ReplaceAll(str, string(char), "")
 	}
 
-	return nil
+	return str
 }

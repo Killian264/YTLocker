@@ -23,12 +23,12 @@ func NewUser(data interfaces.IUserData) *User {
 
 func (u *User) RegisterUser(user *models.User) error {
 
-	err := parsers.ValidateStringArray([]string{user.Username, user.Email, user.Password})
-	if err != nil {
-		return err
+	isValid := parsers.StringArrayIsValid([]string{user.Username, user.Email, user.Password})
+	if !isValid {
+		return fmt.Errorf("Invalid character")
 	}
 
-	err = judgePasswordStrength(user.Password)
+	err := judgePasswordStrength(user.Password)
 	if err != nil {
 		return err
 	}
