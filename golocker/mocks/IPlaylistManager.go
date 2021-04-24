@@ -12,13 +12,13 @@ type IPlaylistManager struct {
 	mock.Mock
 }
 
-// Create provides a mock function with given fields: user, playlist
-func (_m *IPlaylistManager) Create(user *models.User, playlist *models.Playlist) (*models.Playlist, error) {
-	ret := _m.Called(user, playlist)
+// Create provides a mock function with given fields: playlist, user
+func (_m *IPlaylistManager) Create(playlist *models.Playlist, user *models.User) (*models.Playlist, error) {
+	ret := _m.Called(playlist, user)
 
 	var r0 *models.Playlist
-	if rf, ok := ret.Get(0).(func(*models.User, *models.Playlist) *models.Playlist); ok {
-		r0 = rf(user, playlist)
+	if rf, ok := ret.Get(0).(func(*models.Playlist, *models.User) *models.Playlist); ok {
+		r0 = rf(playlist, user)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Playlist)
@@ -26,8 +26,8 @@ func (_m *IPlaylistManager) Create(user *models.User, playlist *models.Playlist)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*models.User, *models.Playlist) error); ok {
-		r1 = rf(user, playlist)
+	if rf, ok := ret.Get(1).(func(*models.Playlist, *models.User) error); ok {
+		r1 = rf(playlist, user)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -49,12 +49,12 @@ func (_m *IPlaylistManager) Insert(playlist *models.Playlist, video *models.Vide
 	return r0
 }
 
-// Subscribe provides a mock function with given fields: channel, playlist
-func (_m *IPlaylistManager) Subscribe(channel *models.Channel, playlist *models.Playlist) {
-	_m.Called(channel, playlist)
+// Subscribe provides a mock function with given fields: playlist, channel
+func (_m *IPlaylistManager) Subscribe(playlist *models.Playlist, channel *models.Channel) {
+	_m.Called(playlist, channel)
 }
 
-// Unsubscribe provides a mock function with given fields: channel, playlist
-func (_m *IPlaylistManager) Unsubscribe(channel *models.Channel, playlist *models.Playlist) {
-	_m.Called(channel, playlist)
+// Unsubscribe provides a mock function with given fields: playlist, channel
+func (_m *IPlaylistManager) Unsubscribe(playlist *models.Playlist, channel *models.Channel) {
+	_m.Called(playlist, channel)
 }

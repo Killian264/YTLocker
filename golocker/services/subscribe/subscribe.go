@@ -44,17 +44,9 @@ func (s *Subscriber) SetSubscribeUrl(base string, path string) {
 }
 
 // Subscribe subscribes to a Subscription feed for a given channel
-func (s *Subscriber) Subscribe(channelID string) (*models.SubscriptionRequest, error) {
+func (s *Subscriber) Subscribe(channel *models.Channel) (*models.SubscriptionRequest, error) {
 
-	channel, err := s.ytmanager.GetChannel(channelID)
-	if err != nil {
-		return nil, err
-	}
-	if channel == nil {
-		return nil, fmt.Errorf("Failed to find channel with id %s", channelID)
-	}
-
-	request, err := createSubscription(channelID)
+	request, err := createSubscription(channel)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +64,7 @@ func (s *Subscriber) Subscribe(channelID string) (*models.SubscriptionRequest, e
 	return request, nil
 }
 
-func createSubscription(channelID string) (*models.SubscriptionRequest, error) {
+func createSubscription(channel *models.Channel) (*models.SubscriptionRequest, error) {
 
 	secret, err := generateSecret(64)
 	if err != nil {
@@ -80,9 +72,9 @@ func createSubscription(channelID string) (*models.SubscriptionRequest, error) {
 	}
 
 	return &models.SubscriptionRequest{
-		ChannelID:    channelID,
-		LeaseSeconds: uint(691200),
-		Topic:        fmt.Sprintf("https://www.youtube.com/xml/feeds/videos.xml?channel_id=%s", channelID),
+		ChannelID:    channel.ID,
+		LeaseSeconds: 691200,
+		Topic:        fmt.Sprintf("https://www.youtube.com/xml/feeds/videos.xml?channel_id=%s", channel.YoutubeID),
 		Secret:       secret,
 		Active:       true,
 	}, nil
@@ -127,7 +119,15 @@ func (s *Subscriber) ResubscribeAll() error {
 			return err
 		}
 
-		_, err = s.Subscribe(old.ChannelID)
+		channel, err := s.ytmanager.GetChannelByID(old.ChannelID)
+		if err != nil {
+			return err
+		}
+		if channel == nil {
+			return fmt.Errorf("Failed to find channel with id %s", channel.YoutubeID)
+		}
+
+		_, err = s.Subscribe(channel)
 		if err != nil {
 			return err
 		}
@@ -142,14 +142,22 @@ func (s *Subscriber) ResubscribeAll() error {
 }
 
 // GetSubscription gets a subscription request
-func (s *Subscriber) GetSubscription(channelID string) (*models.SubscriptionRequest, error) {
-	return s.dataService.GetSubscription(channelID)
+func (s *Subscriber) GetSubscription(channel *models.Channel) (*models.SubscriptionRequest, error) {
+	return s.dataService.GetSubscription(channel.ID, "")
 }
 
 // HandleChallenge handles a challenge on a new subscription
-func (s *Subscriber) HandleChallenge(request *models.SubscriptionRequest) (bool, error) {
+func (s *Subscriber) HandleChallenge(request *models.SubscriptionRequest, channelID string) (bool, error) {
 
-	err := s.validSubscription(request.Secret, request.ChannelID)
+	channel, err := s.ytmanager.GetChannelByYoutubeID(channelID)
+	if err != nil {
+		return false, err
+	}
+	if channel == nil {
+		return false, fmt.Errorf("Failed to get channe with channelID: %s", channelID)
+	}
+
+	err = s.validSubscription(channel, request.Secret)
 
 	return err == nil, err
 }
@@ -157,12 +165,20 @@ func (s *Subscriber) HandleChallenge(request *models.SubscriptionRequest) (bool,
 // HandleVideoPush handles a new video push from youtube
 func (s *Subscriber) HandleVideoPush(push *models.YTHookPush, secret string) error {
 
-	err := s.validSubscription(secret, push.Video.ChannelID)
+	channel, err := s.ytmanager.GetChannelByYoutubeID(push.Video.ChannelID)
+	if err != nil {
+		return err
+	}
+	if channel == nil {
+		return fmt.Errorf("Failed to get channe with channelID: %s", push.Video.ChannelID)
+	}
+
+	err = s.validSubscription(channel, secret)
 	if err != nil {
 		return err
 	}
 
-	_, err = s.ytmanager.CreateVideo(push.Video.VideoID, push.Video.ChannelID)
+	_, err = s.ytmanager.CreateVideo(channel, push.Video.VideoID)
 	if err != nil {
 		return fmt.Errorf("Failed to save new video with video id: '%s' from channel: '%s'", push.Video.VideoID, push.Video.ChannelID)
 	}
@@ -170,19 +186,19 @@ func (s *Subscriber) HandleVideoPush(push *models.YTHookPush, secret string) err
 	return nil
 }
 
-func (s *Subscriber) validSubscription(secret string, channelID string) error {
+func (s *Subscriber) validSubscription(channel *models.Channel, secret string) error {
 
-	saved, err := s.dataService.GetSubscription(channelID)
+	saved, err := s.dataService.GetSubscription(channel.ID, secret)
 	if err != nil {
 		return err
 	}
 
 	if saved == nil {
-		return fmt.Errorf("Failed to get subsciption with secret: '%s' and id: '%s'", secret, channelID)
+		return fmt.Errorf("Failed to get subsciption with secret: '%s' and id: '%s'", secret, channel.YoutubeID)
 	}
 
 	if saved.Secret != secret {
-		return fmt.Errorf("Invalid secret: '%s' and id: '%s'", secret, channelID)
+		return fmt.Errorf("Invalid secret: '%s' and id: '%s'", secret, channel.YoutubeID)
 	}
 
 	return nil

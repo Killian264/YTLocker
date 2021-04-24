@@ -1,162 +1,144 @@
 package handlers
 
-import (
-	"bytes"
-	"fmt"
-	"io/ioutil"
-	"net/http"
-	"net/http/httptest"
-	"net/url"
-	"testing"
+// func TestHandleValidChallenge(t *testing.T) {
 
-	"github.com/Killian264/YTLocker/golocker/helpers/parsers"
-	"github.com/Killian264/YTLocker/golocker/interfaces"
-	"github.com/Killian264/YTLocker/golocker/mocks"
-	"github.com/Killian264/YTLocker/golocker/models"
-	"github.com/Killian264/YTLocker/golocker/services"
-	"github.com/gorilla/mux"
-	"github.com/stretchr/testify/assert"
-)
+// 	service := mocks.ISubscription{}
+// 	challenge := "test-challenge"
 
-func TestHandleValidChallenge(t *testing.T) {
+// 	sub := &models.SubscriptionRequest{
+// 		ChannelID:    "channel_id",
+// 		LeaseSeconds: uint(12345),
+// 		Topic:        "https://www.youtube.com/xml/feeds/videos.xml?channel_id=channel_id",
+// 		Secret:       "super_secret",
+// 		Active:       true,
+// 	}
 
-	service := mocks.ISubscription{}
-	challenge := "test-challenge"
+// 	url := createChallenge(fmt.Sprintf("/subscribe/%s/", sub.Secret), challenge, sub.ChannelID, fmt.Sprint(sub.LeaseSeconds))
+// 	req, err := http.NewRequest("GET", url, nil)
 
-	sub := &models.SubscriptionRequest{
-		ChannelID:    "channel_id",
-		LeaseSeconds: uint(12345),
-		Topic:        "https://www.youtube.com/xml/feeds/videos.xml?channel_id=channel_id",
-		Secret:       "super_secret",
-		Active:       true,
-	}
+// 	service.On("HandleChallenge", sub).Return(true, nil)
 
-	url := createChallenge(fmt.Sprintf("/subscribe/%s/", sub.Secret), challenge, sub.ChannelID, fmt.Sprint(sub.LeaseSeconds))
-	req, err := http.NewRequest("GET", url, nil)
+// 	res := sendFakeRequest(interfaces.ISubscription(&service), req, "/subscribe/{secret}/")
 
-	service.On("HandleChallenge", sub).Return(true, nil)
+// 	body, err := ioutil.ReadAll(res.Body)
+// 	assert.Nil(t, err)
 
-	res := sendFakeRequest(interfaces.ISubscription(&service), req, "/subscribe/{secret}/")
+// 	assert.Equal(t, challenge, string(body), "route should respond with challenge")
+// 	assert.Equal(t, 200, res.StatusCode)
+// }
 
-	body, err := ioutil.ReadAll(res.Body)
-	assert.Nil(t, err)
+// func TestHandleInValidChallenge(t *testing.T) {
 
-	assert.Equal(t, challenge, string(body), "route should respond with challenge")
-	assert.Equal(t, 200, res.StatusCode)
-}
+// 	service := mocks.ISubscription{}
+// 	challenge := "test-challenge"
 
-func TestHandleInValidChallenge(t *testing.T) {
+// 	sub := &models.SubscriptionRequest{
+// 		ChannelID:    "channel_id",
+// 		LeaseSeconds: uint(12345),
+// 		Topic:        "https://www.youtube.com/xml/feeds/videos.xml?channel_id=channel_id",
+// 		Secret:       "super_secret",
+// 		Active:       true,
+// 	}
 
-	service := mocks.ISubscription{}
-	challenge := "test-challenge"
+// 	url := createChallenge(fmt.Sprintf("/subscribe/%s/", sub.Secret), challenge, sub.ChannelID, fmt.Sprint(sub.LeaseSeconds))
+// 	req, err := http.NewRequest("GET", url, nil)
 
-	sub := &models.SubscriptionRequest{
-		ChannelID:    "channel_id",
-		LeaseSeconds: uint(12345),
-		Topic:        "https://www.youtube.com/xml/feeds/videos.xml?channel_id=channel_id",
-		Secret:       "super_secret",
-		Active:       true,
-	}
+// 	// return invalid
+// 	service.On("HandleChallenge", sub).Return(false, nil).Once()
 
-	url := createChallenge(fmt.Sprintf("/subscribe/%s/", sub.Secret), challenge, sub.ChannelID, fmt.Sprint(sub.LeaseSeconds))
-	req, err := http.NewRequest("GET", url, nil)
+// 	res := sendFakeRequest(interfaces.ISubscription(&service), req, "/subscribe/{secret}/")
 
-	// return invalid
-	service.On("HandleChallenge", sub).Return(false, nil).Once()
+// 	body, err := ioutil.ReadAll(res.Body)
+// 	assert.Nil(t, err)
 
-	res := sendFakeRequest(interfaces.ISubscription(&service), req, "/subscribe/{secret}/")
+// 	assert.Equal(t, "", string(body), "route should not respond with challenge")
+// 	assert.Equal(t, 500, res.StatusCode)
 
-	body, err := ioutil.ReadAll(res.Body)
-	assert.Nil(t, err)
+// 	// return error
+// 	service.On("HandleChallenge", sub).Return(true, fmt.Errorf("hello")).Once()
 
-	assert.Equal(t, "", string(body), "route should not respond with challenge")
-	assert.Equal(t, 500, res.StatusCode)
+// 	res = sendFakeRequest(interfaces.ISubscription(&service), req, "/subscribe/{secret}/")
 
-	// return error
-	service.On("HandleChallenge", sub).Return(true, fmt.Errorf("hello")).Once()
+// 	body, err = ioutil.ReadAll(res.Body)
+// 	assert.Nil(t, err)
 
-	res = sendFakeRequest(interfaces.ISubscription(&service), req, "/subscribe/{secret}/")
+// 	assert.Equal(t, "", string(body), "route should not respond with challenge")
+// 	assert.Equal(t, 500, res.StatusCode)
+// }
 
-	body, err = ioutil.ReadAll(res.Body)
-	assert.Nil(t, err)
+// func TestNewVideoPush(t *testing.T) {
 
-	assert.Equal(t, "", string(body), "route should not respond with challenge")
-	assert.Equal(t, 500, res.StatusCode)
-}
+// 	service := mocks.ISubscription{}
 
-func TestNewVideoPush(t *testing.T) {
+// 	body := []byte(pushXML)
 
-	service := mocks.ISubscription{}
+// 	push, err := parsers.ParseYTHook(pushXML)
+// 	assert.Nil(t, err)
 
-	body := []byte(pushXML)
+// 	req, err := http.NewRequest("GET", fmt.Sprintf("/subscribe/%s/", "test-secret"), bytes.NewBuffer(body))
 
-	push, err := parsers.ParseYTHook(pushXML)
-	assert.Nil(t, err)
+// 	service.On("HandleVideoPush", &push, "test-secret").Return(nil).Once()
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("/subscribe/%s/", "test-secret"), bytes.NewBuffer(body))
+// 	res := sendFakeRequest(interfaces.ISubscription(&service), req, "/subscribe/{secret}/")
 
-	service.On("HandleVideoPush", &push, "test-secret").Return(nil).Once()
+// 	assert.Equal(t, 200, res.StatusCode)
+// }
 
-	res := sendFakeRequest(interfaces.ISubscription(&service), req, "/subscribe/{secret}/")
+// func createChallenge(route string, challenge string, channelID string, lease_seconds string) string {
 
-	assert.Equal(t, 200, res.StatusCode)
-}
+// 	topic := "https://www.youtube.com/xml/feeds/videos.xml?channel_id=" + channelID
 
-func createChallenge(route string, challenge string, channelID string, lease_seconds string) string {
+// 	values := url.Values{}
+// 	values.Add("hub.challenge", challenge)
+// 	values.Add("hub.topic", topic)
+// 	values.Add("hub.lease_seconds", lease_seconds)
 
-	topic := "https://www.youtube.com/xml/feeds/videos.xml?channel_id=" + channelID
+// 	params := values.Encode()
 
-	values := url.Values{}
-	values.Add("hub.challenge", challenge)
-	values.Add("hub.topic", topic)
-	values.Add("hub.lease_seconds", lease_seconds)
+// 	return fmt.Sprintf("%s?%s", route, params)
 
-	params := values.Encode()
+// }
 
-	return fmt.Sprintf("%s?%s", route, params)
+// func sendFakeRequest(service interfaces.ISubscription, req *http.Request, route string) *http.Response {
+// 	rr := httptest.NewRecorder()
+// 	router := mux.NewRouter()
 
-}
+// 	services := &services.Services{
+// 		Subscribe: service,
+// 	}
 
-func sendFakeRequest(service interfaces.ISubscription, req *http.Request, route string) *http.Response {
-	rr := httptest.NewRecorder()
-	router := mux.NewRouter()
+// 	handler := func(w http.ResponseWriter, r *http.Request) {
+// 		err := HandleYoutubePush(w, r, services)
 
-	services := &services.Services{
-		Subscribe: service,
-	}
+// 		if err != nil {
+// 			fmt.Print(err.Error(), "\n")
+// 			w.WriteHeader(500)
+// 		}
+// 	}
 
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		err := HandleYoutubePush(w, r, services)
+// 	router.HandleFunc(route, handler)
+// 	router.ServeHTTP(rr, req)
+// 	return rr.Result()
+// }
 
-		if err != nil {
-			fmt.Print(err.Error(), "\n")
-			w.WriteHeader(500)
-		}
-	}
-
-	router.HandleFunc(route, handler)
-	router.ServeHTTP(rr, req)
-	return rr.Result()
-}
-
-var pushXML = `
-	<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns="http://www.w3.org/2005/Atom">
-		<link rel="hub" href="https://pubsubhubbub.appspot.com"/>
-		<link rel="self" href="https://www.youtube.com/xml/feeds/videos.xml?channel_id=CHANNEL_ID"/>
-		<title>YouTube video feed</title>
-		<updated>2015-04-01T19:05:24+00:00</updated>
-		<entry>
-			<id>yt:video:VIDEO_ID</id>
-			<yt:videoId>VIDEO_ID</yt:videoId>
-			<yt:channelId>CHANNEL_ID</yt:channelId>
-			<title>Video title</title>
-			<link rel="alternate" href="http://www.youtube.com/watch?v=VIDEO_ID"/>
-			<author>
-				<name>Channel title</name>
-				<uri>http://www.youtube.com/channel/CHANNEL_ID</uri>
-			</author>
-			<published>2015-03-06T21:40:57+00:00</published>
-			<updated>2015-03-09T19:05:24+00:00</updated>
-		</entry>
-	</feed>
-`
+// var pushXML = `
+// 	<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns="http://www.w3.org/2005/Atom">
+// 		<link rel="hub" href="https://pubsubhubbub.appspot.com"/>
+// 		<link rel="self" href="https://www.youtube.com/xml/feeds/videos.xml?channel_id=CHANNEL_ID"/>
+// 		<title>YouTube video feed</title>
+// 		<updated>2015-04-01T19:05:24+00:00</updated>
+// 		<entry>
+// 			<id>yt:video:VIDEO_ID</id>
+// 			<yt:videoId>VIDEO_ID</yt:videoId>
+// 			<yt:channelId>CHANNEL_ID</yt:channelId>
+// 			<title>Video title</title>
+// 			<link rel="alternate" href="http://www.youtube.com/watch?v=VIDEO_ID"/>
+// 			<author>
+// 				<name>Channel title</name>
+// 				<uri>http://www.youtube.com/channel/CHANNEL_ID</uri>
+// 			</author>
+// 			<published>2015-03-06T21:40:57+00:00</published>
+// 			<updated>2015-03-09T19:05:24+00:00</updated>
+// 		</entry>
+// 	</feed>
+// `

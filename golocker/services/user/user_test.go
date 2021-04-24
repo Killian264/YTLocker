@@ -1,137 +1,140 @@
 package user
 
 import (
-	"fmt"
 	"net/http"
 	"testing"
 
+	"github.com/Killian264/YTLocker/golocker/data"
 	"github.com/Killian264/YTLocker/golocker/interfaces"
-	"github.com/Killian264/YTLocker/golocker/mocks"
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
-////////////////////// GetUserFromRequest //////////////////////
-func TestValidBearer(t *testing.T) {
-
-	service, data := createMockServices()
-
-	req, err := http.NewRequest("GET", "/adsfasdf/asdf", nil)
-	assert.Nil(t, err)
-
-	req.Header["Authorization"] = []string{"TEMP_API_BEARER"}
-
-	expected := &models.User{
-		Username: "Cool",
-	}
-
-	data.On("GetFirstUser").Return(expected, nil)
-
-	actual, err := service.GetUserFromRequest(req)
-	assert.Nil(t, err)
-	assert.Equal(t, expected, actual)
-}
-
-func TestInvalidBearer(t *testing.T) {
-
-	service, _ := createMockServices()
-
-	req, err := http.NewRequest("GET", "/adsfasdf/asdf", nil)
-	assert.Nil(t, err)
-
-	req.Header["Authorization"] = []string{"INVALID_BEARER"}
-
-	_, err = service.GetUserFromRequest(req)
-	assert.NotNil(t, err)
-}
-
-func TestUnsetBearer(t *testing.T) {
-
-	service, _ := createMockServices()
-
-	req, err := http.NewRequest("GET", "/adsfasdf/asdf", nil)
-	assert.Nil(t, err)
-
-	_, err = service.GetUserFromRequest(req)
-	assert.NotNil(t, err)
+var validUser = models.User{
+	Username: "Killian",
+	Email:    "killiandebacker@gmail.com",
+	Password: "superpassword1234567",
 }
 
 ////////////////////// Register //////////////////////
 
-type SimpleTest struct {
-	input    models.User
-	expected error
+func Test_Register_User(t *testing.T) {
+
+	service := createMockServices()
+
+	err := service.RegisterUser(&validUser)
+	assert.Nil(t, err)
+
+	user, err := service.GetUserByID(validUser.ID)
+	assert.Nil(t, err)
+
+	assert.Equal(t, user.Email, validUser.Email)
 }
 
-func TestRegisterUser(t *testing.T) {
+func Test_Registration_Validates_Information(t *testing.T) {
 
-	service, data := createMockServices()
+	service := createMockServices()
 
-	data.On("NewUser", mock.Anything).Return(nil)
+	badUsername := validUser
+	badUsername.Username = ""
 
-	tests := []SimpleTest{
-		{
-			input:    models.User{Username: ""},
-			expected: fmt.Errorf(""),
-		},
-		{
-			input:    models.User{Username: "qqq", Email: ""},
-			expected: fmt.Errorf(""),
-		},
-		{
-			input:    models.User{Username: "qqq", Email: "email", Password: ""},
-			expected: fmt.Errorf(""),
-		},
-		{
-			input:    models.User{Username: "qqq", Email: "email", Password: "qqqqqq"},
-			expected: fmt.Errorf(""),
-		},
-		{
-			input:    models.User{Username: "qqq", Email: "email", Password: "qqqqqqqqqq66666666"},
-			expected: nil,
-		},
-	}
+	badEmail := validUser
+	badEmail.Email = ""
 
-	for _, test := range tests {
-		err := service.RegisterUser(&test.input)
-		if test.expected == nil {
-			assert.Nil(t, err)
-		} else {
-			assert.NotNil(t, err)
-		}
-	}
+	badPassword := validUser
+	badPassword.Password = ""
+
+	err := service.RegisterUser(&badUsername)
+	assert.NotNil(t, err)
+
+	err = service.RegisterUser(&badEmail)
+	assert.NotNil(t, err)
+
+	err = service.RegisterUser(&badPassword)
+	assert.NotNil(t, err)
+
+}
+
+func Test_Error_On_Duplicate_Email(t *testing.T) {
+	service := createMockServices()
+
+	err := service.RegisterUser(&validUser)
+	assert.Nil(t, err)
+
+	err = service.RegisterUser(&validUser)
+	assert.NotNil(t, err)
+}
+
+func Test_Password_Is_Hashed(t *testing.T) {
+	service := createMockServices()
+
+	original := validUser
+
+	err := service.RegisterUser(&validUser)
+	assert.Nil(t, err)
+
+	assert.NotEqual(t, original.Password, validUser.Password)
+}
+
+////////////////////// GetUserFromRequest //////////////////////
+func Test_Valid_Bearer(t *testing.T) {
+
+	service := createMockServices()
+	service.RegisterUser(&validUser)
+
+	req, _ := http.NewRequest("GET", "/adsfasdf/asdf", nil)
+	req.Header["Authorization"] = []string{"TEMP_API_BEARER"}
+
+	actual, err := service.GetUserFromRequest(req)
+	assert.Nil(t, err)
+	assert.Equal(t, validUser.ID, actual.ID)
+}
+
+func Test_InValid_Bearer(t *testing.T) {
+
+	service := createMockServices()
+
+	req, _ := http.NewRequest("GET", "/adsfasdf/asdf", nil)
+	req.Header["Authorization"] = []string{"INVALID_BEARER"}
+
+	_, err := service.GetUserFromRequest(req)
+	assert.NotNil(t, err)
+}
+
+func Test_Unset_Bearer(t *testing.T) {
+
+	service := createMockServices()
+	req, _ := http.NewRequest("GET", "/adsfasdf/asdf", nil)
+
+	_, err := service.GetUserFromRequest(req)
+	assert.NotNil(t, err)
 }
 
 ////////////////////// ValidEmail //////////////////////
 
 func TestValidEmail(t *testing.T) {
 
-	service, data := createMockServices()
+	service := createMockServices()
 
-	data.On("GetUserByEmail", mock.Anything).Return(nil, fmt.Errorf("helsdfjasd")).Once()
-	valid, err := service.ValidEmail("sadjfka")
-	assert.False(t, valid)
-	assert.NotNil(t, err)
-
-	data.On("GetUserByEmail", mock.Anything).Return(&models.User{}, nil).Once()
-	valid, err = service.ValidEmail("sadjfka")
-	assert.False(t, valid)
-	assert.Nil(t, err)
-
-	data.On("GetUserByEmail", mock.Anything).Return(nil, nil).Once()
-	valid, err = service.ValidEmail("sadjfka")
+	valid, err := service.ValidEmail(validUser.Email)
 	assert.True(t, valid)
 	assert.Nil(t, err)
+
+	service.RegisterUser(&validUser)
+
+	valid, err = service.ValidEmail(validUser.Email)
+	assert.False(t, valid)
+	assert.Nil(t, err)
+
 }
 
-func createMockServices() (*User, *mocks.IUserData) {
+func createMockServices() *User {
 
-	dataMock := &mocks.IUserData{}
+	db := data.SQLiteConnectAndInitalize()
 
 	service := NewUser(
-		interfaces.IUserData(dataMock),
+		interfaces.IUserData(db),
 	)
 
-	return service, dataMock
+	return service
 }

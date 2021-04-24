@@ -47,7 +47,7 @@ func stripTags(str string) string {
 
 func stripIllegal(str string) string {
 
-	remove := []rune{'`', '"', '\'', '>', '<', '.', '?', '\\', '*', '&', '(', ')', ';', ':', '}', '{'}
+	remove := []rune{'`', '"', '\'', '>', '<', '?', '*', '&', '(', ')', ';', ':', '}', '{'}
 
 	for _, char := range remove {
 		str = strings.ReplaceAll(str, string(char), "")

@@ -1,16 +1,18 @@
 package data
 
-import "strings"
+import (
+	"strings"
+)
 
-func NotFound(err error) bool {
+func notFound(err error) bool {
 	if err == nil {
 		return false
 	}
 	return strings.Contains(err.Error(), "record not found")
 }
 
-func RemoveNotFound(err error) error {
-	if NotFound(err) {
+func removeNotFound(err error) error {
+	if notFound(err) {
 		return nil
 	}
 

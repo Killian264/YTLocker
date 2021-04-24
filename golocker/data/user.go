@@ -2,16 +2,15 @@ package data
 
 import (
 	"github.com/Killian264/YTLocker/golocker/models"
-	uuid "github.com/satori/go.uuid"
 )
 
 func (d *Data) NewUser(user *models.User) error {
 
-	gormDB := d.gormDB
+	db := d.db
 
-	user.UUID = uuid.NewV4().String()
+	user.ID = d.rand.ID()
 
-	result := gormDB.Create(user)
+	result := db.Create(user)
 
 	if result.Error != nil {
 		return result.Error
@@ -20,13 +19,25 @@ func (d *Data) NewUser(user *models.User) error {
 	return nil
 }
 
+func (d *Data) GetUserByID(ID uint64) (*models.User, error) {
+	user := models.User{ID: ID}
+
+	result := d.db.First(&user)
+
+	if result.Error != nil || notFound(result.Error) {
+		return nil, removeNotFound(result.Error)
+	}
+
+	return &user, nil
+}
+
 func (d *Data) GetFirstUser() (*models.User, error) {
 	user := models.User{}
 
-	result := d.gormDB.First(&user)
+	result := d.db.First(&user)
 
-	if result.Error != nil || NotFound(result.Error) {
-		return nil, RemoveNotFound(result.Error)
+	if result.Error != nil || notFound(result.Error) {
+		return nil, removeNotFound(result.Error)
 	}
 
 	return &user, nil
@@ -37,10 +48,10 @@ func (d *Data) GetUserByEmail(email string) (*models.User, error) {
 		Email: email,
 	}
 
-	result := d.gormDB.Where(&user).First(&user)
+	result := d.db.Where(&user).First(&user)
 
-	if result.Error != nil || NotFound(result.Error) {
-		return nil, RemoveNotFound(result.Error)
+	if result.Error != nil || notFound(result.Error) {
+		return nil, removeNotFound(result.Error)
 	}
 
 	return &user, nil

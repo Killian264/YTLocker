@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/Killian264/YTLocker/golocker/models"
-	uuid "github.com/satori/go.uuid"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -14,9 +13,11 @@ import (
 )
 
 type Data struct {
-	gormDB *gorm.DB
+	db   *gorm.DB
+	rand DataRand
 }
 
+// SQLiteConnectAndInitalize is for testing only, rand is diffent to work with SQLite ints
 func SQLiteConnectAndInitalize() *Data {
 
 	logger := logger.New(
@@ -24,7 +25,7 @@ func SQLiteConnectAndInitalize() *Data {
 		logger.Config{},
 	)
 
-	gormDB, err := gorm.Open(sqlite.Open(`file:memdb1?mode=memory`), &gorm.Config{
+	db, err := gorm.Open(sqlite.Open(`file:memdb1?mode=memory`), &gorm.Config{
 		Logger: logger,
 	})
 
@@ -33,7 +34,8 @@ func SQLiteConnectAndInitalize() *Data {
 	}
 
 	data := Data{
-		gormDB: gormDB,
+		db:   db,
+		rand: DataRand(&TestRand{}),
 	}
 
 	err = data.initalize()
@@ -50,7 +52,7 @@ func MySQLConnectAndInitialize(username string, password string, ip string, port
 
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, ip, port, name)
 
-	gormDB, err := gorm.Open(
+	db, err := gorm.Open(
 		mysql.Open(connectionString),
 		&gorm.Config{
 			Logger: logger,
@@ -62,7 +64,8 @@ func MySQLConnectAndInitialize(username string, password string, ip string, port
 	}
 
 	data := Data{
-		gormDB: gormDB,
+		db:   db,
+		rand: DataRand(&ActualRand{}),
 	}
 
 	err = data.initalize()
@@ -76,7 +79,7 @@ func MySQLConnectAndInitialize(username string, password string, ip string, port
 
 func (d *Data) initalize() error {
 
-	err := d.gormDB.AutoMigrate(
+	err := d.db.AutoMigrate(
 		&models.User{},
 		&models.Playlist{},
 		&models.Channel{},
@@ -93,19 +96,19 @@ func (d *Data) initalize() error {
 func (d *Data) GetChannel(channelID string) (*models.Channel, error) {
 
 	channel := models.Channel{
-		ChannelID: channelID,
+		YoutubeID: channelID,
 	}
 
-	result := d.gormDB.Where(&channel).First(&channel)
+	result := d.db.Where(&channel).First(&channel)
 
-	if result.Error != nil || NotFound(result.Error) {
-		return nil, RemoveNotFound(result.Error)
+	if result.Error != nil || notFound(result.Error) {
+		return nil, removeNotFound(result.Error)
 	}
 
-	result = d.gormDB.Where(models.Thumbnail{OwnerID: channel.ID, OwnerType: "channels"}).Find(&channel.Thumbnails)
+	result = d.db.Where(models.Thumbnail{OwnerID: channel.ID, OwnerType: "channels"}).Find(&channel.Thumbnails)
 
-	if result.Error != nil || NotFound(result.Error) {
-		return nil, RemoveNotFound(result.Error)
+	if result.Error != nil || notFound(result.Error) {
+		return nil, removeNotFound(result.Error)
 	}
 
 	return &channel, nil
@@ -113,13 +116,13 @@ func (d *Data) GetChannel(channelID string) (*models.Channel, error) {
 
 func (d *Data) NewChannel(channel *models.Channel) error {
 
-	channel.UUID = uuid.NewV4().String()
+	channel.ID = d.rand.ID()
 
 	for _, thumbnail := range channel.Thumbnails {
-		thumbnail.UUID = uuid.NewV4().String()
+		thumbnail.ID = d.rand.ID()
 	}
 
-	result := d.gormDB.Create(&channel)
+	result := d.db.Create(&channel)
 
 	return result.Error
 }
@@ -128,33 +131,33 @@ func (d *Data) NewVideo(video *models.Video, channelID string) error {
 
 	channel := models.Channel{}
 
-	result := d.gormDB.Where("channel_id = ?", channelID).First(&channel)
+	result := d.db.Where("channel_id = ?", channelID).First(&channel)
 
 	if result.Error != nil {
 		return result.Error
 	}
 
-	video.UUID = uuid.NewV4().String()
+	video.ID = d.rand.ID()
 	video.ChannelID = channel.ID
 
 	for _, thumbnail := range video.Thumbnails {
-		thumbnail.UUID = uuid.NewV4().String()
+		thumbnail.ID = d.rand.ID()
 	}
 
-	result = d.gormDB.Create(&video)
+	result = d.db.Create(&video)
 
 	return result.Error
 }
 
 func (d *Data) GetChannelFromYoutubeID(channelID string) (*models.Channel, error) {
 	channel := models.Channel{
-		ChannelID: channelID,
+		YoutubeID: channelID,
 	}
 
-	result := d.gormDB.Where(&channel).First(&channel)
+	result := d.db.Where(&channel).First(&channel)
 
-	if result.Error != nil || NotFound(result.Error) {
-		return nil, RemoveNotFound(result.Error)
+	if result.Error != nil || notFound(result.Error) {
+		return nil, removeNotFound(result.Error)
 	}
 
 	return &channel, nil

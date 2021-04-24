@@ -23,7 +23,7 @@ func CreatePlaylist(w http.ResponseWriter, r *http.Request, s *services.Services
 		return err
 	}
 
-	_, err = s.Playlist.Create(user, playlist)
+	_, err = s.Playlist.Create(playlist, user)
 
 	return err
 

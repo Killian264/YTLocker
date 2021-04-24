@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/Killian264/YTLocker/golocker/data"
-	"github.com/Killian264/YTLocker/golocker/handlers"
 	"github.com/Killian264/YTLocker/golocker/helpers/parsers"
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/Killian264/YTLocker/golocker/services"
@@ -118,13 +117,13 @@ func InitializeRouter(s *services.Services) {
 // InitializeRoutes creates the routes
 func InitializeRoutes(s *services.Services) {
 
-	logger := log.New(os.Stdout, "Han: ", log.Lshortfile)
+	// logger := log.New(os.Stdout, "Han: ", log.Lshortfile)
 
-	ServiceInjector := handlers.CreateServiceInjector(s)
+	// ServiceInjector := handlers.CreateServiceInjector(s)
 
-	ErrorHandler := handlers.CreateErrorHandler(logger)
+	// ErrorHandler := handlers.CreateErrorHandler(logger)
 
-	s.Router.HandleFunc("/subscribe/{secret}", ErrorHandler(ServiceInjector(handlers.HandleYoutubePush)))
+	// s.Router.HandleFunc("/subscribe/{secret}", ErrorHandler(ServiceInjector(handlers.HandleYoutubePush)))
 
 }
 

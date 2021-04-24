@@ -27,7 +27,7 @@ func ParseYTChannel(channel *youtube.Channel) models.Channel {
 	thumbnails := ParseYTThumbnails(channel.Snippet.Thumbnails)
 
 	parsed := models.Channel{
-		ChannelID:   channel.Id,
+		YoutubeID:   channel.Id,
 		Title:       channel.Snippet.Title,
 		Description: channel.Snippet.Description,
 
@@ -43,7 +43,7 @@ func ParseYTVideo(video *youtube.Video) (models.Video, string) {
 	thumbnails := ParseYTThumbnails(video.Snippet.Thumbnails)
 
 	parsed := models.Video{
-		VideoID:     video.Id,
+		YoutubeID:   video.Id,
 		Title:       video.Snippet.Title,
 		Description: video.Snippet.Description,
 
@@ -71,8 +71,8 @@ func ParseYTThumbnails(details *youtube.ThumbnailDetails) []models.Thumbnail {
 		}
 		thumbnails = append(thumbnails, models.Thumbnail{
 			URL:    thumbnail.Url,
-			Width:  uint(thumbnail.Width),
-			Height: uint(thumbnail.Width),
+			Width:  int(thumbnail.Width),
+			Height: int(thumbnail.Height),
 		})
 	}
 

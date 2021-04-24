@@ -9,8 +9,7 @@ import (
 // User DB Model
 type User struct {
 	gorm.Model
-	ID       uint   `gorm:"primaryKey" json:"-"`
-	UUID     string `gorm:"type:varchar(256);not null;unique"`
+	ID       uint64 `gorm:"primaryKey"`
 	Username string `gorm:"type:varchar(256);not null"`
 	Email    string `gorm:"type:varchar(256);not null;unique"`
 	Password string `gorm:"type:varchar(256);not null"`
@@ -25,13 +24,12 @@ type User struct {
 // Video DB Model
 type Video struct {
 	gorm.Model
-	ID          uint   `gorm:"primaryKey" json:"-"`
-	UUID        string `gorm:"type:varchar(256);not null;unique"`
-	VideoID     string `gorm:"type:varchar(256);not null;unique"`
+	ID          uint64 `gorm:"primaryKey"`
+	YoutubeID   string `gorm:"type:varchar(256);not null;unique"`
 	Title       string `gorm:"type:varchar(256);not null"`
 	Description string `gorm:"type:text;not null"`
 
-	ChannelID  uint        `json:"-"`
+	ChannelID  uint64
 	Thumbnails []Thumbnail `gorm:"polymorphic:Owner;"`
 
 	CreatedAt time.Time
@@ -42,13 +40,12 @@ type Video struct {
 // Playlist DB Model
 type Playlist struct {
 	gorm.Model
-	ID          uint   `gorm:"primaryKey" json:"-"`
-	UUID        string `gorm:"type:varchar(256);not null;unique"`
-	PlaylistID  string `gorm:"type:varchar(256);index;"`
+	ID          uint64 `gorm:"primaryKey"`
+	YoutubeID   string `gorm:"type:varchar(256);index;"`
 	Title       string `gorm:"type:varchar(256);not null"`
 	Description string `gorm:"type:varchar(512);not null"`
 
-	UserID   uint      `json:"-"`
+	UserID   uint64
 	Videos   []Video   `gorm:"many2many:playlist_video;"`
 	Channels []Channel `gorm:"many2many:playlist_channel;"`
 
@@ -60,14 +57,15 @@ type Playlist struct {
 // Channel DB Model
 type Channel struct {
 	gorm.Model
-	ID          uint   `gorm:"primaryKey" json:"-"`
-	UUID        string `gorm:"type:varchar(256);not null;unique"`
-	ChannelID   string `gorm:"type:varchar(256);not null;unique;index"`
+	ID          uint64 `gorm:"primaryKey"`
+	YoutubeID   string `gorm:"type:varchar(256);not null;unique;index"`
 	Title       string `gorm:"type:varchar(256);not null"`
 	Description string `gorm:"type:text;not null"`
 
 	Videos     []Video
 	Thumbnails []Thumbnail `gorm:"polymorphic:Owner;"`
+
+	Subscription SubscriptionRequest
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -77,14 +75,13 @@ type Channel struct {
 // Thumbnail DB Model
 type Thumbnail struct {
 	gorm.Model
-	ID     uint   `gorm:"primaryKey" json:"-"`
-	UUID   string `gorm:"type:varchar(256);not null;unique"`
+	ID     uint64 `gorm:"primaryKey"`
 	URL    string `gorm:"type:varchar(256);not null"`
-	Width  uint   `gorm:"not null"`
-	Height uint   `gorm:"not null"`
+	Width  int    `gorm:"not null"`
+	Height int    `gorm:"not null"`
 
-	OwnerID   uint   `json:"-"`
-	OwnerType string `json:"-"`
+	OwnerID   uint64
+	OwnerType string
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -92,13 +89,13 @@ type Thumbnail struct {
 }
 
 type SubscriptionRequest struct {
-	ID           uint   `gorm:"primaryKey"`
-	UUID         string `gorm:"type:varchar(256);not null;unique"`
-	ChannelID    string `gorm:"type:varchar(256);not null"`
-	LeaseSeconds uint   `gorm:"not null"`
+	ID           uint64 `gorm:"primaryKey"`
+	LeaseSeconds int    `gorm:"not null"`
 	Topic        string `gorm:"type:varchar(256);not null"`
 	Secret       string `gorm:"type:varchar(256);not null"`
 	Active       bool
+
+	ChannelID uint64
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -106,8 +103,7 @@ type SubscriptionRequest struct {
 }
 
 type YoutubeToken struct {
-	ID           uint   `gorm:"primaryKey"`
-	UUID         string `gorm:"type:varchar(256);not null;unique"`
+	ID           uint64 `gorm:"primaryKey"`
 	AccessToken  string `gorm:"type:varchar(256);not null;unique"`
 	TokenType    string `gorm:"type:varchar(256);not null;"`
 	RefreshToken string `gorm:"type:varchar(256);not null;unique"`
@@ -115,8 +111,7 @@ type YoutubeToken struct {
 }
 
 type YoutubeClientConfig struct {
-	ID           uint   `gorm:"primaryKey"`
-	UUID         string `gorm:"type:varchar(256);not null;unique"`
+	ID           uint64 `gorm:"primaryKey"`
 	ClientID     string `gorm:"type:varchar(256);not null;unique"`
 	ClientSecret string `gorm:"type:varchar(256);not null;unique"`
 	RedirectURL  string `gorm:"type:varchar(256);not null;"`

@@ -49,13 +49,13 @@ func (_m *ISubscriptionData) GetInactiveSubscription() (*models.SubscriptionRequ
 	return r0, r1
 }
 
-// GetSubscription provides a mock function with given fields: secret, channelID
-func (_m *ISubscriptionData) GetSubscription(secret string, channelID string) (*models.SubscriptionRequest, error) {
-	ret := _m.Called(secret, channelID)
+// GetSubscription provides a mock function with given fields: channelID, secret
+func (_m *ISubscriptionData) GetSubscription(channelID uint64, secret string) (*models.SubscriptionRequest, error) {
+	ret := _m.Called(channelID, secret)
 
 	var r0 *models.SubscriptionRequest
-	if rf, ok := ret.Get(0).(func(string, string) *models.SubscriptionRequest); ok {
-		r0 = rf(secret, channelID)
+	if rf, ok := ret.Get(0).(func(uint64, string) *models.SubscriptionRequest); ok {
+		r0 = rf(channelID, secret)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.SubscriptionRequest)
@@ -63,31 +63,8 @@ func (_m *ISubscriptionData) GetSubscription(secret string, channelID string) (*
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, string) error); ok {
-		r1 = rf(secret, channelID)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// GetSubscriptionFromChannelID provides a mock function with given fields: channelID
-func (_m *ISubscriptionData) GetSubscriptionFromChannelID(channelID string) (*models.SubscriptionRequest, error) {
-	ret := _m.Called(channelID)
-
-	var r0 *models.SubscriptionRequest
-	if rf, ok := ret.Get(0).(func(string) *models.SubscriptionRequest); ok {
-		r0 = rf(channelID)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.SubscriptionRequest)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(channelID)
+	if rf, ok := ret.Get(1).(func(uint64, string) error); ok {
+		r1 = rf(channelID, secret)
 	} else {
 		r1 = ret.Error(1)
 	}

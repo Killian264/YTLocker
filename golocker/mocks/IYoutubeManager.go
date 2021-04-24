@@ -12,13 +12,13 @@ type IYoutubeManager struct {
 	mock.Mock
 }
 
-// CreateVideo provides a mock function with given fields: videoID, channelID
-func (_m *IYoutubeManager) CreateVideo(videoID string, channelID string) (*models.Video, error) {
-	ret := _m.Called(videoID, channelID)
+// CreateVideo provides a mock function with given fields: channel, videoID
+func (_m *IYoutubeManager) CreateVideo(channel *models.Channel, videoID string) (*models.Video, error) {
+	ret := _m.Called(channel, videoID)
 
 	var r0 *models.Video
-	if rf, ok := ret.Get(0).(func(string, string) *models.Video); ok {
-		r0 = rf(videoID, channelID)
+	if rf, ok := ret.Get(0).(func(*models.Channel, string) *models.Video); ok {
+		r0 = rf(channel, videoID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Video)
@@ -26,8 +26,8 @@ func (_m *IYoutubeManager) CreateVideo(videoID string, channelID string) (*model
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, string) error); ok {
-		r1 = rf(videoID, channelID)
+	if rf, ok := ret.Get(1).(func(*models.Channel, string) error); ok {
+		r1 = rf(channel, videoID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -35,13 +35,36 @@ func (_m *IYoutubeManager) CreateVideo(videoID string, channelID string) (*model
 	return r0, r1
 }
 
-// GetChannel provides a mock function with given fields: channelID
-func (_m *IYoutubeManager) GetChannel(channelID string) (*models.Channel, error) {
-	ret := _m.Called(channelID)
+// GetChannelByID provides a mock function with given fields: ID
+func (_m *IYoutubeManager) GetChannelByID(ID uint64) (*models.Channel, error) {
+	ret := _m.Called(ID)
+
+	var r0 *models.Channel
+	if rf, ok := ret.Get(0).(func(uint64) *models.Channel); ok {
+		r0 = rf(ID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Channel)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(uint64) error); ok {
+		r1 = rf(ID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetChannelByYoutubeID provides a mock function with given fields: youtubeID
+func (_m *IYoutubeManager) GetChannelByYoutubeID(youtubeID string) (*models.Channel, error) {
+	ret := _m.Called(youtubeID)
 
 	var r0 *models.Channel
 	if rf, ok := ret.Get(0).(func(string) *models.Channel); ok {
-		r0 = rf(channelID)
+		r0 = rf(youtubeID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Channel)
@@ -50,7 +73,7 @@ func (_m *IYoutubeManager) GetChannel(channelID string) (*models.Channel, error)
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(channelID)
+		r1 = rf(youtubeID)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -43,6 +43,12 @@ func (u *User) RegisterUser(user *models.User) error {
 	return u.data.NewUser(user)
 }
 
+func (u *User) GetUserByID(ID uint64) (*models.User, error) {
+
+	return u.data.GetUserByID(ID)
+
+}
+
 func judgePasswordStrength(pass string) error {
 	//TODO: agree and expand on password strength requirements, essentially placeholder
 	re := regexp.MustCompile(`\d`)

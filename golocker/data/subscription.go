@@ -2,25 +2,24 @@ package data
 
 import (
 	"github.com/Killian264/YTLocker/golocker/models"
-	uuid "github.com/satori/go.uuid"
 )
 
 func (d *Data) NewSubscription(request *models.SubscriptionRequest) error {
-	request.UUID = uuid.NewV4().String()
+	request.ID = d.rand.ID()
 
-	result := d.gormDB.Create(request)
+	result := d.db.Create(request)
 
 	return result.Error
 }
 
-func (d *Data) GetSubscription(channelID string) (*models.SubscriptionRequest, error) {
+func (d *Data) GetSubscription(channelID uint64, secret string) (*models.SubscriptionRequest, error) {
 
-	request := models.SubscriptionRequest{}
+	request := models.SubscriptionRequest{ChannelID: channelID, Secret: secret}
 
-	result := d.gormDB.Where("channel_id = ?", channelID).First(&request)
+	result := d.db.Where(&request).First(&request)
 
-	if result.Error != nil || NotFound(result.Error) {
-		return nil, RemoveNotFound(result.Error)
+	if result.Error != nil || notFound(result.Error) {
+		return nil, removeNotFound(result.Error)
 	}
 
 	return &request, nil
@@ -29,7 +28,7 @@ func (d *Data) GetSubscription(channelID string) (*models.SubscriptionRequest, e
 
 func (d *Data) InactivateAllSubscriptions() error {
 
-	result := d.gormDB.Model(&models.SubscriptionRequest{}).Where(&models.SubscriptionRequest{Active: true}).Update("active", false)
+	result := d.db.Model(&models.SubscriptionRequest{}).Where(&models.SubscriptionRequest{Active: true}).Update("active", false)
 
 	return result.Error
 }
@@ -38,10 +37,10 @@ func (d *Data) GetInactiveSubscription() (*models.SubscriptionRequest, error) {
 
 	sub := models.SubscriptionRequest{}
 
-	result := d.gormDB.Where("active = false").First(&sub)
+	result := d.db.Where("active = false").First(&sub)
 
-	if result.Error != nil || NotFound(result.Error) {
-		return nil, RemoveNotFound(result.Error)
+	if result.Error != nil || notFound(result.Error) {
+		return nil, removeNotFound(result.Error)
 	}
 
 	return &sub, nil
@@ -49,7 +48,7 @@ func (d *Data) GetInactiveSubscription() (*models.SubscriptionRequest, error) {
 
 func (d *Data) DeleteSubscription(sub *models.SubscriptionRequest) error {
 
-	result := d.gormDB.Where(&models.SubscriptionRequest{UUID: sub.UUID}).Delete(&models.SubscriptionRequest{UUID: sub.UUID})
+	result := d.db.Delete(sub)
 
 	return result.Error
 

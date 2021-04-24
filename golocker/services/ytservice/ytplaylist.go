@@ -54,7 +54,7 @@ func (s *YTPlaylist) Create(playlist models.Playlist) (models.Playlist, error) {
 		return playlist, err
 	}
 
-	playlist.PlaylistID = response.Id
+	playlist.YoutubeID = response.Id
 
 	return playlist, err
 }
@@ -64,12 +64,12 @@ func (s *YTPlaylist) Insert(playlist models.Playlist, video models.Video) error 
 	parts := []string{"id", "snippet"}
 
 	item := &youtube.PlaylistItem{
-		Id: video.VideoID,
+		Id: video.YoutubeID,
 		Snippet: &youtube.PlaylistItemSnippet{
-			PlaylistId: playlist.PlaylistID,
+			PlaylistId: playlist.YoutubeID,
 			ResourceId: &youtube.ResourceId{
 				Kind:    "youtube#video",
-				VideoId: video.VideoID,
+				VideoId: video.YoutubeID,
 			},
 		},
 	}
