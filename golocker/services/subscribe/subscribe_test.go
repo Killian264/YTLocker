@@ -1,16 +1,15 @@
 package subscribe
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/Killian264/YTLocker/golocker/data"
-	"github.com/Killian264/YTLocker/golocker/mocks"
 	"github.com/Killian264/YTLocker/golocker/models"
+	"github.com/Killian264/YTLocker/golocker/services/ytmanager"
+	"github.com/Killian264/YTLocker/golocker/services/ytservice"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 var hook = models.YTHookPush{
@@ -33,8 +32,7 @@ var channel2 = models.Channel{
 
 func Test_Valid_Challenge(t *testing.T) {
 
-	service, yt := createMockServices(t)
-	yt.On("GetChannelByYoutubeID", channel.YoutubeID).Return(&channel, nil)
+	service := createMockServices(t)
 
 	sub, err := service.Subscribe(&channel)
 	assert.Nil(t, err)
@@ -45,15 +43,15 @@ func Test_Valid_Challenge(t *testing.T) {
 }
 
 func Test_InValid_Challenge(t *testing.T) {
-	service, yt := createMockServices(t)
-	yt.On("GetChannelByYoutubeID", "random fake id").Return(&channel, nil)
+	service := createMockServices(t)
 
+	// fake id specified in ytservice fakes
 	valid, err := service.HandleChallenge(&models.SubscriptionRequest{
 		ChannelID:    uint64(23423),
 		LeaseSeconds: 23423,
 		Topic:        "random.com/url",
 		Secret:       "one-two-three",
-	}, "random fake id")
+	}, "fake-channel-id")
 
 	assert.NotNil(t, err)
 	assert.False(t, valid)
@@ -61,10 +59,7 @@ func Test_InValid_Challenge(t *testing.T) {
 
 func Test_Valid_Video_Push(t *testing.T) {
 
-	service, yt := createMockServices(t)
-
-	yt.On("GetChannelByYoutubeID", "test-channel-id").Return(&models.Channel{}, nil)
-	yt.On("CreateVideo", &models.Channel{}, "test-video-id").Return(&models.Video{}, nil)
+	service := createMockServices(t)
 
 	sub, _ := service.Subscribe(&channel)
 	err := service.HandleVideoPush(&hook, sub.Secret)
@@ -74,8 +69,7 @@ func Test_Valid_Video_Push(t *testing.T) {
 
 func Test_InValid_Video_Push(t *testing.T) {
 
-	service, yt := createMockServices(t)
-	yt.On("GetChannelByYoutubeID", "test-channel-id").Return(&models.Channel{}, nil)
+	service := createMockServices(t)
 
 	err := service.HandleVideoPush(&hook, "super fake secret")
 
@@ -84,9 +78,9 @@ func Test_InValid_Video_Push(t *testing.T) {
 
 func Test_InValid_Video_Video_Push(t *testing.T) {
 
-	service, yt := createMockServices(t)
-	yt.On("GetChannelByYoutubeID", "test-channel-id").Return(&models.Channel{}, nil)
-	yt.On("CreateVideo", &models.Channel{}, "test-video-id").Return(nil, fmt.Errorf("123"))
+	service := createMockServices(t)
+
+	hook.Video.VideoID = "fake-video-id"
 
 	sub, _ := service.Subscribe(&channel)
 	err := service.HandleVideoPush(&hook, sub.Secret)
@@ -96,10 +90,7 @@ func Test_InValid_Video_Video_Push(t *testing.T) {
 
 func Test_ResubscribeAll(t *testing.T) {
 
-	service, yt := createMockServices(t)
-
-	yt.On("GetChannelByID", mock.Anything).Return(&channel, nil).Once()
-	yt.On("GetChannelByID", mock.Anything).Return(&channel2, nil).Once()
+	service := createMockServices(t)
 
 	sub1, _ := service.Subscribe(&channel)
 	sub2, _ := service.Subscribe(&channel2)
@@ -114,23 +105,29 @@ func Test_ResubscribeAll(t *testing.T) {
 	assert.NotEqual(t, sub2.ID, sub4.ID)
 }
 
-func createMockServices(t *testing.T) (*Subscriber, *mocks.IYoutubeManager) {
+func createMockServices(t *testing.T) *Subscriber {
 
 	db := data.InMemorySQLiteConnect()
-	yt := &mocks.IYoutubeManager{}
+
+	ytfake := ytservice.YTSerivceFake{}
+
+	manager := ytmanager.NewYoutubeManager(db, ytmanager.IYTService(&ytfake))
 
 	service := NewSubscriber(
 		ISubscriptionData(db),
-		IYoutubeManager(yt),
+		IYoutubeManager(manager),
 	)
 
 	service.SetSubscribeUrl("", "/subscribe/{secret}/")
 	service.SetYTPubSubUrl(youtubePubSub(t))
 
-	db.NewChannel(&channel)
-	db.NewChannel(&channel2)
+	new, _ := manager.NewChannel(channel.YoutubeID)
+	new2, _ := manager.NewChannel(channel2.YoutubeID)
 
-	return service, yt
+	channel = *new
+	channel2 = *new2
+
+	return service
 }
 
 func youtubePubSub(t *testing.T) string {

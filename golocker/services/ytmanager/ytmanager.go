@@ -28,9 +28,9 @@ type IYoutubeManagerData interface {
 	GetVideoByID(videoID string) (*models.Video, error)
 }
 
-func NewYoutubeManager(data IYoutubeManagerData, ytservice IYTService) YoutubeManager {
+func NewYoutubeManager(data IYoutubeManagerData, ytservice IYTService) *YoutubeManager {
 
-	return YoutubeManager{
+	return &YoutubeManager{
 		yt:   ytservice,
 		data: data,
 	}
@@ -38,8 +38,11 @@ func NewYoutubeManager(data IYoutubeManagerData, ytservice IYTService) YoutubeMa
 }
 func (s *YoutubeManager) NewVideo(channel *models.Channel, videoID string) (*models.Video, error) {
 	ytVideo, err := s.yt.GetVideo(channel, videoID)
-	if err != nil || ytVideo == nil {
+	if err != nil {
 		return nil, err
+	}
+	if ytVideo == nil {
+		return nil, fmt.Errorf("Video does not exist")
 	}
 
 	video, channelID := parsers.ParseYTVideo(ytVideo)
@@ -64,8 +67,11 @@ func (s *YoutubeManager) GetVideoByID(youtubeID string) (*models.Video, error) {
 func (s *YoutubeManager) NewChannel(channelID string) (*models.Channel, error) {
 
 	ytChannel, err := s.yt.GetChannel(channelID)
-	if err != nil || ytChannel == nil {
+	if err != nil {
 		return nil, err
+	}
+	if ytChannel == nil {
+		return nil, fmt.Errorf("Channel does not exist")
 	}
 
 	channel := parsers.ParseYTChannel(ytChannel)

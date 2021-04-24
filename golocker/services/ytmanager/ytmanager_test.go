@@ -36,7 +36,7 @@ func Test_New_Channel_InValid_Channel(t *testing.T) {
 
 	channel, err := service.NewChannel("fake-channel-id")
 	assert.Nil(t, channel)
-	assert.Nil(t, err)
+	assert.NotNil(t, err)
 
 }
 
@@ -87,7 +87,7 @@ func Test_New_Video_InValid_Channel(t *testing.T) {
 
 	video, err := service.NewVideo(channel, "fake-video-id")
 	assert.Nil(t, video)
-	assert.Nil(t, err)
+	assert.NotNil(t, err)
 
 }
 
@@ -143,6 +143,6 @@ func createMockServices(t *testing.T) *YoutubeManager {
 		IYTService(&ytservice),
 	)
 
-	return &service
+	return service
 
 }

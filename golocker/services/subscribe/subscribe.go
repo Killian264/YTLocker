@@ -29,9 +29,9 @@ type ISubscriptionData interface {
 }
 
 type IYoutubeManager interface {
-	CreateVideo(channel *models.Channel, videoID string) (*models.Video, error)
-	GetChannelByID(ID uint64) (*models.Channel, error)
-	GetChannelByYoutubeID(youtubeID string) (*models.Channel, error)
+	NewVideo(channel *models.Channel, videoID string) (*models.Video, error)
+	GetChannel(ID uint64) (*models.Channel, error)
+	GetChannelByID(youtubeID string) (*models.Channel, error)
 }
 
 func NewSubscriber(data ISubscriptionData, yt IYoutubeManager) *Subscriber {
@@ -133,7 +133,7 @@ func (s *Subscriber) ResubscribeAll() error {
 			return err
 		}
 
-		channel, err := s.ytmanager.GetChannelByID(old.ChannelID)
+		channel, err := s.ytmanager.GetChannel(old.ChannelID)
 		if err != nil {
 			return err
 		}
@@ -163,7 +163,7 @@ func (s *Subscriber) GetSubscription(channel *models.Channel) (*models.Subscript
 // HandleChallenge handles a challenge on a new subscription
 func (s *Subscriber) HandleChallenge(request *models.SubscriptionRequest, channelID string) (bool, error) {
 
-	channel, err := s.ytmanager.GetChannelByYoutubeID(channelID)
+	channel, err := s.ytmanager.GetChannelByID(channelID)
 	if err != nil {
 		return false, err
 	}
@@ -179,7 +179,7 @@ func (s *Subscriber) HandleChallenge(request *models.SubscriptionRequest, channe
 // HandleVideoPush handles a new video push from youtube
 func (s *Subscriber) HandleVideoPush(push *models.YTHookPush, secret string) error {
 
-	channel, err := s.ytmanager.GetChannelByYoutubeID(push.Video.ChannelID)
+	channel, err := s.ytmanager.GetChannelByID(push.Video.ChannelID)
 	if err != nil {
 		return err
 	}
@@ -192,7 +192,7 @@ func (s *Subscriber) HandleVideoPush(push *models.YTHookPush, secret string) err
 		return err
 	}
 
-	_, err = s.ytmanager.CreateVideo(channel, push.Video.VideoID)
+	_, err = s.ytmanager.NewVideo(channel, push.Video.VideoID)
 	if err != nil {
 		return fmt.Errorf("Failed to save new video with video id: '%s' from channel: '%s'", push.Video.VideoID, push.Video.ChannelID)
 	}
