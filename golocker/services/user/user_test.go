@@ -130,7 +130,7 @@ func TestValidEmail(t *testing.T) {
 
 func createMockServices() *User {
 
-	db := data.SQLiteConnectAndInitalize()
+	db := data.InMemorySQLiteConnect()
 
 	service := NewUser(
 		interfaces.IUserData(db),

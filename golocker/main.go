@@ -186,7 +186,7 @@ func InitializeDatabase(s *services.Services, username string, password string, 
 		logger.Config{},
 	)
 
-	s.Data = data.MySQLConnectAndInitialize(username, password, ip, port, name, logger)
+	s.Data = data.MySQLConnect(username, password, ip, port, name, logger)
 
 }
 

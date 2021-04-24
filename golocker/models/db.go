@@ -2,13 +2,10 @@ package models
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 // User DB Model
 type User struct {
-	gorm.Model
 	ID       uint64 `gorm:"primaryKey"`
 	Username string `gorm:"type:varchar(256);not null"`
 	Email    string `gorm:"type:varchar(256);not null;unique"`
@@ -18,12 +15,10 @@ type User struct {
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt
 }
 
 // Video DB Model
 type Video struct {
-	gorm.Model
 	ID          uint64 `gorm:"primaryKey"`
 	YoutubeID   string `gorm:"type:varchar(256);not null;unique"`
 	Title       string `gorm:"type:varchar(256);not null"`
@@ -34,12 +29,10 @@ type Video struct {
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt
 }
 
 // Playlist DB Model
 type Playlist struct {
-	gorm.Model
 	ID          uint64 `gorm:"primaryKey"`
 	YoutubeID   string `gorm:"type:varchar(256);index;"`
 	Title       string `gorm:"type:varchar(256);not null"`
@@ -51,12 +44,10 @@ type Playlist struct {
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt
 }
 
 // Channel DB Model
 type Channel struct {
-	gorm.Model
 	ID          uint64 `gorm:"primaryKey"`
 	YoutubeID   string `gorm:"type:varchar(256);not null;unique;index"`
 	Title       string `gorm:"type:varchar(256);not null"`
@@ -69,12 +60,10 @@ type Channel struct {
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt
 }
 
 // Thumbnail DB Model
 type Thumbnail struct {
-	gorm.Model
 	ID     uint64 `gorm:"primaryKey"`
 	URL    string `gorm:"type:varchar(256);not null"`
 	Width  int    `gorm:"not null"`
@@ -85,7 +74,6 @@ type Thumbnail struct {
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt
 }
 
 type SubscriptionRequest struct {
@@ -99,7 +87,6 @@ type SubscriptionRequest struct {
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt
 }
 
 type YoutubeToken struct {

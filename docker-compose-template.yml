@@ -17,6 +17,25 @@ services:
         networks:
             - default
 
+    test_db:
+        build:
+            mysqllocker
+        restart: always
+        ports:
+            - 9906:9906
+        environment:
+            MYSQL_ROOT_PASSWORD: "password"
+            MYSQL_DATABASE: "YTLockerDB"
+            MYSQL_TCP_PORT: 9906
+            MYSQL_USER: "user"
+            MYSQL_PASSWORD: "password"
+        expose:
+            - 9906
+        networks:
+            - default
+        tmpfs:
+            - /var/lib/mysql
+
     golang_api:
         build:
             golocker

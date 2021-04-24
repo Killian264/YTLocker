@@ -22,8 +22,12 @@ var hook = models.YTHookPush{
 }
 
 var channel = models.Channel{
-	ID:          12313423,
 	YoutubeID:   "test-channel-id",
+	Title:       "not used",
+	Description: "not used",
+}
+var channel2 = models.Channel{
+	YoutubeID:   "test-channel-id2",
 	Title:       "not used",
 	Description: "not used",
 }
@@ -95,8 +99,6 @@ func Test_ResubscribeAll(t *testing.T) {
 
 	service, yt := createMockServices(t)
 
-	channel2 := models.Channel{YoutubeID: "test-channel-id2"}
-
 	yt.On("GetChannelByID", mock.Anything).Return(&channel, nil).Once()
 	yt.On("GetChannelByID", mock.Anything).Return(&channel2, nil).Once()
 
@@ -115,7 +117,7 @@ func Test_ResubscribeAll(t *testing.T) {
 
 func createMockServices(t *testing.T) (*Subscriber, *mocks.IYoutubeManager) {
 
-	db := data.SQLiteConnectAndInitalize()
+	db := data.InMemorySQLiteConnect()
 	yt := &mocks.IYoutubeManager{}
 
 	service := NewSubscriber(
@@ -125,6 +127,9 @@ func createMockServices(t *testing.T) (*Subscriber, *mocks.IYoutubeManager) {
 
 	service.SetSubscribeUrl("", "/subscribe/{secret}/")
 	service.SetYTPubSubUrl(youtubePubSub(t))
+
+	db.NewChannel(&channel)
+	db.NewChannel(&channel2)
 
 	return service, yt
 }
