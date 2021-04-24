@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/Killian264/YTLocker/golocker/data"
-	"github.com/Killian264/YTLocker/golocker/interfaces"
 	"github.com/Killian264/YTLocker/golocker/mocks"
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/stretchr/testify/assert"
@@ -121,8 +120,8 @@ func createMockServices(t *testing.T) (*Subscriber, *mocks.IYoutubeManager) {
 	yt := &mocks.IYoutubeManager{}
 
 	service := NewSubscriber(
-		interfaces.ISubscriptionData(db),
-		interfaces.IYoutubeManager(yt),
+		ISubscriptionData(db),
+		IYoutubeManager(yt),
 	)
 
 	service.SetSubscribeUrl("", "/subscribe/{secret}/")

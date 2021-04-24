@@ -4,27 +4,9 @@ import (
 	"net/http"
 
 	"github.com/Killian264/YTLocker/golocker/models"
+	"google.golang.org/api/youtube/v3"
 )
 
-//// SUBSCRIBE //////////////////////////////////////////////////////////
-
-// ISubscriptionData Data Requirements
-type ISubscriptionData interface {
-	NewSubscription(request *models.SubscriptionRequest) error
-	GetSubscription(channelID uint64, secret string) (*models.SubscriptionRequest, error)
-
-	InactivateAllSubscriptions() error
-	GetInactiveSubscription() (*models.SubscriptionRequest, error)
-	DeleteSubscription(sub *models.SubscriptionRequest) error
-}
-
-type IYoutubeManager interface {
-	CreateVideo(channel *models.Channel, videoID string) (*models.Video, error)
-	GetChannelByID(ID uint64) (*models.Channel, error)
-	GetChannelByYoutubeID(youtubeID string) (*models.Channel, error)
-}
-
-// ISubscription Requirements
 type ISubscription interface {
 	SetYTPubSubUrl(url string)
 	SetSubscribeUrl(base string, path string)
@@ -39,31 +21,14 @@ type ISubscription interface {
 	ResubscribeAll() error
 }
 
-//// PLAYLIST //////////////////////////////////////////////////////////
+type IYoutubeManager interface {
+	NewVideo(channel *models.Channel, videoID string) (*models.Video, error)
+	GetVideo(ID uint64) (*models.Video, error)
+	GetVideoByID(youtubeID string) (*models.Video, error)
 
-type IPlaylistHelperData interface {
-	GetFirstYoutubeClientConfig() (*models.YoutubeClientConfig, error)
-	GetFirstYoutubeToken() (*models.YoutubeToken, error)
-}
-
-type IYoutubePlaylistService interface {
-	Initalize(configData models.YoutubeClientConfig, tokenData models.YoutubeToken)
-	Create(playlist models.Playlist) (models.Playlist, error)
-	Insert(playlist models.Playlist, video models.Video) error
-}
-
-type IPlaylistHelper interface {
-	Create(user *models.User, playlist *models.Playlist) (*models.Playlist, error)
-	Insert(playlist *models.Playlist, video *models.Video) error
-}
-
-//// USER //////////////////////////////////////////////////////////
-
-type IUserData interface {
-	GetUserByEmail(email string) (*models.User, error)
-	GetUserByID(ID uint64) (*models.User, error)
-	NewUser(user *models.User) error
-	GetFirstUser() (*models.User, error)
+	NewChannel(channelID string) (*models.Channel, error)
+	GetChannel(ID uint64) (*models.Channel, error)
+	GetChannelByID(youtubeID string) (*models.Channel, error)
 }
 
 type IUser interface {
@@ -73,16 +38,27 @@ type IUser interface {
 	GetUserByID(ID uint64) (*models.User, error)
 }
 
-//// NEED WORK //////////////////////////////////////////////////////////
-
-// IPlaylistManager
-type IPlaylistManager interface {
-	Create(playlist *models.Playlist, user *models.User) (*models.Playlist, error)
-	Insert(playlist *models.Playlist, video *models.Video) error
-	Subscribe(playlist *models.Playlist, channel *models.Channel)
-	Unsubscribe(playlist *models.Playlist, channel *models.Channel)
+// Helper Services
+type IYoutubeHelper interface {
+	GetLastVideosFromChannel(channelID string, pageToken string) (*youtube.SearchListResponse, error)
+	GetVideo(videoID string) (*youtube.Video, error)
+	GetChannel(channelID string) (*youtube.Channel, error)
 }
 
-type IChannel interface {
-	GetOrCreateChannel(channelID string)
+type IYoutubePlaylistHelper interface {
+	Initalize(configData models.YoutubeClientConfig, tokenData models.YoutubeToken)
+	Create(playlist models.Playlist) (models.Playlist, error)
+	Insert(playlist models.Playlist, video models.Video) error
 }
+
+// type IPlaylistHelperData interface {
+// 	GetFirstYoutubeClientConfig() (*models.YoutubeClientConfig, error)
+// 	GetFirstYoutubeToken() (*models.YoutubeToken, error)
+// }
+
+// type IPlaylistManager interface {
+// 	Create(playlist *models.Playlist, user *models.User) (*models.Playlist, error)
+// 	Insert(playlist *models.Playlist, video *models.Video) error
+// 	Subscribe(playlist *models.Playlist, channel *models.Channel)
+// 	Unsubscribe(playlist *models.Playlist, channel *models.Channel)
+// }

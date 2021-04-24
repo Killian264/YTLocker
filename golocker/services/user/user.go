@@ -6,16 +6,22 @@ import (
 	"regexp"
 
 	"github.com/Killian264/YTLocker/golocker/helpers/parsers"
-	"github.com/Killian264/YTLocker/golocker/interfaces"
 	"github.com/Killian264/YTLocker/golocker/models"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
-	data interfaces.IUserData
+	data IUserData
 }
 
-func NewUser(data interfaces.IUserData) *User {
+type IUserData interface {
+	GetUserByEmail(email string) (*models.User, error)
+	GetUserByID(ID uint64) (*models.User, error)
+	NewUser(user *models.User) error
+	GetFirstUser() (*models.User, error)
+}
+
+func NewUser(data IUserData) *User {
 	return &User{
 		data: data,
 	}

@@ -9,18 +9,32 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Killian264/YTLocker/golocker/interfaces"
 	"github.com/Killian264/YTLocker/golocker/models"
 )
 
 type Subscriber struct {
 	pushSubscribeURL string
 	pushHandlerURL   string
-	ytmanager        interfaces.IYoutubeManager
-	dataService      interfaces.ISubscriptionData
+	ytmanager        IYoutubeManager
+	dataService      ISubscriptionData
 }
 
-func NewSubscriber(data interfaces.ISubscriptionData, yt interfaces.IYoutubeManager) *Subscriber {
+type ISubscriptionData interface {
+	NewSubscription(request *models.SubscriptionRequest) error
+	GetSubscription(channelID uint64, secret string) (*models.SubscriptionRequest, error)
+
+	InactivateAllSubscriptions() error
+	GetInactiveSubscription() (*models.SubscriptionRequest, error)
+	DeleteSubscription(sub *models.SubscriptionRequest) error
+}
+
+type IYoutubeManager interface {
+	CreateVideo(channel *models.Channel, videoID string) (*models.Video, error)
+	GetChannelByID(ID uint64) (*models.Channel, error)
+	GetChannelByYoutubeID(youtubeID string) (*models.Channel, error)
+}
+
+func NewSubscriber(data ISubscriptionData, yt IYoutubeManager) *Subscriber {
 	return &Subscriber{
 		dataService: data,
 		ytmanager:   yt,

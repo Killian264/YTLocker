@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/Killian264/YTLocker/golocker/data"
-	"github.com/Killian264/YTLocker/golocker/interfaces"
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -133,7 +132,7 @@ func createMockServices() *User {
 	db := data.InMemorySQLiteConnect()
 
 	service := NewUser(
-		interfaces.IUserData(db),
+		IUserData(db),
 	)
 
 	return service

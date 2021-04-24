@@ -16,7 +16,5 @@ type Services struct {
 	Logger    *log.Logger
 	Youtube   *ytservice.YTService
 	Subscribe interfaces.ISubscription
-	Channel   interfaces.IChannel
-	Playlist  interfaces.IPlaylistManager
 	User      interfaces.IUser
 }
