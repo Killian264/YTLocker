@@ -8,6 +8,7 @@ import (
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/oauth2"
+	"google.golang.org/api/youtube/v3"
 )
 
 var (
@@ -242,4 +243,114 @@ func TestParseYoutubeToken(t *testing.T) {
 	assert.Equal(t, 23, hour)
 	assert.Equal(t, 30, min)
 	assert.Equal(t, 6, sec)
+}
+
+func TestParseYTThumbnails(t *testing.T) {
+	all := &youtube.ThumbnailDetails{
+		Default: &youtube.Thumbnail{
+			Url:    "ytlocker.com",
+			Height: 200,
+			Width:  200,
+		},
+		Standard: &youtube.Thumbnail{
+			Url:    "ytlocker.com",
+			Height: 200,
+			Width:  200,
+		},
+		Medium: &youtube.Thumbnail{
+			Url:    "ytlocker.com",
+			Height: 200,
+			Width:  200,
+		},
+		High: &youtube.Thumbnail{
+			Url:    "ytlocker.com",
+			Height: 200,
+			Width:  200,
+		},
+		Maxres: &youtube.Thumbnail{
+			Url:    "ytlocker.com",
+			Height: 200,
+			Width:  200,
+		},
+	}
+
+	thumbnails := ParseYTThumbnails(all)
+	assert.Equal(t, 5, len(thumbnails))
+
+	all.Default = nil
+	all.High = nil
+
+	thumbnails = ParseYTThumbnails(all)
+	assert.Equal(t, 3, len(thumbnails))
+
+	all = &youtube.ThumbnailDetails{
+		Default:  nil,
+		Standard: nil,
+		Medium:   nil,
+		High:     nil,
+		Maxres:   nil,
+	}
+
+	thumbnails = ParseYTThumbnails(all)
+	assert.Equal(t, 0, len(thumbnails))
+}
+
+func TestParseYTVideo(t *testing.T) {
+	all := &youtube.ThumbnailDetails{
+		Default:  nil,
+		Standard: nil,
+		Medium:   nil,
+		High:     nil,
+		Maxres:   nil,
+	}
+
+	video := &youtube.Video{
+		Id: "wow-video-id",
+		Snippet: &youtube.VideoSnippet{
+			Title:       "wow cool title",
+			Description: "wow that is a super cool description",
+			ChannelId:   "wow-channel-id",
+			Thumbnails:  all,
+		},
+	}
+
+	expected := models.Video{
+		YoutubeID:   "wow-video-id",
+		Title:       "wow cool title",
+		Description: "wow that is a super cool description",
+		Thumbnails:  ParseYTThumbnails(all),
+	}
+
+	parsed, channelID := ParseYTVideo(video)
+	assert.Equal(t, "wow-channel-id", channelID)
+	assert.Equal(t, expected, parsed)
+}
+
+func TestParseYTChannel(t *testing.T) {
+	all := &youtube.ThumbnailDetails{
+		Default:  nil,
+		Standard: nil,
+		Medium:   nil,
+		High:     nil,
+		Maxres:   nil,
+	}
+
+	channel := &youtube.Channel{
+		Id: "wow-channel-id",
+		Snippet: &youtube.ChannelSnippet{
+			Title:       "wow cool title",
+			Description: "wow that is a super cool description",
+			Thumbnails:  all,
+		},
+	}
+
+	expected := models.Channel{
+		YoutubeID:   "wow-channel-id",
+		Title:       "wow cool title",
+		Description: "wow that is a super cool description",
+		Thumbnails:  ParseYTThumbnails(all),
+	}
+
+	parsed := ParseYTChannel(channel)
+	assert.Equal(t, expected, parsed)
 }
