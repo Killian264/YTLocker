@@ -12,6 +12,8 @@ import (
 	"github.com/Killian264/YTLocker/golocker/helpers/parsers"
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/Killian264/YTLocker/golocker/services"
+	"github.com/Killian264/YTLocker/golocker/services/subscribe"
+	"github.com/Killian264/YTLocker/golocker/services/ytmanager"
 	"github.com/Killian264/YTLocker/golocker/services/ytservice"
 	"gorm.io/gorm/logger"
 
@@ -27,11 +29,7 @@ func main() {
 
 	logger.Print("-----------------------------------------")
 
-	logger.Print("Starting...")
-
 	s := NewServices(logger)
-
-	logger.Print("Running...")
 
 	logger.Print("-----------------------------------------")
 
@@ -41,8 +39,6 @@ func main() {
 		os.Getenv("GO_API_PORT"),
 	)
 
-	logger.Print("Exiting...")
-
 }
 
 func NewServices(logger *log.Logger) services.Services {
@@ -51,15 +47,9 @@ func NewServices(logger *log.Logger) services.Services {
 		Logger: logger,
 	}
 
-	logger.Print("Creating Router...")
-	InitializeRouter(&s)
+	s.Router = InitializeRouter()
 
-	logger.Print("Creating Routes...")
-	InitializeRoutes(&s)
-
-	logger.Print("Creating Data...")
-	InitializeDatabase(
-		&s,
+	s.Data = InitializeDatabase(
 		os.Getenv("MYSQL_USER"),
 		os.Getenv("MYSQL_PASSWORD"),
 		os.Getenv("MYSQL_HOST"),
@@ -67,55 +57,74 @@ func NewServices(logger *log.Logger) services.Services {
 		os.Getenv("MYSQL_DATABASE"),
 	)
 
-	logger.Print("Creating Playlister...")
-	InitalizePlaylistService(
-		&s,
+	ReadInSecrets(
+		s.Data,
 		"secrets/",
 	)
 
-	logger.Print("Creating Youtube...")
-	InitializeYTService(
-		&s,
+	_ = InitalizePlaylistService()
+
+	ytservice := InitializeYTService(
 		os.Getenv("YOUTUBE_API_KEY"),
 	)
 
-	logger.Print("Creating Subscribe...")
-	InitalizeSubscribeService(
-		&s,
+	s.Youtube = InitalizeYoutubeManager(
+		s.Data,
+		ytservice,
+	)
+
+	s.Subscribe = InitalizeSubscribeService(
+		s.Data,
+		s.Youtube,
 		os.Getenv("GO_API_URL"),
 	)
+
+	InitializeRoutes(s.Router)
 
 	return s
 }
 
-func InitalizeSubscribeService(s *services.Services, apiURL string) {
+func InitalizePlaylistService() *ytservice.YTPlaylist {
 
-	// service := subscribe.NewSubscriber(
-	// 	interfaces.ISubscriptionData(s.Data),
-	// 	interfaces.IYoutubeService(s.Youtube),
-	// 	log.New(os.Stdout, "Sub: ", log.Lshortfile),
-	// )
+	return &ytservice.YTPlaylist{}
 
-	// service.SetYTPubSubUrl("https://pubsubhubbub.appspot.com/subscribe")
-	// service.SetSubscribeUrl(apiURL, "/subscribe/{secret}")
+}
 
-	// s.Subscribe = service
+func InitalizeYoutubeManager(data ytmanager.IYoutubeManagerData, yt ytmanager.IYTService) *ytmanager.YoutubeManager {
+	service := ytmanager.NewYoutubeManager(
+		data,
+		yt,
+	)
+
+	return service
+}
+
+func InitalizeSubscribeService(data subscribe.ISubscriptionData, yt subscribe.IYoutubeManager, appURL string) *subscribe.Subscriber {
+
+	service := subscribe.NewSubscriber(data, yt)
+
+	service.SetYTPubSubUrl("https://pubsubhubbub.appspot.com/subscribe")
+	service.SetSubscribeUrl(appURL, "/subscribe/{secret}")
+
+	return service
 
 }
 
 // InitializeRouter Creates Router for app
-func InitializeRouter(s *services.Services) {
+func InitializeRouter() *mux.Router {
 
-	s.Router = mux.NewRouter()
+	router := mux.NewRouter()
 
-	s.Router.Use(muxhandler.RecoveryHandler())
+	router.Use(muxhandler.RecoveryHandler())
 
 	// s.Router.Use(handlers.LoggingMiddlewareTest)
+
+	return router
 
 }
 
 // InitializeRoutes creates the routes
-func InitializeRoutes(s *services.Services) {
+func InitializeRoutes(router *mux.Router) {
 
 	// logger := log.New(os.Stdout, "Han: ", log.Lshortfile)
 
@@ -128,32 +137,32 @@ func InitializeRoutes(s *services.Services) {
 }
 
 // InitializeYTService Creates YTService for app
-func InitializeYTService(s *services.Services, apiKey string) {
+func InitializeYTService(apiKey string) *ytservice.YTService {
 
-	s.Youtube = ytservice.NewYoutubeService(apiKey)
+	return ytservice.NewYoutubeService(apiKey)
 
 }
 
-func InitalizePlaylistService(s *services.Services, secretsDir string) {
+func ReadInSecrets(data *data.Data, secretsPath string) {
 
-	clientData, err := readInClientSecret(fmt.Sprintf("%s%s", secretsDir, "client_secret.json"))
+	clientData, err := readInClientSecret(fmt.Sprintf("%s%s", secretsPath, "client_secret.json"))
 	if err != nil {
-		s.Logger.Fatalf("Unable to read client secret file: %v", err)
+		panic(err)
 	}
 
-	tokenData, err := readInAccessToken(fmt.Sprintf("%s%s", secretsDir, "access_secret.json"))
+	tokenData, err := readInAccessToken(fmt.Sprintf("%s%s", secretsPath, "access_secret.json"))
 	if err != nil {
-		s.Logger.Fatalf("Unable to read access secret file: %v", err)
+		panic(err)
 	}
 
-	err = s.Data.NewYoutubeClientConfig(&clientData)
+	err = data.NewYoutubeClientConfig(&clientData)
 	if err != nil && !strings.Contains(err.Error(), "Duplicate entry") {
-		s.Logger.Fatal(err)
+		panic(err)
 	}
 
-	err = s.Data.NewYoutubeToken(&tokenData)
+	err = data.NewYoutubeToken(&tokenData)
 	if err != nil && !strings.Contains(err.Error(), "Duplicate entry") {
-		s.Logger.Fatal(err)
+		panic(err)
 	}
 
 }
@@ -177,7 +186,7 @@ func readInAccessToken(path string) (models.YoutubeToken, error) {
 }
 
 // InitializeDatabase creates DB Connection for app
-func InitializeDatabase(s *services.Services, username string, password string, ip string, port string, name string) {
+func InitializeDatabase(username string, password string, ip string, port string, name string) *data.Data {
 
 	logBase := log.New(os.Stdout, "Data: ", log.Lshortfile)
 
@@ -186,7 +195,7 @@ func InitializeDatabase(s *services.Services, username string, password string, 
 		logger.Config{},
 	)
 
-	s.Data = data.MySQLConnect(username, password, ip, port, name, logger)
+	return data.MySQLConnect(username, password, ip, port, name, logger)
 
 }
 

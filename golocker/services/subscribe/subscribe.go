@@ -34,6 +34,7 @@ type IYoutubeManager interface {
 	GetChannelByID(youtubeID string) (*models.Channel, error)
 }
 
+// NewSubscriber creates a new subscriber
 func NewSubscriber(data ISubscriptionData, yt IYoutubeManager) *Subscriber {
 	return &Subscriber{
 		dataService: data,
@@ -41,10 +42,12 @@ func NewSubscriber(data ISubscriptionData, yt IYoutubeManager) *Subscriber {
 	}
 }
 
+// SetYTPubSubUrl set the pub sub url tha this api will call to subscribe/unsubscribe
 func (s *Subscriber) SetYTPubSubUrl(url string) {
 	s.pushSubscribeURL = url
 }
 
+// SetSubscribeUrl set the route this application is using to handle challenges
 func (s *Subscriber) SetSubscribeUrl(base string, path string) {
 
 	if !strings.Contains(path, "{secret}") {

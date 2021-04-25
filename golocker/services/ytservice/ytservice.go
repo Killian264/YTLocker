@@ -14,7 +14,7 @@ type YTService struct {
 	searchService  *youtube.SearchService
 }
 
-// InitializeServices creates the yt service
+// NewYoutubeService creates the yt service
 func NewYoutubeService(apiKey string) *YTService {
 
 	service := YTService{}
@@ -64,8 +64,8 @@ func (s *YTService) GetLastVideosFromChannel(channelID string, pageToken string)
 
 }
 
-// GetVideoById gets a youtube video by id
-func (s *YTService) GetVideo(videoID string) (*youtube.Video, error) {
+// GetVideo gets a youtube video by it's youtube channel id and youtube video id
+func (s *YTService) GetVideo(channelID string, videoID string) (*youtube.Video, error) {
 
 	parts := []string{"snippet", "contentDetails"}
 	call := s.videoService.List(parts)
@@ -85,7 +85,7 @@ func (s *YTService) GetVideo(videoID string) (*youtube.Video, error) {
 	return video, nil
 }
 
-// GetChannelById gets a youtube channel by id
+// GetChannel gets a youtube channel by it's youtube id
 func (s *YTService) GetChannel(channelID string) (*youtube.Channel, error) {
 
 	parts := []string{"id", "snippet"}

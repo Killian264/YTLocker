@@ -12,7 +12,9 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-// SQLiteConnectAndInitalize is for testing only, rand is diffent to work with SQLite ints
+// SQLiteConnectAndInitalize creates an in memory SQLite db.
+// For testing purposes only.
+// SQLite supports up to 128 int keys, referential integrity is not checked.
 func InMemorySQLiteConnect() *Data {
 
 	logger := logger.New(
@@ -41,9 +43,8 @@ func InMemorySQLiteConnect() *Data {
 
 }
 
-// TODO: figure out what is wrong with clear
-
-// InMemoryMySQLConnect to the in memory test db in the docker compose
+// InMemoryMySQLConnect connects the the in memory test db
+// TODO: figure out why clear does not work
 func InMemoryMySQLConnect() *Data {
 
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", "user", "password", "localhost", "9906", "YTLockerDB")
@@ -78,7 +79,7 @@ func InMemoryMySQLConnect() *Data {
 	return &data
 }
 
-// Baisc MYSQL connect
+// MySQLConnect connects to a mysql db
 func MySQLConnect(username string, password string, ip string, port string, name string, logger logger.Interface) *Data {
 
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, ip, port, name)
@@ -133,7 +134,7 @@ func (d *Data) dropTables() error {
 
 }
 
-// Does not work
+// TODO: fix
 func (d *Data) clearTables() {
 	d.db.Unscoped().Where("1 = 1").Delete(&models.User{})
 	d.db.Unscoped().Where("1 = 1").Delete(&models.Playlist{})

@@ -27,6 +27,8 @@ func NewUser(data IUserData) *User {
 	}
 }
 
+// RegisterUser adds a new user given the user information
+// TODO: move existance checks on a model to seperate layer called by api
 func (u *User) RegisterUser(user *models.User) error {
 
 	isValid := parsers.StringArrayIsValid([]string{user.Username, user.Email, user.Password})
@@ -49,6 +51,7 @@ func (u *User) RegisterUser(user *models.User) error {
 	return u.data.NewUser(user)
 }
 
+// GetUserByID gets a user by id
 func (u *User) GetUserByID(ID uint64) (*models.User, error) {
 
 	return u.data.GetUserByID(ID)
@@ -66,6 +69,7 @@ func judgePasswordStrength(pass string) error {
 	return fmt.Errorf("Password strength does not meet requirements")
 }
 
+// ValidEmail checks to see if an email is a duplicate
 func (u *User) ValidEmail(email string) (bool, error) {
 	result, err := u.data.GetUserByEmail(email)
 	if err != nil {
@@ -75,6 +79,7 @@ func (u *User) ValidEmail(email string) (bool, error) {
 	return result == nil, nil
 }
 
+// GetUserFromRequest gets the user from the request
 // TEMP until actual login is implemented
 func (u *User) GetUserFromRequest(r *http.Request) (*models.User, error) {
 

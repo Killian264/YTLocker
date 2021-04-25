@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/Killian264/YTLocker/golocker/helpers/test"
-	"github.com/Killian264/YTLocker/golocker/interfaces"
 	"github.com/Killian264/YTLocker/golocker/mocks"
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/Killian264/YTLocker/golocker/services"
@@ -32,7 +31,7 @@ func TestHandleRegistration(t *testing.T) {
 
 	fake := test.FakeRequest{
 		Services: &services.Services{
-			User: interfaces.IUser(service),
+			User: services.IUser(service),
 		},
 		Route:   "/registration",
 		Request: request,

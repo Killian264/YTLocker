@@ -14,7 +14,7 @@ type YoutubeManager struct {
 }
 
 type IYTService interface {
-	GetVideo(channel *models.Channel, videoID string) (*youtube.Video, error)
+	GetVideo(channelID string, videoID string) (*youtube.Video, error)
 	GetChannel(channelID string) (*youtube.Channel, error)
 }
 
@@ -28,6 +28,7 @@ type IYoutubeManagerData interface {
 	GetVideoByID(videoID string) (*models.Video, error)
 }
 
+// NewYoutubeManager creates a new YoutubeManager and does any initilization work
 func NewYoutubeManager(data IYoutubeManagerData, ytservice IYTService) *YoutubeManager {
 
 	return &YoutubeManager{
@@ -36,8 +37,10 @@ func NewYoutubeManager(data IYoutubeManagerData, ytservice IYTService) *YoutubeM
 	}
 
 }
+
+// NewVideo fetches and saves to the db a video from a saved channel with a videoID
 func (s *YoutubeManager) NewVideo(channel *models.Channel, videoID string) (*models.Video, error) {
-	ytVideo, err := s.yt.GetVideo(channel, videoID)
+	ytVideo, err := s.yt.GetVideo(channel.YoutubeID, videoID)
 	if err != nil {
 		return nil, err
 	}
@@ -57,13 +60,18 @@ func (s *YoutubeManager) NewVideo(channel *models.Channel, videoID string) (*mod
 
 	return &video, nil
 }
+
+// GetVideo gets a video from the db
 func (s *YoutubeManager) GetVideo(ID uint64) (*models.Video, error) {
 	return s.data.GetVideo(ID)
 }
+
+// GetVideoByID gets a video from the db
 func (s *YoutubeManager) GetVideoByID(youtubeID string) (*models.Video, error) {
 	return s.data.GetVideoByID(youtubeID)
 }
 
+// NewChannel gets and saves to the db a new channel
 func (s *YoutubeManager) NewChannel(channelID string) (*models.Channel, error) {
 
 	ytChannel, err := s.yt.GetChannel(channelID)
@@ -83,9 +91,13 @@ func (s *YoutubeManager) NewChannel(channelID string) (*models.Channel, error) {
 
 	return &channel, nil
 }
+
+// GetChannel gets a channel from the db
 func (s *YoutubeManager) GetChannel(ID uint64) (*models.Channel, error) {
 	return s.data.GetChannel(ID)
 }
+
+// GetChannelByID gets a channel from the db
 func (s *YoutubeManager) GetChannelByID(youtubeID string) (*models.Channel, error) {
 	return s.data.GetChannelByID(youtubeID)
 }

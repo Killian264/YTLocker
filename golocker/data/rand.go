@@ -9,6 +9,7 @@ type DataRand interface {
 	ID() uint64
 }
 
+// TestRand generates non random small numbers for sqlite usage
 type TestRand struct{ id uint64 }
 
 func (r *TestRand) ID() uint64 {
@@ -16,6 +17,7 @@ func (r *TestRand) ID() uint64 {
 	return r.id
 }
 
+// DataRand generates large random numbers
 type ActualRand struct{}
 
 func (r *ActualRand) ID() uint64 {

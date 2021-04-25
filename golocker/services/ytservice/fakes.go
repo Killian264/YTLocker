@@ -3,7 +3,6 @@ package ytservice
 import (
 	"fmt"
 
-	"github.com/Killian264/YTLocker/golocker/models"
 	"google.golang.org/api/youtube/v3"
 )
 
@@ -12,7 +11,7 @@ type YTSerivceFake struct{}
 // GetVideo gets a video with predetermined data |
 // videoID: "fake-video-id" returns nil, nil
 // videoID: "error-video-id" returns nil, error
-func (s *YTSerivceFake) GetVideo(channel *models.Channel, videoID string) (*youtube.Video, error) {
+func (s *YTSerivceFake) GetVideo(channelID string, videoID string) (*youtube.Video, error) {
 
 	if videoID == "fake-video-id" {
 		return nil, nil
@@ -29,7 +28,7 @@ func (s *YTSerivceFake) GetVideo(channel *models.Channel, videoID string) (*yout
 		Snippet: &youtube.VideoSnippet{
 			Title:       "wow cool title",
 			Description: "wow that is a super cool description",
-			ChannelId:   channel.YoutubeID,
+			ChannelId:   channelID,
 			Thumbnails:  &thumbnails,
 		},
 	}, nil
