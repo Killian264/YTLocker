@@ -7,6 +7,7 @@ import (
 	"github.com/Killian264/YTLocker/golocker/data"
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/gorilla/mux"
+	"golang.org/x/oauth2"
 	"google.golang.org/api/youtube/v3"
 )
 
@@ -58,9 +59,9 @@ type IYoutubeHelper interface {
 }
 
 type IYoutubePlaylistHelper interface {
-	Initalize(configData models.YoutubeClientConfig, tokenData models.YoutubeToken)
-	Create(playlist models.Playlist) (models.Playlist, error)
-	Insert(playlist models.Playlist, video models.Video) error
+	Initialize(config oauth2.Config, token oauth2.Token) error
+	Create(title string, description string) (*youtube.Playlist, error)
+	Insert(playlistID string, videoID string) error
 }
 
 // type IPlaylistHelperData interface {
@@ -68,9 +69,12 @@ type IYoutubePlaylistHelper interface {
 // 	GetFirstYoutubeToken() (*models.YoutubeToken, error)
 // }
 
-// type IPlaylistManager interface {
-// 	Create(playlist *models.Playlist, user *models.User) (*models.Playlist, error)
-// 	Insert(playlist *models.Playlist, video *models.Video) error
-// 	Subscribe(playlist *models.Playlist, channel *models.Channel)
-// 	Unsubscribe(playlist *models.Playlist, channel *models.Channel)
-// }
+type IPlaylistManager interface {
+	New(playlist *models.Playlist, user *models.User) (*models.Playlist, error)
+	Get(ID uint64) (*models.Playlist, error)
+
+	Insert(playlist *models.Playlist, video *models.Video) error
+
+	Subscribe(playlist *models.Playlist, channel *models.Channel) error
+	Unsubscribe(playlist *models.Playlist, channel *models.Channel) error
+}

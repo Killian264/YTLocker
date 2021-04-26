@@ -3,6 +3,7 @@ package ytservice
 import (
 	"fmt"
 
+	"golang.org/x/oauth2"
 	"google.golang.org/api/youtube/v3"
 )
 
@@ -59,6 +60,42 @@ func (s *YTSerivceFake) GetChannel(channelID string) (*youtube.Channel, error) {
 		},
 	}, nil
 
+}
+
+type YTPlaylistFake struct {
+	initalized bool
+}
+
+func (s *YTPlaylistFake) Initialize(config oauth2.Config, token oauth2.Token) error {
+	s.initalized = true
+
+	return nil
+}
+func (s *YTPlaylistFake) Create(title string, description string) (*youtube.Playlist, error) {
+
+	if !s.initalized {
+		panic("initialize must be ran on playlist")
+	}
+
+	thumbnails := getThumbnails()
+
+	return &youtube.Playlist{
+		Id: "simple-playlist-id",
+		Snippet: &youtube.PlaylistSnippet{
+			Title:       title,
+			Description: description,
+			Thumbnails:  &thumbnails,
+		},
+	}, nil
+
+}
+func (s *YTPlaylistFake) Insert(playlistID string, videoID string) error {
+
+	if !s.initalized {
+		panic("initialize must be ran on playlist")
+	}
+
+	return nil
 }
 
 func getThumbnails() youtube.ThumbnailDetails {

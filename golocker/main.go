@@ -22,34 +22,39 @@ import (
 	"github.com/gorilla/mux"
 )
 
-/* Main */
 func main() {
 
 	logger := log.New(os.Stdout, "Main: ", log.Lshortfile)
 
-	logger.Print("-----------------------------------------")
+	logger.Println("----------------------------")
 
-	s := NewServices(logger)
+	services := NewServices(logger)
 
-	logger.Print("-----------------------------------------")
+	logger.Println("----------------------------")
 
 	Run(
-		&s,
+		services,
 		os.Getenv("GO_API_HOST"),
 		os.Getenv("GO_API_PORT"),
 	)
 
 }
 
-func NewServices(logger *log.Logger) services.Services {
+func NewServices(logger *log.Logger) *services.Services {
 
-	s := services.Services{
+	services := &services.Services{
 		Logger: logger,
 	}
 
-	s.Router = InitializeRouter()
+	_ = InitalizePlaylistService()
 
-	s.Data = InitializeDatabase(
+	ytservice := InitializeYTService(
+		os.Getenv("YOUTUBE_API_KEY"),
+	)
+
+	services.Router = InitializeRouter()
+
+	services.Data = InitializeDatabase(
 		os.Getenv("MYSQL_USER"),
 		os.Getenv("MYSQL_PASSWORD"),
 		os.Getenv("MYSQL_HOST"),
@@ -58,30 +63,24 @@ func NewServices(logger *log.Logger) services.Services {
 	)
 
 	ReadInSecrets(
-		s.Data,
+		services.Data,
 		"secrets/",
 	)
 
-	_ = InitalizePlaylistService()
-
-	ytservice := InitializeYTService(
-		os.Getenv("YOUTUBE_API_KEY"),
-	)
-
-	s.Youtube = InitalizeYoutubeManager(
-		s.Data,
+	services.Youtube = InitalizeYoutubeManager(
+		services.Data,
 		ytservice,
 	)
 
-	s.Subscribe = InitalizeSubscribeService(
-		s.Data,
-		s.Youtube,
+	services.Subscribe = InitalizeSubscribeService(
+		services.Data,
+		services.Youtube,
 		os.Getenv("GO_API_URL"),
 	)
 
-	InitializeRoutes(s.Router)
+	InitializeRoutes(services.Router)
 
-	return s
+	return services
 }
 
 func InitalizePlaylistService() *ytservice.YTPlaylist {

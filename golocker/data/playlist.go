@@ -2,6 +2,7 @@ package data
 
 import (
 	"github.com/Killian264/YTLocker/golocker/models"
+	"gorm.io/gorm/clause"
 )
 
 func (d *Data) NewYoutubeClientConfig(config *models.YoutubeClientConfig) error {
@@ -41,4 +42,57 @@ func (d *Data) GetFirstYoutubeToken() (*models.YoutubeToken, error) {
 	}
 
 	return &token, nil
+}
+
+func (d *Data) NewPlaylist(playlist *models.Playlist) error {
+
+	playlist.ID = d.rand.ID()
+
+	for _, thumbnail := range playlist.Thumbnails {
+		thumbnail.ID = d.rand.ID()
+	}
+
+	result := d.db.Create(&playlist)
+
+	return result.Error
+
+}
+
+func (d *Data) GetPlaylist(ID uint64) (*models.Playlist, error) {
+	playlist := &models.Playlist{ID: ID}
+
+	result := d.db.Preload(clause.Associations).Where(playlist).First(playlist)
+
+	if result.Error != nil || notFound(result.Error) {
+		return nil, removeNotFound(result.Error)
+	}
+
+	return playlist, nil
+}
+
+func (d *Data) NewPlaylistVideo(playlistID uint64, videoID uint64) error {
+
+	playlist := &models.Playlist{ID: playlistID}
+	video := &models.Video{ID: videoID}
+
+	return d.db.Model(playlist).Association("Videos").Append(video)
+
+}
+
+func (d *Data) NewPlaylistChannel(playlistID uint64, channelID uint64) error {
+
+	playlist := &models.Playlist{ID: playlistID}
+	channel := &models.Channel{ID: channelID}
+
+	return d.db.Model(playlist).Association("Channels").Append(channel)
+
+}
+
+func (d *Data) RemovePlaylistChannel(playlistID uint64, channelID uint64) error {
+
+	playlist := &models.Playlist{ID: playlistID}
+	channel := &models.Channel{ID: channelID}
+
+	return d.db.Model(playlist).Association("Channels").Delete(channel)
+
 }

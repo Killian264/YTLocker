@@ -17,20 +17,6 @@ type User struct {
 	UpdatedAt time.Time
 }
 
-// Video DB Model
-type Video struct {
-	ID          uint64 `gorm:"primaryKey"`
-	YoutubeID   string `gorm:"type:varchar(256);not null;unique"`
-	Title       string `gorm:"type:varchar(256);not null"`
-	Description string `gorm:"type:text;not null"`
-
-	ChannelID  uint64
-	Thumbnails []Thumbnail `gorm:"polymorphic:Owner;"`
-
-	CreatedAt time.Time
-	UpdatedAt time.Time
-}
-
 // Playlist DB Model
 type Playlist struct {
 	ID          uint64 `gorm:"primaryKey"`
@@ -38,9 +24,11 @@ type Playlist struct {
 	Title       string `gorm:"type:varchar(256);not null"`
 	Description string `gorm:"type:varchar(512);not null"`
 
-	UserID   uint64
-	Videos   []Video   `gorm:"many2many:playlist_video;"`
-	Channels []Channel `gorm:"many2many:playlist_channel;"`
+	UserID uint64
+
+	Videos     []Video     `gorm:"many2many:playlist_video;"`
+	Channels   []Channel   `gorm:"many2many:playlist_channel;"`
+	Thumbnails []Thumbnail `gorm:"polymorphic:Owner;"`
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -53,10 +41,23 @@ type Channel struct {
 	Title       string `gorm:"type:varchar(256);not null"`
 	Description string `gorm:"type:text;not null"`
 
-	Videos     []Video
-	Thumbnails []Thumbnail `gorm:"polymorphic:Owner;"`
+	Videos       []Video
+	Thumbnails   []Thumbnail `gorm:"polymorphic:Owner;"`
+	Subscription []SubscriptionRequest
 
-	Subscription SubscriptionRequest
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+// Video DB Model
+type Video struct {
+	ID          uint64 `gorm:"primaryKey"`
+	YoutubeID   string `gorm:"type:varchar(256);not null;unique"`
+	Title       string `gorm:"type:varchar(256);not null"`
+	Description string `gorm:"type:text;not null"`
+
+	ChannelID  uint64
+	Thumbnails []Thumbnail `gorm:"polymorphic:Owner;"`
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
