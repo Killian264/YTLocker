@@ -5,7 +5,6 @@ import (
 
 	"github.com/Killian264/YTLocker/golocker/data"
 	"github.com/Killian264/YTLocker/golocker/models"
-	"github.com/Killian264/YTLocker/golocker/services/ytservice"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -36,7 +35,7 @@ func Test_Create_Playlist(t *testing.T) {
 
 	service := createMockServices(t)
 
-	playlist, err := service.Create(playlist, user)
+	playlist, err := service.New(playlist, user)
 	assert.Nil(t, err)
 	assert.NotNil(t, playlist)
 
@@ -52,7 +51,7 @@ func Test_Playlist_Insert(t *testing.T) {
 
 	service := createMockServices(t)
 
-	playlist, err := service.Create(playlist, user)
+	playlist, err := service.New(playlist, user)
 
 	err = service.Insert(playlist, video)
 	assert.Nil(t, err)
@@ -69,7 +68,7 @@ func Test_Playlist_Subscribe(t *testing.T) {
 
 	service := createMockServices(t)
 
-	playlist, err := service.Create(playlist, user)
+	playlist, err := service.New(playlist, user)
 
 	err = service.Subscribe(playlist, channel)
 	assert.Nil(t, err)
@@ -86,7 +85,7 @@ func Test_Playlist_UnSubscribe(t *testing.T) {
 
 	service := createMockServices(t)
 
-	playlist, err := service.Create(playlist, user)
+	playlist, err := service.New(playlist, user)
 
 	err = service.Subscribe(playlist, channel)
 
@@ -99,34 +98,60 @@ func Test_Playlist_UnSubscribe(t *testing.T) {
 
 }
 
-func createMockServices(t *testing.T) *Playlist {
+func Test_ProcessNewVideo(t *testing.T) {
+
+	service := createMockServices(t)
+
+	expected, _ := service.New(playlist, user)
+
+	err := service.Subscribe(expected, channel)
+	assert.Nil(t, err)
+
+	err = service.ProcessNewVideo(channel, video)
+	assert.Nil(t, err)
+
+	expected.Channels = append(expected.Channels, *channel)
+	expected.Videos = append(expected.Videos, *video)
+
+	created, _ := service.Get(expected.ID)
+
+	PlaylistsAreEqual(t, expected, created)
+	assert.Equal(t, 1, len(created.Videos))
+
+}
+
+func Test_IgnoreDuplicates_ProcessNewVideo(t *testing.T) {
+
+	service := createMockServices(t)
+
+	playlist, err := service.New(playlist, user)
+
+	err = service.Subscribe(playlist, channel)
+
+	err = service.ProcessNewVideo(channel, video)
+	assert.Nil(t, err)
+
+	err = service.ProcessNewVideo(channel, video)
+	assert.Nil(t, err)
+
+	created, err := service.Get(playlist.ID)
+
+	assert.Equal(t, 1, len(created.Videos))
+
+}
+
+func createMockServices(t *testing.T) *PlaylistManager {
 
 	data := data.InMemorySQLiteConnect()
-	playlist := &ytservice.YTPlaylistFake{}
-
-	data.NewYoutubeClientConfig(&models.YoutubeClientConfig{
-		ClientID:     "11223534584-asdfhasdjfhwieyrwqejhkflasd.apps.googleusercontent.com",
-		ClientSecret: "qwerHSwer_asdhwuerJHFDJqkqw",
-		RedirectURL:  "urn:ietf:wg:oauth:2.0:oob",
-		AuthURL:      "https://accounts.google.com/o/oauth2/auth",
-		TokenURL:     "https://oauth2.googleapis.com/token",
-	})
-
-	data.NewYoutubeToken(&models.YoutubeToken{
-		AccessToken:  "sa23.345234524623sdfasdfq-qegehgower9505034jfeworrjwertw_qqwerjfldssgert345sdgdgew-bheiyqeotleqjrljdfluao23423_QwekjfuI023kjasdfwer",
-		TokenType:    "Bearer",
-		RefreshToken: "asdfjqwekj23//2342329asqq-ajfdki22399jjIjiJIWJFfwerw_qwefdasferw_zwaehwejlkWW",
-		Expiry:       "2021-04-13T23:30:06.1139442-05:00",
-	})
 
 	data.NewUser(user)
 
 	data.NewChannel(channel)
 
-	return NewPlaylist(
-		playlist,
-		data,
-	)
+	data.NewVideo(channel, video)
+
+	return NewFakePlaylist(data)
+
 }
 
 func PlaylistsAreEqual(t *testing.T, playlist1 *models.Playlist, playlist2 *models.Playlist) {

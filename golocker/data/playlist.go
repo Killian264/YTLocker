@@ -1,6 +1,8 @@
 package data
 
 import (
+	"fmt"
+
 	"github.com/Killian264/YTLocker/golocker/models"
 	"gorm.io/gorm/clause"
 )
@@ -94,5 +96,33 @@ func (d *Data) RemovePlaylistChannel(playlistID uint64, channelID uint64) error 
 	channel := &models.Channel{ID: channelID}
 
 	return d.db.Model(playlist).Association("Channels").Delete(channel)
+
+}
+
+func (d *Data) GetAllPlaylistsSubscribedTo(channel *models.Channel) (*[]models.Playlist, error) {
+	playlists := &[]models.Playlist{}
+
+	join := "LEFT JOIN playlist_channel ON playlist_channel.channel_id = ?"
+
+	fmt.Print(channel)
+
+	result := d.db.Joins(join, channel.ID).Find(playlists)
+
+	if result.Error != nil || notFound(result.Error) {
+		return nil, removeNotFound(result.Error)
+	}
+
+	return playlists, nil
+}
+
+func (d *Data) PlaylistHasVideo(playlistID uint64, videoID uint64) (bool, error) {
+
+	playlist := &models.Playlist{ID: playlistID}
+
+	join := "INNER JOIN playlist_video ON playlist_video.video_id = ?"
+
+	result := d.db.Joins(join, videoID).Where(playlist).First(playlist)
+
+	return !notFound(result.Error), removeNotFound(result.Error)
 
 }

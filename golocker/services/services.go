@@ -19,6 +19,7 @@ type Services struct {
 	Youtube   IYoutubeManager
 	User      IUser
 	Subscribe ISubscription
+	Playlist  IPlaylistManager
 }
 
 type ISubscription interface {
@@ -42,6 +43,8 @@ type IYoutubeManager interface {
 	NewChannel(channelID string) (*models.Channel, error)
 	GetChannel(ID uint64) (*models.Channel, error)
 	GetChannelByID(youtubeID string) (*models.Channel, error)
+
+	GetAllVideosFromLast24Hours() (*[]models.Video, error)
 }
 
 type IUser interface {
@@ -77,4 +80,6 @@ type IPlaylistManager interface {
 
 	Subscribe(playlist *models.Playlist, channel *models.Channel) error
 	Unsubscribe(playlist *models.Playlist, channel *models.Channel) error
+
+	ProcessNewVideo(channel *models.Channel, video *models.Video) error
 }

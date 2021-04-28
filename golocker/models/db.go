@@ -107,3 +107,10 @@ type YoutubeClientConfig struct {
 	AuthURL      string `gorm:"type:varchar(256);not null;"`
 	TokenURL     string `gorm:"type:varchar(256);not null;"`
 }
+
+type SubscriptionWorkUnit struct {
+	ID        uint64 `gorm:"primaryKey"`
+	ChannelID uint64 `gorm:"not null;"`
+	VideoID   uint64 `gorm:"not null;"`
+	Status    string `gorm:"type:varchar(32);not null;"`
+}

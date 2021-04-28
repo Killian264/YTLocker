@@ -5,7 +5,6 @@ import (
 
 	"github.com/Killian264/YTLocker/golocker/data"
 	"github.com/Killian264/YTLocker/golocker/models"
-	"github.com/Killian264/YTLocker/golocker/services/ytservice"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -108,6 +107,27 @@ func Test_New_Video_No_Duplicates(t *testing.T) {
 
 }
 
+func Test_Get_All_Videos(t *testing.T) {
+
+	service := createMockServices(t)
+
+	channel, _ := service.NewChannel("valid-id")
+
+	expected := []models.Video{}
+
+	video, _ := service.NewVideo(channel, "valid-id")
+	expected = append(expected, *video)
+
+	video, _ = service.NewVideo(channel, "valid-id2")
+	expected = append(expected, *video)
+
+	actual, err := service.GetAllVideosFromLast24Hours()
+	assert.Nil(t, err)
+
+	assert.Equal(t, len(*actual), len(expected))
+
+}
+
 // New Video Wrong Channel is not tested
 
 func VideosAreEqualTest(t *testing.T, video1 *models.Video, video2 *models.Video) {
@@ -134,15 +154,10 @@ func ChannelsAreEqualTest(t *testing.T, channel1 *models.Channel, channel2 *mode
 
 func createMockServices(t *testing.T) *YoutubeManager {
 
-	ytservice := ytservice.YTSerivceFake{}
-
 	data := data.InMemorySQLiteConnect()
 
-	service := NewYoutubeManager(
-		IYoutubeManagerData(data),
-		IYTService(&ytservice),
+	return FakeNewYoutubeManager(
+		data,
 	)
-
-	return service
 
 }

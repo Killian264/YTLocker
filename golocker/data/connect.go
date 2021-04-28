@@ -36,7 +36,7 @@ func InMemorySQLiteConnect() *Data {
 
 	err = data.createTables()
 	if err != nil {
-		panic("error initializing db")
+		panic(err)
 	}
 
 	return &data
@@ -115,6 +115,7 @@ func (d *Data) createTables() error {
 		&models.SubscriptionRequest{},
 		&models.YoutubeClientConfig{},
 		&models.YoutubeToken{},
+		&models.SubscriptionWorkUnit{},
 	)
 
 }
@@ -130,6 +131,7 @@ func (d *Data) dropTables() error {
 		&models.SubscriptionRequest{},
 		&models.YoutubeClientConfig{},
 		&models.YoutubeToken{},
+		&models.SubscriptionWorkUnit{},
 	)
 
 }
@@ -144,5 +146,6 @@ func (d *Data) clearTables() {
 	d.db.Unscoped().Where("1 = 1").Delete(&models.SubscriptionRequest{})
 	d.db.Unscoped().Where("1 = 1").Delete(&models.YoutubeClientConfig{})
 	d.db.Unscoped().Where("1 = 1").Delete(&models.YoutubeToken{})
+	d.db.Unscoped().Where("1 = 1").Delete(&models.SubscriptionWorkUnit{})
 	return
 }

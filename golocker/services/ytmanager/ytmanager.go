@@ -5,6 +5,7 @@ import (
 
 	"github.com/Killian264/YTLocker/golocker/helpers/parsers"
 	"github.com/Killian264/YTLocker/golocker/models"
+	"github.com/Killian264/YTLocker/golocker/services/ytservice"
 	"google.golang.org/api/youtube/v3"
 )
 
@@ -26,6 +27,8 @@ type IYoutubeManagerData interface {
 	NewVideo(channel *models.Channel, video *models.Video) error
 	GetVideo(ID uint64) (*models.Video, error)
 	GetVideoByID(videoID string) (*models.Video, error)
+
+	GetVideosFromLast24Hours() (*[]models.Video, error)
 }
 
 // NewYoutubeManager creates a new YoutubeManager and does any initilization work
@@ -35,6 +38,12 @@ func NewYoutubeManager(data IYoutubeManagerData, ytservice IYTService) *YoutubeM
 		yt:   ytservice,
 		data: data,
 	}
+
+}
+
+func FakeNewYoutubeManager(data IYoutubeManagerData) *YoutubeManager {
+
+	return NewYoutubeManager(data, &ytservice.YTSerivceFake{})
 
 }
 
@@ -100,4 +109,8 @@ func (s *YoutubeManager) GetChannel(ID uint64) (*models.Channel, error) {
 // GetChannelByID gets a channel from the db
 func (s *YoutubeManager) GetChannelByID(youtubeID string) (*models.Channel, error) {
 	return s.data.GetChannelByID(youtubeID)
+}
+
+func (s *YoutubeManager) GetAllVideosFromLast24Hours() (*[]models.Video, error) {
+	return s.data.GetVideosFromLast24Hours()
 }

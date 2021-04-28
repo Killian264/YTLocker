@@ -1,6 +1,8 @@
 package data
 
 import (
+	"time"
+
 	"github.com/Killian264/YTLocker/golocker/models"
 	"gorm.io/gorm"
 )
@@ -119,4 +121,18 @@ func (d *Data) GetVideoByID(videoID string) (*models.Video, error) {
 	}
 
 	return &video, nil
+}
+
+func (d *Data) GetVideosFromLast24Hours() (*[]models.Video, error) {
+	videos := &[]models.Video{}
+
+	dayAgo := time.Now().AddDate(0, 0, -1)
+
+	result := d.db.Where("updated_at > ?", dayAgo).Find(&videos)
+
+	if result.Error != nil || notFound(result.Error) {
+		return nil, removeNotFound(result.Error)
+	}
+
+	return videos, nil
 }
