@@ -9,63 +9,69 @@ import (
 )
 
 type IJob interface {
-	Run(s *services.Services, l *log.Logger) error
+	Run() error
 }
 
-func Run(s *services.Services, l *log.Logger) error {
+type InsertVideosJob struct {
+	s *services.Services
+	l *log.Logger
+}
 
-	l.Print("Starting Insert Videos CronJob: -------------")
+func NewInsertVideosJob(s *services.Services, l *log.Logger) *InsertVideosJob {
+	return &InsertVideosJob{
+		s: s,
+		l: l,
+	}
+}
 
-	err := saveWorkUnits(s)
+func (j InsertVideosJob) Run() error {
+
+	j.l.Print("Starting Insert Videos CronJob: -------------")
+
+	err := j.saveWorkUnits()
 	if err != nil {
-		l.Print("Failed to save work units error: ", err)
+		j.l.Print("Failed to save work units error: ", err)
 		return err
 	}
 
 	for true {
 
-		work, err := s.Data.GetFirstSubscriptionWorkUnitByStatus("created")
+		work, err := j.s.Data.GetFirstSubscriptionWorkUnitByStatus("created")
 		if err != nil {
-			l.Print("Failed to get work unit: ", err)
+			j.l.Print("Failed to get work unit: ", err)
 			continue
 		}
-
 		if work == nil {
 			break
 		}
 
-		err = doWork(s, work)
+		err = j.processVideo(work)
 		if err != nil {
-
-			l.Print("Failed to process work unit ID: ", work.ID, err)
-
-			err = s.Data.UpdateSubscriptionWorkUnitStatus(work, "error")
-			if err != nil {
-				l.Print("Failed to update work unit to error ID: ", work.ID, err)
-			}
-
-			continue
+			j.l.Print("Failed to process work unit ID: ", work.ID, err)
 		}
 
-		err = s.Data.UpdateSubscriptionWorkUnitStatus(work, "complete")
+		status := "complete"
 		if err != nil {
-			l.Print("Failed to update work unit ID: ", work.ID, err)
+			status = "error"
+		}
+
+		err = j.s.Data.UpdateSubscriptionWorkUnitStatus(work, status)
+		if err != nil {
+			j.l.Print("Failed to update work unit ID: ", work.ID, err)
 			continue
 		}
 
 	}
 
-	l.Print("Completed Insert Videos CronJob: -------------")
+	j.l.Print("Completed Insert Videos CronJob: -------------")
 
 	return nil
 
 }
 
-func doWork(s *services.Services, workUnit *models.SubscriptionWorkUnit) error {
+func (j InsertVideosJob) processVideo(workUnit *models.SubscriptionWorkUnit) error {
 
-	fmt.Print(workUnit)
-
-	channel, err := s.Youtube.GetChannel(workUnit.ChannelID)
+	channel, err := j.s.Youtube.GetChannel(workUnit.ChannelID)
 	if err != nil {
 		return err
 	}
@@ -73,7 +79,7 @@ func doWork(s *services.Services, workUnit *models.SubscriptionWorkUnit) error {
 		return fmt.Errorf("could not find channel")
 	}
 
-	video, err := s.Youtube.GetVideo(workUnit.VideoID)
+	video, err := j.s.Youtube.GetVideo(workUnit.VideoID)
 	if err != nil {
 		return err
 	}
@@ -81,20 +87,20 @@ func doWork(s *services.Services, workUnit *models.SubscriptionWorkUnit) error {
 		return fmt.Errorf("could not find video")
 	}
 
-	return s.Playlist.ProcessNewVideo(channel, video)
+	return j.s.Playlist.ProcessNewVideo(channel, video)
 
 }
 
-func saveWorkUnits(s *services.Services) error {
+func (j InsertVideosJob) saveWorkUnits() error {
 
-	videos, err := s.Youtube.GetAllVideosFromLast24Hours()
+	videos, err := j.s.Youtube.GetAllVideosFromLast24Hours()
 	if err != nil {
 		return err
 	}
 
 	for _, video := range *videos {
 
-		work, err := s.Data.GetSubscriptionWorkUnit(video.ID, video.ChannelID)
+		work, err := j.s.Data.GetSubscriptionWorkUnit(video.ID, video.ChannelID)
 		if err != nil {
 			return err
 		}
@@ -109,7 +115,7 @@ func saveWorkUnits(s *services.Services) error {
 			Status:    "created",
 		}
 
-		err = s.Data.NewSubscriptionWorkUnit(work)
+		err = j.s.Data.NewSubscriptionWorkUnit(work)
 		if err != nil {
 			return err
 		}

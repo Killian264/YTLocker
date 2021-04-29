@@ -27,7 +27,7 @@ var playlist = &models.Playlist{
 
 func Test_Run(t *testing.T) {
 
-	s, l := createServices()
+	s, j := createServices()
 
 	err := s.User.RegisterUser(user)
 	assert.Nil(t, err)
@@ -43,7 +43,7 @@ func Test_Run(t *testing.T) {
 
 	s.Playlist.Subscribe(playlist, channel)
 
-	err = Run(s, l)
+	err = j.Run()
 	assert.Nil(t, err)
 
 	playlist, err = s.Playlist.Get(playlist.ID)
@@ -53,7 +53,7 @@ func Test_Run(t *testing.T) {
 
 }
 
-func createServices() (*services.Services, *log.Logger) {
+func createServices() (*services.Services, IJob) {
 
 	data := data.InMemorySQLiteConnect()
 
@@ -70,5 +70,7 @@ func createServices() (*services.Services, *log.Logger) {
 		User:     userService,
 	}
 
-	return service, logger
+	job := NewInsertVideosJob(service, logger)
+
+	return service, job
 }

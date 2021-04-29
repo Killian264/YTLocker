@@ -12,9 +12,11 @@ import (
 	"github.com/Killian264/YTLocker/golocker/helpers/parsers"
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/Killian264/YTLocker/golocker/services"
+	"github.com/Killian264/YTLocker/golocker/services/cronjobs"
 	"github.com/Killian264/YTLocker/golocker/services/subscribe"
 	"github.com/Killian264/YTLocker/golocker/services/ytmanager"
 	"github.com/Killian264/YTLocker/golocker/services/ytservice"
+	"github.com/robfig/cron"
 	"gorm.io/gorm/logger"
 
 	muxhandler "github.com/gorilla/handlers"
@@ -79,6 +81,8 @@ func NewServices(logger *log.Logger) *services.Services {
 	)
 
 	InitializeRoutes(services.Router)
+
+	InitializeCronJobs(services)
 
 	return services
 }
@@ -200,4 +204,25 @@ func InitializeDatabase(username string, password string, ip string, port string
 
 func Run(s *services.Services, host string, port string) {
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", host, port), s.Router))
+}
+
+func InitializeCronJobs(service *services.Services) {
+
+	c := cron.New()
+
+	logger := log.New(os.Stdout, "Cron: ", log.Lshortfile)
+
+	job := cronjobs.NewInsertVideosJob(service, logger)
+
+	c.AddFunc("*/60 * * * *", func() {
+		job.Run()
+	})
+
+	c.AddFunc("@weekly", func() {
+		err := service.Subscribe.ResubscribeAll()
+		logger.Print(err)
+	})
+
+	c.Start()
+
 }
