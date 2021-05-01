@@ -1,68 +1,80 @@
 package handlers
 
-// // HandleSubscriptionNoError handles a new subscription request wrap in a middleware that handles errors
-// func HandleYoutubePush(w http.ResponseWriter, r *http.Request, s *services.Services) error {
+import (
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"strconv"
+	"strings"
 
-// 	challenge := r.URL.Query().Get("hub.challenge")
+	"github.com/Killian264/YTLocker/golocker/helpers/parsers"
+	"github.com/Killian264/YTLocker/golocker/models"
+	"github.com/Killian264/YTLocker/golocker/services"
+	"github.com/gorilla/mux"
+)
 
-// 	if challenge != "" {
-// 		return handleChallenge(w, r, s.Subscribe)
-// 	}
+// HandleSubscriptionNoError handles a new subscription request wrap in a middleware that handles errors
+func HandleYoutubePush(w http.ResponseWriter, r *http.Request, s *services.Services) error {
 
-// 	return handleNewVideoPush(w, r, s.Subscribe)
-// }
+	challenge := r.URL.Query().Get("hub.challenge")
 
-// func handleChallenge(w http.ResponseWriter, r *http.Request, s interfaces.ISubscription) error {
+	if challenge != "" {
+		return handleChallenge(w, r, s.Subscribe)
+	}
 
-// 	secret := mux.Vars(r)["secret"]
-// 	challenge := r.URL.Query().Get("hub.challenge")
-// 	topic := r.URL.Query().Get("hub.topic")
-// 	channelID := strings.Replace(topic, "https://www.youtube.com/xml/feeds/videos.xml?channel_id=", "", 1)
-// 	leaseStr := r.URL.Query().Get("hub.lease_seconds")
+	return handleNewVideoPush(w, r, s.Subscribe)
+}
 
-// 	lease, err := strconv.Atoi(leaseStr)
+func handleChallenge(w http.ResponseWriter, r *http.Request, s services.ISubscription) error {
 
-// 	if err != nil {
-// 		return fmt.Errorf("Failed to parse lease_seconds got: %s", leaseStr)
-// 	}
+	secret := mux.Vars(r)["secret"]
+	challenge := r.URL.Query().Get("hub.challenge")
+	topic := r.URL.Query().Get("hub.topic")
+	channelID := strings.Replace(topic, "https://www.youtube.com/xml/feeds/videos.xml?channel_id=", "", 1)
+	leaseStr := r.URL.Query().Get("hub.lease_seconds")
 
-// 	request := models.SubscriptionRequest{
-// 		ChannelID:    channelID,
-// 		Topic:        topic,
-// 		Secret:       secret,
-// 		LeaseSeconds: uint(lease),
-// 		Active:       true,
-// 	}
+	lease, err := strconv.Atoi(leaseStr)
 
-// 	isValid, err := s.HandleChallenge(&request)
+	if err != nil {
+		return fmt.Errorf("Failed to parse lease_seconds got: %s", leaseStr)
+	}
 
-// 	if err != nil {
-// 		return err
-// 	}
+	request := models.SubscriptionRequest{
+		Topic:        topic,
+		Secret:       secret,
+		LeaseSeconds: lease,
+		Active:       true,
+	}
 
-// 	if !isValid {
-// 		return fmt.Errorf("Invalid")
-// 	}
+	isValid, err := s.HandleChallenge(&request, channelID)
 
-// 	fmt.Fprintf(w, challenge)
-// 	return nil
-// }
+	if err != nil {
+		return err
+	}
 
-// func handleNewVideoPush(w http.ResponseWriter, r *http.Request, s interfaces.ISubscription) error {
+	if !isValid {
+		return fmt.Errorf("Invalid")
+	}
 
-// 	secret := mux.Vars(r)["secret"]
-// 	bytes, err := ioutil.ReadAll(r.Body)
+	fmt.Fprintf(w, challenge)
+	return nil
+}
 
-// 	if err != nil {
-// 		return err
-// 	}
+func handleNewVideoPush(w http.ResponseWriter, r *http.Request, s services.ISubscription) error {
 
-// 	body := string(bytes)
+	secret := mux.Vars(r)["secret"]
+	bytes, err := ioutil.ReadAll(r.Body)
 
-// 	push, err := parsers.ParseYTHook(body)
-// 	if err != nil {
-// 		return err
-// 	}
+	if err != nil {
+		return err
+	}
 
-// 	return s.HandleVideoPush(&push, secret)
-// }
+	body := string(bytes)
+
+	push, err := parsers.ParseYTHook(body)
+	if err != nil {
+		return err
+	}
+
+	return s.HandleVideoPush(&push, secret)
+}

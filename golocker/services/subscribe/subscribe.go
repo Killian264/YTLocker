@@ -63,6 +63,11 @@ func (s *Subscriber) SetSubscribeUrl(base string, path string) {
 // Subscribe subscribes to a Subscription feed for a given channel
 func (s *Subscriber) Subscribe(channel *models.Channel) (*models.SubscriptionRequest, error) {
 
+	sub, err := s.GetSubscription(channel)
+	if err != nil || sub != nil {
+		return sub, err
+	}
+
 	request, err := createSubscription(channel)
 	if err != nil {
 		return nil, err
@@ -144,12 +149,12 @@ func (s *Subscriber) ResubscribeAll() error {
 			return fmt.Errorf("Failed to find channel with id %s", channel.YoutubeID)
 		}
 
-		_, err = s.Subscribe(channel)
+		err = s.dataService.DeleteSubscription(old)
 		if err != nil {
 			return err
 		}
 
-		err = s.dataService.DeleteSubscription(old)
+		_, err = s.Subscribe(channel)
 		if err != nil {
 			return err
 		}

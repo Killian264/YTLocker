@@ -9,11 +9,14 @@ import (
 	"strings"
 
 	"github.com/Killian264/YTLocker/golocker/data"
+	"github.com/Killian264/YTLocker/golocker/handlers"
 	"github.com/Killian264/YTLocker/golocker/helpers/parsers"
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/Killian264/YTLocker/golocker/services"
 	"github.com/Killian264/YTLocker/golocker/services/cronjobs"
+	playlistserivce "github.com/Killian264/YTLocker/golocker/services/playlist"
 	"github.com/Killian264/YTLocker/golocker/services/subscribe"
+	"github.com/Killian264/YTLocker/golocker/services/user"
 	"github.com/Killian264/YTLocker/golocker/services/ytmanager"
 	"github.com/Killian264/YTLocker/golocker/services/ytservice"
 	"github.com/robfig/cron"
@@ -30,33 +33,68 @@ func main() {
 
 	logger.Println("----------------------------")
 
-	services := NewServices(logger)
+	s := NewServices(logger)
 
 	logger.Println("----------------------------")
 
-	Run(
-		services,
+	go Run(
+		s,
 		os.Getenv("GO_API_HOST"),
 		os.Getenv("GO_API_PORT"),
 	)
+
+	// user := &models.User{
+	// 	Username: "Killian",
+	// 	Email:    "killiandebacker@gmail.com",
+	// 	Password: "sadkfj231290381290wjfask22904293",
+	// }
+
+	// playlist := &models.Playlist{
+	// 	Title:       "Playlist Title",
+	// 	Description: "Wowee cool playlist description",
+	// }
+
+	// err := s.User.RegisterUser(user)
+	// if err != nil {
+	// 	logger.Fatal(err)
+	// }
+
+	// playlist, err = s.Playlist.New(playlist, user)
+	// if err != nil {
+	// 	logger.Fatal(err)
+	// }
+
+	// channel, err := s.Youtube.GetChannelByID("UCfJvn8LAFkRRPJNt8tTJumA")
+	// if err != nil {
+	// 	logger.Fatal(err)
+	// }
+
+	// logger.Print(playlist)
+
+	// err = s.Playlist.Subscribe(playlist, channel)
+	// if err != nil {
+	// 	logger.Fatal(err)
+	// }
+
+	// s.Subscribe.Subscribe(channel)
 
 }
 
 func NewServices(logger *log.Logger) *services.Services {
 
-	services := &services.Services{
+	s := &services.Services{
 		Logger: logger,
 	}
 
-	_ = InitalizePlaylistService()
-
-	ytservice := InitializeYTService(
+	youtubeHelper := InitializeYTService(
 		os.Getenv("YOUTUBE_API_KEY"),
 	)
 
-	services.Router = InitializeRouter()
+	playlistHelper := InitalizePlaylistHelper()
 
-	services.Data = InitializeDatabase(
+	s.Router = InitializeRouter()
+
+	s.Data = InitializeDatabase(
 		os.Getenv("MYSQL_USER"),
 		os.Getenv("MYSQL_PASSWORD"),
 		os.Getenv("MYSQL_HOST"),
@@ -65,32 +103,58 @@ func NewServices(logger *log.Logger) *services.Services {
 	)
 
 	ReadInSecrets(
-		services.Data,
+		s.Data,
 		"secrets/",
 	)
 
-	services.Youtube = InitalizeYoutubeManager(
-		services.Data,
-		ytservice,
+	s.Youtube = InitalizeYoutubeManager(
+		s.Data,
+		youtubeHelper,
 	)
 
-	services.Subscribe = InitalizeSubscribeService(
-		services.Data,
-		services.Youtube,
+	s.Subscribe = InitalizeSubscribeService(
+		s.Data,
+		s.Youtube,
 		os.Getenv("GO_API_URL"),
 	)
 
-	InitializeRoutes(services.Router)
+	s.Playlist = InitalizePlaylistManager(
+		s.Data,
+		playlistHelper,
+	)
 
-	InitializeCronJobs(services)
+	s.User = InitalizeUserService(
+		s.Data,
+	)
 
-	return services
+	InitializeRoutes(s, s.Router)
+
+	InitializeCronJobs(s)
+
+	return s
 }
 
-func InitalizePlaylistService() *ytservice.YTPlaylist {
+func InitalizePlaylistHelper() *ytservice.YTPlaylist {
 
 	return &ytservice.YTPlaylist{}
 
+}
+
+func InitalizeUserService(data user.IUserData) *user.User {
+	service := user.NewUser(
+		data,
+	)
+
+	return service
+}
+
+func InitalizePlaylistManager(data playlistserivce.IPlaylistManagerData, yt playlistserivce.IYTPlaylist) *playlistserivce.PlaylistManager {
+	service := playlistserivce.NewPlaylist(
+		yt,
+		data,
+	)
+
+	return service
 }
 
 func InitalizeYoutubeManager(data ytmanager.IYoutubeManagerData, yt ytmanager.IYTService) *ytmanager.YoutubeManager {
@@ -120,22 +184,20 @@ func InitializeRouter() *mux.Router {
 
 	router.Use(muxhandler.RecoveryHandler())
 
-	// s.Router.Use(handlers.LoggingMiddlewareTest)
-
 	return router
 
 }
 
 // InitializeRoutes creates the routes
-func InitializeRoutes(router *mux.Router) {
+func InitializeRoutes(services *services.Services, router *mux.Router) {
 
-	// logger := log.New(os.Stdout, "Han: ", log.Lshortfile)
+	logger := log.New(os.Stdout, "Han: ", log.Lshortfile)
 
-	// ServiceInjector := handlers.CreateServiceInjector(s)
+	ServiceInjector := handlers.CreateServiceInjector(services)
 
-	// ErrorHandler := handlers.CreateErrorHandler(logger)
+	ErrorHandler := handlers.CreateErrorHandler(logger)
 
-	// s.Router.HandleFunc("/subscribe/{secret}", ErrorHandler(ServiceInjector(handlers.HandleYoutubePush)))
+	router.HandleFunc("/subscribe/{secret}", ErrorHandler(ServiceInjector(handlers.HandleYoutubePush)))
 
 }
 

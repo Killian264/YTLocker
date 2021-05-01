@@ -34,6 +34,11 @@ func SanitizeString(str string) string {
 
 	str = stripTags(str)
 	str = stripIllegal(str)
+
+	if len(str) > 254 {
+		str = str[:254]
+	}
+
 	return str
 }
 
@@ -54,4 +59,20 @@ func stripIllegal(str string) string {
 	}
 
 	return str
+}
+
+func IsEmailValid(str string) bool {
+
+	regex := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+
+	if len(str) < 3 && len(str) > 254 {
+		return false
+	}
+	return regex.MatchString(str)
+}
+
+func IsPasswordValid(str string) bool {
+
+	return len(str) > 7 && len(str) < 254
+
 }

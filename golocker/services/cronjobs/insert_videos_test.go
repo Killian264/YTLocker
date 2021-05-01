@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var user = &models.User{
+var user = models.User{
 	Username: "sdfakd",
 	Email:    "sdkfsak",
 	Password: "sladfk11111111",
@@ -29,7 +29,7 @@ func Test_Run(t *testing.T) {
 
 	s, j := createServices()
 
-	err := s.User.RegisterUser(user)
+	user, err := s.User.Register(user)
 	assert.Nil(t, err)
 
 	channel, err := s.Youtube.NewChannel("any-id-works")
@@ -38,7 +38,7 @@ func Test_Run(t *testing.T) {
 	_, err = s.Youtube.NewVideo(channel, "any-id-works")
 	assert.Nil(t, err)
 
-	playlist, err = s.Playlist.New(playlist, user)
+	playlist, err = s.Playlist.New(playlist, &user)
 	assert.Nil(t, err)
 
 	s.Playlist.Subscribe(playlist, channel)

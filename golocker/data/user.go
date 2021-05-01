@@ -19,7 +19,7 @@ func (d *Data) NewUser(user *models.User) error {
 	return nil
 }
 
-func (d *Data) GetUserByID(ID uint64) (*models.User, error) {
+func (d *Data) GetUser(ID uint64) (*models.User, error) {
 	user := models.User{ID: ID}
 
 	result := d.db.First(&user)
@@ -31,10 +31,11 @@ func (d *Data) GetUserByID(ID uint64) (*models.User, error) {
 	return &user, nil
 }
 
-func (d *Data) GetFirstUser() (*models.User, error) {
+// GetUserByEmail gets user by email
+func (d *Data) GetUserByEmail(email string) (*models.User, error) {
 	user := models.User{}
 
-	result := d.db.First(&user)
+	result := d.db.Where("email = ?", email).First(&user)
 
 	if result.Error != nil || notFound(result.Error) {
 		return nil, removeNotFound(result.Error)
@@ -43,16 +44,36 @@ func (d *Data) GetFirstUser() (*models.User, error) {
 	return &user, nil
 }
 
-func (d *Data) GetUserByEmail(email string) (*models.User, error) {
-	user := models.User{
-		Email: email,
-	}
+// SaveSession saves the session to the user
+func (d *Data) SaveSession(user *models.User, session *models.Session) error {
 
-	result := d.db.Where(&user).First(&user)
+	return d.db.Model(user).Association("Session").Replace(session)
 
+}
+
+// GetSession returns the session associated with the bearer if it is the current user session
+func (d *Data) GetSession(bearer string) (*models.Session, error) {
+	passed := models.Session{}
+
+	result := d.db.Where("bearer = ?", bearer).First(&passed)
 	if result.Error != nil || notFound(result.Error) {
 		return nil, removeNotFound(result.Error)
 	}
 
-	return &user, nil
+	user := models.User{
+		ID: passed.UserID,
+	}
+
+	current := models.Session{}
+
+	err := d.db.Model(&user).Association("Session").Find(&current)
+	if err != nil || notFound(err) {
+		return nil, removeNotFound(err)
+	}
+
+	if passed.ID != current.ID {
+		return nil, nil
+	}
+
+	return &current, nil
 }

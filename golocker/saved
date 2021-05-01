@@ -112,3 +112,19 @@ func (s *Services) VideoHandler(w http.ResponseWriter, r *http.Request) {
 	s.router.HandleFunc("/video/{video_id}", func(w http.ResponseWriter, r *http.Request) {
 		s.VideoHandler(w, r)
 	})
+
+
+
+	header := r.Header["Authorization"]
+
+	if len(header) != 1 {
+		return nil, fmt.Errorf("No or Invalid Authorization Header")
+	}
+
+	token := header[0]
+
+	if token != "TEMP_API_BEARER" {
+		return nil, fmt.Errorf("Invalid Bearer")
+	}
+
+	return u.data.GetFirstUser()

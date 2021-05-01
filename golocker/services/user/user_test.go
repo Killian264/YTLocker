@@ -1,7 +1,6 @@
 package user
 
 import (
-	"net/http"
 	"testing"
 
 	"github.com/Killian264/YTLocker/golocker/data"
@@ -15,52 +14,26 @@ var validUser = models.User{
 	Password: "superpassword1234567",
 }
 
-////////////////////// Register //////////////////////
-
 func Test_Register_User(t *testing.T) {
 
 	service := createMockServices()
 
-	err := service.RegisterUser(&validUser)
+	user, err := service.Register(validUser)
 	assert.Nil(t, err)
 
-	user, err := service.GetUserByID(validUser.ID)
+	saved, err := service.GetUser(user.ID)
 	assert.Nil(t, err)
 
-	assert.Equal(t, user.Email, validUser.Email)
-}
-
-func Test_Registration_Validates_Information(t *testing.T) {
-
-	service := createMockServices()
-
-	badUsername := validUser
-	badUsername.Username = ""
-
-	badEmail := validUser
-	badEmail.Email = ""
-
-	badPassword := validUser
-	badPassword.Password = ""
-
-	err := service.RegisterUser(&badUsername)
-	assert.NotNil(t, err)
-
-	err = service.RegisterUser(&badEmail)
-	assert.NotNil(t, err)
-
-	err = service.RegisterUser(&badPassword)
-	assert.NotNil(t, err)
-
+	assert.Equal(t, user.Email, saved.Email)
 }
 
 func Test_Error_On_Duplicate_Email(t *testing.T) {
 	service := createMockServices()
 
-	err := service.RegisterUser(&validUser)
+	_, err := service.Register(validUser)
 	assert.Nil(t, err)
 
-	err = service.RegisterUser(&validUser)
+	_, err = service.Register(validUser)
 	assert.NotNil(t, err)
 }
 
@@ -69,47 +42,11 @@ func Test_Password_Is_Hashed(t *testing.T) {
 
 	original := validUser
 
-	err := service.RegisterUser(&validUser)
+	user, err := service.Register(validUser)
 	assert.Nil(t, err)
 
-	assert.NotEqual(t, original.Password, validUser.Password)
+	assert.NotEqual(t, original.Password, user.Password)
 }
-
-////////////////////// GetUserFromRequest //////////////////////
-func Test_Valid_Bearer(t *testing.T) {
-
-	service := createMockServices()
-	service.RegisterUser(&validUser)
-
-	req, _ := http.NewRequest("GET", "/adsfasdf/asdf", nil)
-	req.Header["Authorization"] = []string{"TEMP_API_BEARER"}
-
-	actual, err := service.GetUserFromRequest(req)
-	assert.Nil(t, err)
-	assert.Equal(t, validUser.ID, actual.ID)
-}
-
-func Test_InValid_Bearer(t *testing.T) {
-
-	service := createMockServices()
-
-	req, _ := http.NewRequest("GET", "/adsfasdf/asdf", nil)
-	req.Header["Authorization"] = []string{"INVALID_BEARER"}
-
-	_, err := service.GetUserFromRequest(req)
-	assert.NotNil(t, err)
-}
-
-func Test_Unset_Bearer(t *testing.T) {
-
-	service := createMockServices()
-	req, _ := http.NewRequest("GET", "/adsfasdf/asdf", nil)
-
-	_, err := service.GetUserFromRequest(req)
-	assert.NotNil(t, err)
-}
-
-////////////////////// ValidEmail //////////////////////
 
 func TestValidEmail(t *testing.T) {
 
@@ -119,11 +56,59 @@ func TestValidEmail(t *testing.T) {
 	assert.True(t, valid)
 	assert.Nil(t, err)
 
-	service.RegisterUser(&validUser)
+	service.Register(validUser)
 
 	valid, err = service.ValidEmail(validUser.Email)
 	assert.False(t, valid)
 	assert.Nil(t, err)
+
+}
+
+func Test_Login(t *testing.T) {
+
+	service := createMockServices()
+
+	service.Register(validUser)
+
+	bearer, err := service.Login(validUser.Email, validUser.Password)
+	assert.Nil(t, err)
+	assert.NotEmpty(t, bearer)
+
+}
+
+func Test_RefreshSession(t *testing.T) {
+
+	service := createMockServices()
+
+	user, _ := service.Register(validUser)
+
+	session, err := service.RefreshSession(user)
+	assert.Nil(t, err)
+	assert.NotEmpty(t, session.Bearer)
+
+	session2, err := service.RefreshSession(user)
+	assert.Nil(t, err)
+	assert.NotEmpty(t, session2.Bearer)
+
+	assert.NotEqual(t, session.Bearer, session2.Bearer)
+
+}
+
+func Test_GetUserFromBearer(t *testing.T) {
+
+	service := createMockServices()
+
+	expected, _ := service.Register(validUser)
+
+	actual, err := service.GetUserFromBearer(expected.Session.Bearer)
+	assert.Nil(t, err)
+	assert.Equal(t, expected.ID, actual.ID)
+
+	service.RefreshSession(expected)
+
+	actual, err = service.GetUserFromBearer(expected.Session.Bearer)
+	assert.NotNil(t, err)
+	assert.Nil(t, actual)
 
 }
 

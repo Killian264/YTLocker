@@ -116,6 +116,7 @@ func (d *Data) createTables() error {
 		&models.YoutubeClientConfig{},
 		&models.YoutubeToken{},
 		&models.SubscriptionWorkUnit{},
+		&models.Session{},
 	)
 
 }
@@ -132,6 +133,7 @@ func (d *Data) dropTables() error {
 		&models.YoutubeClientConfig{},
 		&models.YoutubeToken{},
 		&models.SubscriptionWorkUnit{},
+		&models.Session{},
 	)
 
 }
@@ -147,5 +149,6 @@ func (d *Data) clearTables() {
 	d.db.Unscoped().Where("1 = 1").Delete(&models.YoutubeClientConfig{})
 	d.db.Unscoped().Where("1 = 1").Delete(&models.YoutubeToken{})
 	d.db.Unscoped().Where("1 = 1").Delete(&models.SubscriptionWorkUnit{})
+	d.db.Unscoped().Where("1 = 1").Delete(&models.Session{})
 	return
 }

@@ -2,7 +2,6 @@ package services
 
 import (
 	"log"
-	"net/http"
 
 	"github.com/Killian264/YTLocker/golocker/data"
 	"github.com/Killian264/YTLocker/golocker/models"
@@ -48,10 +47,14 @@ type IYoutubeManager interface {
 }
 
 type IUser interface {
-	GetUserFromRequest(r *http.Request) (*models.User, error)
-	RegisterUser(user *models.User) error
+	Login(email string, password string) (string, error)
+	Register(user models.User) (models.User, error)
+
+	GetUser(ID uint64) (*models.User, error)
+	GetUserFromBearer(bearer string) (*models.User, error)
+
 	ValidEmail(email string) (bool, error)
-	GetUserByID(ID uint64) (*models.User, error)
+	RefreshSession(user models.User) (models.Session, error)
 }
 
 // Helper Services

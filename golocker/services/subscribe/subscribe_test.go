@@ -30,6 +30,19 @@ var channel2 = &models.Channel{
 	Description: "not used",
 }
 
+func Test_IgnoreDuplicates_Challenge(t *testing.T) {
+
+	service := createMockServices(t)
+
+	sub, err := service.Subscribe(channel)
+	assert.Nil(t, err)
+
+	sub2, err := service.Subscribe(channel)
+	assert.Nil(t, err)
+
+	assert.Equal(t, sub.ID, sub2.ID)
+}
+
 func Test_Valid_Challenge(t *testing.T) {
 
 	service := createMockServices(t)
@@ -98,7 +111,7 @@ func Test_ResubscribeAll(t *testing.T) {
 	err := service.ResubscribeAll()
 	assert.Nil(t, err)
 
-	sub3, _ := service.GetSubscription(channel)
+	sub3, err := service.GetSubscription(channel)
 	sub4, _ := service.GetSubscription(channel2)
 
 	assert.NotEqual(t, sub1.ID, sub3.ID)
