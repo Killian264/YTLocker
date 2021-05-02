@@ -19,7 +19,7 @@ type IUserData interface {
 	GetUser(ID uint64) (*models.User, error)
 	NewUser(user *models.User) error
 
-	SaveSession(user *models.User, session *models.Session) error
+	NewUserSession(user *models.User, session *models.Session) error
 	GetSession(bearer string) (*models.Session, error)
 }
 
@@ -127,7 +127,7 @@ func (u *User) RefreshSession(user models.User) (models.Session, error) {
 		Bearer: bearer,
 	}
 
-	err = u.data.SaveSession(&user, &session)
+	err = u.data.NewUserSession(&user, &session)
 	if err != nil {
 		return models.Session{}, err
 	}

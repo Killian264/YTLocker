@@ -31,7 +31,7 @@ func InMemorySQLiteConnect() *Data {
 
 	data := Data{
 		db:   db,
-		rand: DataRand(&TestRand{}),
+		rand: DataRand(&ActualRand{}),
 	}
 
 	err = data.createTables()
