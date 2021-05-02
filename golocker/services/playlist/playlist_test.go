@@ -14,6 +14,12 @@ var user = &models.User{
 	Password: "one-two-three",
 }
 
+var user2 = &models.User{
+	Username: "Killian",
+	Email:    "killiandebacker@gmail.com",
+	Password: "one-two-three",
+}
+
 var playlist = &models.Playlist{
 	Title:       "New Playlist",
 	Description: "Cool new playlist!!!",
@@ -39,11 +45,27 @@ func Test_Create_Playlist(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, playlist)
 
-	created, err := service.Get(playlist.ID)
+	created, err := service.Get(user, playlist.ID)
 	assert.Nil(t, err)
 	assert.NotNil(t, created)
 
+	assert.Equal(t, user.ID, playlist.UserID)
+
 	PlaylistsAreEqual(t, playlist, created)
+
+}
+
+func Test_Only_Get_Users_Playlist(t *testing.T) {
+
+	service := createMockServices(t)
+
+	playlist, err := service.New(playlist, user)
+	assert.Nil(t, err)
+	assert.NotNil(t, playlist)
+
+	created, err := service.Get(user2, playlist.ID)
+	assert.Nil(t, err)
+	assert.Nil(t, created)
 
 }
 
@@ -58,7 +80,7 @@ func Test_Playlist_Insert(t *testing.T) {
 
 	playlist.Videos = append(playlist.Videos, *video)
 
-	created, err := service.Get(playlist.ID)
+	created, err := service.Get(user, playlist.ID)
 
 	PlaylistsAreEqual(t, playlist, created)
 
@@ -75,7 +97,7 @@ func Test_Playlist_Subscribe(t *testing.T) {
 
 	playlist.Channels = append(playlist.Channels, *channel)
 
-	created, err := service.Get(playlist.ID)
+	created, err := service.Get(user, playlist.ID)
 
 	PlaylistsAreEqual(t, playlist, created)
 
@@ -92,7 +114,7 @@ func Test_Playlist_UnSubscribe(t *testing.T) {
 	err = service.Unsubscribe(playlist, channel)
 	assert.Nil(t, err)
 
-	created, err := service.Get(playlist.ID)
+	created, err := service.Get(user, playlist.ID)
 
 	PlaylistsAreEqual(t, playlist, created)
 
@@ -113,7 +135,7 @@ func Test_ProcessNewVideo(t *testing.T) {
 	expected.Channels = append(expected.Channels, *channel)
 	expected.Videos = append(expected.Videos, *video)
 
-	created, _ := service.Get(expected.ID)
+	created, _ := service.Get(user, expected.ID)
 
 	PlaylistsAreEqual(t, expected, created)
 	assert.Equal(t, 1, len(created.Videos))
@@ -134,7 +156,7 @@ func Test_IgnoreDuplicates_ProcessNewVideo(t *testing.T) {
 	err = service.ProcessNewVideo(channel, video)
 	assert.Nil(t, err)
 
-	created, err := service.Get(playlist.ID)
+	created, err := service.Get(user, playlist.ID)
 
 	assert.Equal(t, 1, len(created.Videos))
 
@@ -145,6 +167,8 @@ func createMockServices(t *testing.T) *PlaylistManager {
 	data := data.InMemorySQLiteConnect()
 
 	data.NewUser(user)
+
+	data.NewUser(user2)
 
 	data.NewChannel(channel)
 

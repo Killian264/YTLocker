@@ -162,11 +162,20 @@ func InitializeRoutes(services *services.Services, router *mux.Router) {
 
 	ErrorHandler := handlers.CreateErrorHandler(logger)
 
+	UserAuthenticator := handlers.CreateUserAuthenticator(services)
+
 	router.HandleFunc("/subscribe/{secret}", ErrorHandler(ServiceInjector(handlers.HandleYoutubePush)))
 
 	router.HandleFunc("/register", ErrorHandler(ServiceInjector(handlers.HandleRegistration)))
 
 	router.HandleFunc("/login", ErrorHandler(ServiceInjector(handlers.HandleLogin)))
+
+	router.HandleFunc("/playlist/create", ErrorHandler(ServiceInjector(UserAuthenticator(handlers.CreatePlaylist))))
+
+	router.HandleFunc("/testone", ErrorHandler(ServiceInjector(UserAuthenticator(handlers.TestHandler))))
+
+	router.HandleFunc("/testtwo", ErrorHandler(ServiceInjector(handlers.TestHandler)))
+
 }
 
 // InitializeYTService Creates YTService for app

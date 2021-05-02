@@ -1,6 +1,7 @@
 package test
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 
@@ -27,6 +28,8 @@ func SendFakeRequest(request FakeRequest) *http.Response {
 		if err != nil {
 			w.WriteHeader(500)
 		}
+
+		fmt.Println("FakeRequest got Error", err)
 	}
 
 	router.HandleFunc(request.Route, handler)

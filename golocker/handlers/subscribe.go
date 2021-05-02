@@ -19,13 +19,13 @@ func HandleYoutubePush(w http.ResponseWriter, r *http.Request, s *services.Servi
 	challenge := r.URL.Query().Get("hub.challenge")
 
 	if challenge != "" {
-		return handleChallenge(w, r, s.Subscribe)
+		return handleChallenge(w, r, s)
 	}
 
-	return handleNewVideoPush(w, r, s.Subscribe)
+	return handleNewVideoPush(w, r, s)
 }
 
-func handleChallenge(w http.ResponseWriter, r *http.Request, s services.ISubscription) error {
+func handleChallenge(w http.ResponseWriter, r *http.Request, s *services.Services) error {
 
 	secret := mux.Vars(r)["secret"]
 	challenge := r.URL.Query().Get("hub.challenge")
@@ -46,7 +46,7 @@ func handleChallenge(w http.ResponseWriter, r *http.Request, s services.ISubscri
 		Active:       true,
 	}
 
-	isValid, err := s.HandleChallenge(&request, channelID)
+	isValid, err := s.Subscribe.HandleChallenge(&request, channelID)
 
 	if err != nil {
 		return err
@@ -60,7 +60,7 @@ func handleChallenge(w http.ResponseWriter, r *http.Request, s services.ISubscri
 	return nil
 }
 
-func handleNewVideoPush(w http.ResponseWriter, r *http.Request, s services.ISubscription) error {
+func handleNewVideoPush(w http.ResponseWriter, r *http.Request, s *services.Services) error {
 
 	secret := mux.Vars(r)["secret"]
 	bytes, err := ioutil.ReadAll(r.Body)
@@ -76,5 +76,5 @@ func handleNewVideoPush(w http.ResponseWriter, r *http.Request, s services.ISubs
 		return err
 	}
 
-	return s.HandleVideoPush(&push, secret)
+	return s.Subscribe.HandleVideoPush(&push, secret)
 }

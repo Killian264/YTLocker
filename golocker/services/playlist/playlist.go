@@ -15,8 +15,8 @@ type IYTPlaylist interface {
 }
 
 type IPlaylistManagerData interface {
-	NewPlaylist(playlist *models.Playlist) error
-	GetPlaylist(ID uint64) (*models.Playlist, error)
+	NewPlaylist(userID uint64, playlist *models.Playlist) error
+	GetPlaylist(userID uint64, playlistID uint64) (*models.Playlist, error)
 
 	NewPlaylistVideo(playlistID uint64, videoID uint64) error
 	NewPlaylistChannel(playlistID uint64, channelID uint64) error
@@ -102,16 +102,16 @@ func (s *PlaylistManager) New(playlist *models.Playlist, user *models.User) (*mo
 	created.YoutubeID = ytPlaylist.Id
 	created.Thumbnails = parsers.ParseYTThumbnails(ytPlaylist.Snippet.Thumbnails)
 
-	s.data.NewPlaylist(&created)
+	s.data.NewPlaylist(user.ID, &created)
 
 	return &created, nil
 
 }
 
 // Get gets a playlist given an id
-func (s *PlaylistManager) Get(ID uint64) (*models.Playlist, error) {
+func (s *PlaylistManager) Get(user *models.User, playlistID uint64) (*models.Playlist, error) {
 
-	return s.data.GetPlaylist(ID)
+	return s.data.GetPlaylist(user.ID, playlistID)
 
 }
 

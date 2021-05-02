@@ -2,87 +2,45 @@ package services
 
 import (
 	"log"
+	"os"
 
 	"github.com/Killian264/YTLocker/golocker/data"
-	"github.com/Killian264/YTLocker/golocker/models"
+	"github.com/Killian264/YTLocker/golocker/services/playlist"
+	"github.com/Killian264/YTLocker/golocker/services/subscribe"
+	userservice "github.com/Killian264/YTLocker/golocker/services/user"
+	"github.com/Killian264/YTLocker/golocker/services/ytmanager"
 	"github.com/gorilla/mux"
-	"golang.org/x/oauth2"
-	"google.golang.org/api/youtube/v3"
 )
 
 // Services to be injected into handlers and cron jobs
 type Services struct {
-	Router    *mux.Router
-	Data      *data.Data
-	Logger    *log.Logger
-	Youtube   IYoutubeManager
-	User      IUser
-	Subscribe ISubscription
-	Playlist  IPlaylistManager
+	Router *mux.Router
+	Data   *data.Data
+	Logger *log.Logger
+
+	Youtube   *ytmanager.YoutubeManager
+	User      *userservice.User
+	Subscribe *subscribe.Subscriber
+	Playlist  *playlist.PlaylistManager
 }
 
-type ISubscription interface {
-	SetYTPubSubUrl(url string)
-	SetSubscribeUrl(base string, path string)
+func NewMockServices() *Services {
 
-	Subscribe(channel *models.Channel) (*models.SubscriptionRequest, error)
-	GetSubscription(channel *models.Channel) (*models.SubscriptionRequest, error)
+	data := data.InMemorySQLiteConnect()
 
-	ResubscribeAll() error
+	managerService := ytmanager.FakeNewYoutubeManager(data)
+	playlistService := playlist.NewFakePlaylist(data)
+	userService := userservice.NewUser(data)
 
-	HandleChallenge(request *models.SubscriptionRequest, channelID string) (bool, error)
-	HandleVideoPush(push *models.YTHookPush, secret string) error
-}
+	logger := log.New(os.Stdout, "Test: ", log.Lshortfile)
 
-type IYoutubeManager interface {
-	NewVideo(channel *models.Channel, videoID string) (*models.Video, error)
-	GetVideo(ID uint64) (*models.Video, error)
-	GetVideoByID(youtubeID string) (*models.Video, error)
+	service := &Services{
+		Logger:   logger,
+		Data:     data,
+		Playlist: playlistService,
+		Youtube:  managerService,
+		User:     userService,
+	}
 
-	NewChannel(channelID string) (*models.Channel, error)
-	GetChannel(ID uint64) (*models.Channel, error)
-	GetChannelByID(youtubeID string) (*models.Channel, error)
-
-	GetAllVideosFromLast24Hours() (*[]models.Video, error)
-}
-
-type IUser interface {
-	Login(email string, password string) (string, error)
-	Register(user models.User) (models.User, error)
-
-	GetUser(ID uint64) (*models.User, error)
-	GetUserFromBearer(bearer string) (*models.User, error)
-
-	ValidEmail(email string) (bool, error)
-	RefreshSession(user models.User) (models.Session, error)
-}
-
-// Helper Services
-type IYoutubeHelper interface {
-	GetLastVideosFromChannel(channelID string, pageToken string) (*youtube.SearchListResponse, error)
-	GetVideo(channelID string, videoID string) (*youtube.Video, error)
-	GetChannel(channelID string) (*youtube.Channel, error)
-}
-
-type IYoutubePlaylistHelper interface {
-	Initialize(config oauth2.Config, token oauth2.Token) error
-	Create(title string, description string) (*youtube.Playlist, error)
-	Insert(playlistID string, videoID string) error
-}
-
-// type IPlaylistHelperData interface {
-// 	GetFirstYoutubeClientConfig() (*models.YoutubeClientConfig, error)
-// 	GetFirstYoutubeToken() (*models.YoutubeToken, error)
-// }
-
-type IPlaylistManager interface {
-	New(playlist *models.Playlist, user *models.User) (*models.Playlist, error)
-	Get(ID uint64) (*models.Playlist, error)
-
-	Insert(playlist *models.Playlist, video *models.Video) error
-
-	Subscribe(playlist *models.Playlist, channel *models.Channel) error
-	Unsubscribe(playlist *models.Playlist, channel *models.Channel) error
-
-	ProcessNewVideo(channel *models.Channel, video *models.Video) error
+	return service
 }

@@ -24,8 +24,8 @@ func ParseAndValidateUser(user models.User) (models.User, string) {
 		return models.User{}, "password does not meet requirements"
 	}
 
-	if len(parsed.Username) < 3 {
-		return models.User{}, "username must be at least length 3"
+	if len(parsed.Username) < 3 || 21 < len(parsed.Username) {
+		return models.User{}, "username must be between 3 and 21 characters"
 	}
 
 	return parsed, ""

@@ -43,7 +43,7 @@ func TestSanitizeString(t *testing.T) {
 
 	stripped := SanitizeString(str)
 
-	assert.Equal(t, "qqqq q qqq. qq q\\q qq qq qq qq qq qq qq qq qqqqq", stripped)
+	assert.Equal(t, "qqqq q qqq. qq q\\q qq qq qq qq qq q'q qq qq qqqqq", stripped)
 
 	str = "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"
 

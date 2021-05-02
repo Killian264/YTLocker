@@ -46,9 +46,11 @@ func (d *Data) GetFirstYoutubeToken() (*models.YoutubeToken, error) {
 	return &token, nil
 }
 
-func (d *Data) NewPlaylist(playlist *models.Playlist) error {
+func (d *Data) NewPlaylist(userID uint64, playlist *models.Playlist) error {
 
 	playlist.ID = d.rand.ID()
+
+	playlist.UserID = userID
 
 	for _, thumbnail := range playlist.Thumbnails {
 		thumbnail.ID = d.rand.ID()
@@ -60,13 +62,17 @@ func (d *Data) NewPlaylist(playlist *models.Playlist) error {
 
 }
 
-func (d *Data) GetPlaylist(ID uint64) (*models.Playlist, error) {
-	playlist := &models.Playlist{ID: ID}
+func (d *Data) GetPlaylist(userID uint64, playlistID uint64) (*models.Playlist, error) {
+	playlist := &models.Playlist{ID: playlistID}
 
 	result := d.db.Preload(clause.Associations).Where(playlist).First(playlist)
 
 	if result.Error != nil || notFound(result.Error) {
 		return nil, removeNotFound(result.Error)
+	}
+
+	if userID != playlist.UserID {
+		return nil, nil
 	}
 
 	return playlist, nil
@@ -121,7 +127,7 @@ func (d *Data) PlaylistHasVideo(playlistID uint64, videoID uint64) (bool, error)
 
 	join := "INNER JOIN playlist_video ON playlist_video.video_id = ?"
 
-	result := d.db.Joins(join, videoID).Where(playlist).First(playlist)
+	result := d.db.Model(playlist).Joins(join, videoID).First(playlist)
 
 	return !notFound(result.Error), removeNotFound(result.Error)
 
