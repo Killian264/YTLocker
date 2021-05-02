@@ -162,6 +162,20 @@ func Test_IgnoreDuplicates_ProcessNewVideo(t *testing.T) {
 
 }
 
+func Test_Get_All_Playlists(t *testing.T) {
+
+	service := createMockServices(t)
+
+	service.New(playlist, user)
+	service.New(playlist, user)
+
+	playlists, err := service.GetAllUserPlaylists(user)
+	assert.Nil(t, err)
+
+	assert.Equal(t, 2, len(*playlists))
+
+}
+
 func createMockServices(t *testing.T) *PlaylistManager {
 
 	data := data.InMemorySQLiteConnect()

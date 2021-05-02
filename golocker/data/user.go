@@ -22,7 +22,7 @@ func (d *Data) NewUser(user *models.User) error {
 func (d *Data) GetUser(ID uint64) (*models.User, error) {
 	user := models.User{ID: ID}
 
-	result := d.db.Model(user).First(&user)
+	result := d.db.Model(user).Preload("Session").First(&user)
 
 	if result.Error != nil || notFound(result.Error) {
 		return nil, removeNotFound(result.Error)
@@ -46,6 +46,8 @@ func (d *Data) GetUserByEmail(email string) (*models.User, error) {
 
 // SaveSession saves the session to the user
 func (d *Data) NewUserSession(user *models.User, session *models.Session) error {
+
+	session.ID = d.rand.ID()
 
 	return d.db.Model(user).Association("Session").Replace(session)
 

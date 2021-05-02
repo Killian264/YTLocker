@@ -33,7 +33,6 @@ var handleUser = models.User{}
 var handlePlaylist = models.Playlist{}
 
 var handler = func(w http.ResponseWriter, r *http.Request, s *service.Services) error {
-
 	handleUser = GetUserFromRequest(r)
 
 	_, ok := context.GetOk(r, "playlist")
@@ -43,7 +42,6 @@ var handler = func(w http.ResponseWriter, r *http.Request, s *service.Services) 
 
 	handlePlaylist = GetPlaylistFromRequest(r)
 	return nil
-
 }
 
 func Test_User_Authenticator(t *testing.T) {
@@ -74,23 +72,25 @@ func Test_User_Authenticator(t *testing.T) {
 
 func Test_Playlist_Authenticator(t *testing.T) {
 
-	// test playist is set with valid bearer
 	s := service.NewMockServices()
 
+	// user 1
 	savedUser, _ := s.User.Register(user)
 	bearer, _ := s.User.Login(user.Email, user.Password)
-
 	playlist, _ := s.Playlist.New(&playlist, &savedUser)
 
+	// user 2
+	s.User.Register(user2)
+	bearer2, _ := s.User.Login(user2.Email, user2.Password)
+
+	// should get playlist with correct user
 	Send_Authenticated_Playlist_Request(t, s, playlist, bearer)
 	assert.Equal(t, playlist.ID, handlePlaylist.ID)
 
 	handlePlaylist = models.Playlist{}
 
-	s.User.Register(user2)
-	bearer, _ = s.User.Login(user2.Email, user2.Password)
-
-	Send_Authenticated_Playlist_Request(t, s, playlist, bearer)
+	// should not get playlist with invalid user
+	Send_Authenticated_Playlist_Request(t, s, playlist, bearer2)
 	assert.Empty(t, handlePlaylist)
 
 }

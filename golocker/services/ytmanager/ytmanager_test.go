@@ -39,7 +39,7 @@ func Test_New_Channel_InValid_Channel(t *testing.T) {
 
 }
 
-func Test_New_Channel_No_Duplicates(t *testing.T) {
+func Test_New_Channel_Ignore_Duplicates(t *testing.T) {
 
 	service := createMockServices(t)
 
@@ -47,8 +47,10 @@ func Test_New_Channel_No_Duplicates(t *testing.T) {
 	assert.NotNil(t, channel)
 	assert.Nil(t, err)
 
-	_, err = service.NewChannel("valid-id")
-	assert.NotNil(t, err)
+	channel2, err := service.NewChannel("valid-id")
+	assert.Nil(t, err)
+
+	assert.Equal(t, channel.ID, channel2.ID)
 
 }
 
@@ -90,7 +92,7 @@ func Test_New_Video_InValid_Channel(t *testing.T) {
 
 }
 
-func Test_New_Video_No_Duplicates(t *testing.T) {
+func Test_New_Video_Ignore_Duplicates(t *testing.T) {
 
 	service := createMockServices(t)
 
@@ -102,8 +104,10 @@ func Test_New_Video_No_Duplicates(t *testing.T) {
 	assert.NotNil(t, video)
 	assert.Nil(t, err)
 
-	video, err = service.NewVideo(channel, "valid-id")
-	assert.NotNil(t, err)
+	video2, err := service.NewVideo(channel, "valid-id")
+	assert.Nil(t, err)
+
+	assert.Equal(t, video.ID, video2.ID)
 
 }
 

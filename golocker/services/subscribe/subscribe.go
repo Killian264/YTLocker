@@ -119,7 +119,7 @@ func (s *Subscriber) postSubscription(request *models.SubscriptionRequest, pushS
 		return err
 	}
 
-	if resp.StatusCode != http.StatusCreated {
+	if resp.StatusCode < 199 || resp.StatusCode > 210 {
 		return fmt.Errorf("Failed to subscribe to channel status code: %s", resp.Status)
 	}
 

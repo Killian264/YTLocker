@@ -46,7 +46,7 @@ func Test_Run(t *testing.T) {
 	err = j.Run()
 	assert.Nil(t, err)
 
-	playlist, err = s.Playlist.Get(playlist.ID)
+	playlist, err = s.Playlist.Get(&user, playlist.ID)
 	assert.Nil(t, err)
 
 	assert.NotEqual(t, 2, len(playlist.Videos))

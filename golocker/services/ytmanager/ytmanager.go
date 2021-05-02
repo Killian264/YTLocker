@@ -49,6 +49,12 @@ func FakeNewYoutubeManager(data IYoutubeManagerData) *YoutubeManager {
 
 // NewVideo fetches and saves to the db a video from a saved channel with a videoID
 func (s *YoutubeManager) NewVideo(channel *models.Channel, videoID string) (*models.Video, error) {
+
+	saved, _ := s.GetVideoByID(videoID)
+	if saved != nil {
+		return saved, nil
+	}
+
 	ytVideo, err := s.yt.GetVideo(channel.YoutubeID, videoID)
 	if err != nil {
 		return nil, err
@@ -82,6 +88,11 @@ func (s *YoutubeManager) GetVideoByID(youtubeID string) (*models.Video, error) {
 
 // NewChannel gets and saves to the db a new channel
 func (s *YoutubeManager) NewChannel(channelID string) (*models.Channel, error) {
+
+	saved, _ := s.GetChannelByID(channelID)
+	if saved != nil {
+		return saved, nil
+	}
 
 	ytChannel, err := s.yt.GetChannel(channelID)
 	if err != nil {

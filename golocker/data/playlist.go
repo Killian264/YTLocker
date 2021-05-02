@@ -132,3 +132,17 @@ func (d *Data) PlaylistHasVideo(playlistID uint64, videoID uint64) (bool, error)
 	return !notFound(result.Error), removeNotFound(result.Error)
 
 }
+
+func (d *Data) GetAllUserPlaylists(userID uint64) (*[]models.Playlist, error) {
+
+	playlists := &[]models.Playlist{}
+
+	result := d.db.Preload(clause.Associations).Where("user_id = ?", userID).Find(playlists)
+
+	if result.Error != nil || notFound(result.Error) {
+		return playlists, removeNotFound(result.Error)
+	}
+
+	return playlists, nil
+
+}

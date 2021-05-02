@@ -164,17 +164,17 @@ func InitializeRoutes(services *services.Services, router *mux.Router) {
 
 	UserAuthenticator := handlers.CreateUserAuthenticator(services)
 
+	PlaylistAuthenticator := handlers.CreatePlaylistAuthenticator(services)
+
 	router.HandleFunc("/subscribe/{secret}", ErrorHandler(ServiceInjector(handlers.HandleYoutubePush)))
 
-	router.HandleFunc("/register", ErrorHandler(ServiceInjector(handlers.HandleRegistration)))
-
-	router.HandleFunc("/login", ErrorHandler(ServiceInjector(handlers.HandleLogin)))
+	router.HandleFunc("/user/register", ErrorHandler(ServiceInjector(handlers.HandleRegistration)))
+	router.HandleFunc("/user/login", ErrorHandler(ServiceInjector(handlers.HandleLogin)))
+	router.HandleFunc("/user/information", ErrorHandler(ServiceInjector(UserAuthenticator(handlers.GetUserInformation))))
 
 	router.HandleFunc("/playlist/create", ErrorHandler(ServiceInjector(UserAuthenticator(handlers.CreatePlaylist))))
-
-	router.HandleFunc("/testone", ErrorHandler(ServiceInjector(UserAuthenticator(handlers.TestHandler))))
-
-	router.HandleFunc("/testtwo", ErrorHandler(ServiceInjector(handlers.TestHandler)))
+	router.HandleFunc("/playlist/all", ErrorHandler(ServiceInjector(UserAuthenticator(handlers.GetAllPlaylists))))
+	router.HandleFunc("/playlist/{playlist_id}/subscribe/{channel_id}", ErrorHandler(ServiceInjector(UserAuthenticator(PlaylistAuthenticator(handlers.PlaylistAddSubscription)))))
 
 }
 

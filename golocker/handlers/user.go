@@ -75,3 +75,20 @@ func HandleLogin(w http.ResponseWriter, r *http.Request, s *services.Services) e
 	return nil
 
 }
+
+func GetUserInformation(w http.ResponseWriter, r *http.Request, s *services.Services) error {
+
+	user := GetUserFromRequest(r)
+
+	user.Password = ""
+
+	marshal, err := json.Marshal(user)
+	if err != nil {
+		return nil
+	}
+
+	w.Write(marshal)
+
+	return nil
+
+}

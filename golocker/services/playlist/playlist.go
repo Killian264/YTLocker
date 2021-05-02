@@ -28,6 +28,8 @@ type IPlaylistManagerData interface {
 	GetFirstYoutubeToken() (*models.YoutubeToken, error)
 
 	GetAllPlaylistsSubscribedTo(channel *models.Channel) (*[]models.Playlist, error)
+
+	GetAllUserPlaylists(userID uint64) (*[]models.Playlist, error)
 }
 
 // PlaylistManager manages playlists
@@ -173,5 +175,12 @@ func (s *PlaylistManager) ProcessNewVideo(channel *models.Channel, video *models
 	}
 
 	return nil
+
+}
+
+// GetAllUserPlaylists returns all playlist for a user
+func (s *PlaylistManager) GetAllUserPlaylists(user *models.User) (*[]models.Playlist, error) {
+
+	return s.data.GetAllUserPlaylists(user.ID)
 
 }
