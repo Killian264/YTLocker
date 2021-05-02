@@ -6,7 +6,7 @@ import "github.com/Killian264/YTLocker/golocker/models"
 // the error is user safe
 func ParseAndValidateUser(user models.User) (models.User, string) {
 
-	if StringArrayIsValid([]string{user.Username, user.Email, user.Password}) {
+	if !StringArrayIsValid([]string{user.Username, user.Email, user.Password}) {
 		return models.User{}, "user information contained invalid characters"
 	}
 
@@ -16,15 +16,15 @@ func ParseAndValidateUser(user models.User) (models.User, string) {
 		Password: SanitizeString(user.Password),
 	}
 
-	if IsEmailValid(parsed.Email) {
+	if !IsEmailValid(parsed.Email) {
 		return models.User{}, "user email is invalid"
 	}
 
-	if IsPasswordValid(parsed.Password) {
+	if !IsPasswordValid(parsed.Password) {
 		return models.User{}, "password does not meet requirements"
 	}
 
-	if len(parsed.Username) > 2 {
+	if len(parsed.Username) < 3 {
 		return models.User{}, "username must be at least length 3"
 	}
 

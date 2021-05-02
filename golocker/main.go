@@ -37,46 +37,11 @@ func main() {
 
 	logger.Println("----------------------------")
 
-	go Run(
+	Run(
 		s,
 		os.Getenv("GO_API_HOST"),
 		os.Getenv("GO_API_PORT"),
 	)
-
-	// user := &models.User{
-	// 	Username: "Killian",
-	// 	Email:    "killiandebacker@gmail.com",
-	// 	Password: "sadkfj231290381290wjfask22904293",
-	// }
-
-	// playlist := &models.Playlist{
-	// 	Title:       "Playlist Title",
-	// 	Description: "Wowee cool playlist description",
-	// }
-
-	// err := s.User.RegisterUser(user)
-	// if err != nil {
-	// 	logger.Fatal(err)
-	// }
-
-	// playlist, err = s.Playlist.New(playlist, user)
-	// if err != nil {
-	// 	logger.Fatal(err)
-	// }
-
-	// channel, err := s.Youtube.GetChannelByID("UCfJvn8LAFkRRPJNt8tTJumA")
-	// if err != nil {
-	// 	logger.Fatal(err)
-	// }
-
-	// logger.Print(playlist)
-
-	// err = s.Playlist.Subscribe(playlist, channel)
-	// if err != nil {
-	// 	logger.Fatal(err)
-	// }
-
-	// s.Subscribe.Subscribe(channel)
 
 }
 
@@ -199,6 +164,9 @@ func InitializeRoutes(services *services.Services, router *mux.Router) {
 
 	router.HandleFunc("/subscribe/{secret}", ErrorHandler(ServiceInjector(handlers.HandleYoutubePush)))
 
+	router.HandleFunc("/register", ErrorHandler(ServiceInjector(handlers.HandleRegistration)))
+
+	router.HandleFunc("/login", ErrorHandler(ServiceInjector(handlers.HandleLogin)))
 }
 
 // InitializeYTService Creates YTService for app

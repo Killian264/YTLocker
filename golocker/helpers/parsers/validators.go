@@ -73,6 +73,6 @@ func IsEmailValid(str string) bool {
 
 func IsPasswordValid(str string) bool {
 
-	return len(str) > 7 && len(str) < 254
+	return 7 < len(str) && len(str) < 254
 
 }

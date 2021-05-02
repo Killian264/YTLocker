@@ -21,15 +21,15 @@ func HandleRegistration(w http.ResponseWriter, r *http.Request, s *services.Serv
 
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("failed to parse user information"))
-		w.WriteHeader(400)
 		return nil
 	}
 
 	parsed, errorString := parsers.ParseAndValidateUser(user)
 	if errorString != "" {
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(errorString))
-		w.WriteHeader(400)
 		return nil
 	}
 
@@ -39,12 +39,14 @@ func HandleRegistration(w http.ResponseWriter, r *http.Request, s *services.Serv
 	}
 
 	if !valid {
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("user with email already exists"))
-		w.WriteHeader(400)
 		return nil
 	}
 
-	return s.User.RegisterUser(&user)
+	user, err = s.User.Register(user)
+
+	return err
 }
 
 func HandleLogin(w http.ResponseWriter, r *http.Request, s *services.Services) error {
@@ -53,8 +55,8 @@ func HandleLogin(w http.ResponseWriter, r *http.Request, s *services.Services) e
 
 	err := json.NewDecoder(r.Body).Decode(&info)
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("failed to parse login information"))
-		w.WriteHeader(400)
 		return nil
 	}
 
@@ -64,5 +66,12 @@ func HandleLogin(w http.ResponseWriter, r *http.Request, s *services.Services) e
 	}
 
 	bearer, err := s.User.Login(parsed.Email, parsed.Password)
+	if err != nil {
+		return err
+	}
+
+	w.Write([]byte(bearer))
+
+	return nil
 
 }
