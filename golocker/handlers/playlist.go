@@ -85,3 +85,23 @@ func PlaylistAddSubscription(w http.ResponseWriter, r *http.Request, s *services
 	return nil
 
 }
+
+func PlaylistRemoveSubscription(w http.ResponseWriter, r *http.Request, s *services.Services) error {
+
+	playlist := GetPlaylistFromRequest(r)
+
+	channelID := mux.Vars(r)["channel_id"]
+
+	channel, err := s.Youtube.GetChannelByID(channelID)
+	if err != nil {
+		return err
+	}
+
+	err = s.Playlist.Unsubscribe(&playlist, channel)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}

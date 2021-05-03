@@ -175,6 +175,7 @@ func InitializeRoutes(services *services.Services, router *mux.Router) {
 	router.HandleFunc("/playlist/create", ErrorHandler(ServiceInjector(UserAuthenticator(handlers.CreatePlaylist))))
 	router.HandleFunc("/playlist/all", ErrorHandler(ServiceInjector(UserAuthenticator(handlers.GetAllPlaylists))))
 	router.HandleFunc("/playlist/{playlist_id}/subscribe/{channel_id}", ErrorHandler(ServiceInjector(UserAuthenticator(PlaylistAuthenticator(handlers.PlaylistAddSubscription)))))
+	router.HandleFunc("/playlist/{playlist_id}/unsubscribe/{channel_id}", ErrorHandler(ServiceInjector(UserAuthenticator(PlaylistAuthenticator(handlers.PlaylistRemoveSubscription)))))
 
 }
 
