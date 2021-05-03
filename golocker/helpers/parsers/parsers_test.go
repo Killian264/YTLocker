@@ -246,44 +246,18 @@ func TestParseYoutubeToken(t *testing.T) {
 }
 
 func TestParseYTThumbnails(t *testing.T) {
-	all := &youtube.ThumbnailDetails{
-		Default: &youtube.Thumbnail{
-			Url:    "ytlocker.com",
-			Height: 200,
-			Width:  200,
-		},
-		Standard: &youtube.Thumbnail{
-			Url:    "ytlocker.com",
-			Height: 200,
-			Width:  200,
-		},
-		Medium: &youtube.Thumbnail{
-			Url:    "ytlocker.com",
-			Height: 200,
-			Width:  200,
-		},
-		High: &youtube.Thumbnail{
-			Url:    "ytlocker.com",
-			Height: 200,
-			Width:  200,
-		},
-		Maxres: &youtube.Thumbnail{
-			Url:    "ytlocker.com",
-			Height: 200,
-			Width:  200,
-		},
-	}
+	all := getFakeThumbnails()
 
-	thumbnails := ParseYTThumbnails(all)
+	thumbnails := ParseYTThumbnails(&all)
 	assert.Equal(t, 5, len(thumbnails))
 
 	all.Default = nil
 	all.High = nil
 
-	thumbnails = ParseYTThumbnails(all)
+	thumbnails = ParseYTThumbnails(&all)
 	assert.Equal(t, 3, len(thumbnails))
 
-	all = &youtube.ThumbnailDetails{
+	all = youtube.ThumbnailDetails{
 		Default:  nil,
 		Standard: nil,
 		Medium:   nil,
@@ -291,7 +265,7 @@ func TestParseYTThumbnails(t *testing.T) {
 		Maxres:   nil,
 	}
 
-	thumbnails = ParseYTThumbnails(all)
+	thumbnails = ParseYTThumbnails(&all)
 	assert.Equal(t, 0, len(thumbnails))
 }
 
@@ -353,4 +327,88 @@ func TestParseYTChannel(t *testing.T) {
 
 	parsed := ParseYTChannel(channel)
 	assert.Equal(t, expected, parsed)
+}
+
+func TestParseSearchResponseIntoVideos(t *testing.T) {
+
+	thumbnails := getFakeThumbnails()
+
+	input := &youtube.SearchListResponse{
+		Items: []*youtube.SearchResult{
+			{
+				Id: &youtube.ResourceId{
+					Kind:    "youtube#video",
+					VideoId: "video-id-one",
+				},
+				Snippet: &youtube.SearchResultSnippet{
+					ChannelId:   "channel-id",
+					Title:       "Video Name 1",
+					Description: "Video Description",
+					Thumbnails:  &thumbnails,
+				},
+			},
+			{
+				Id: &youtube.ResourceId{
+					Kind:    "youtube#video",
+					VideoId: "video-id-two",
+				},
+				Snippet: &youtube.SearchResultSnippet{
+					ChannelId:   "channel-id",
+					Title:       "Video Name 2",
+					Description: "Video Description2",
+					Thumbnails:  &thumbnails,
+				},
+			},
+		},
+	}
+
+	expected := []models.Video{
+		{
+			YoutubeID:   "video-id-one",
+			Title:       "Video Name 1",
+			Description: "Video Description",
+			Thumbnails:  ParseYTThumbnails(&thumbnails),
+		},
+		{
+			YoutubeID:   "video-id-two",
+			Title:       "Video Name 2",
+			Description: "Video Description2",
+			Thumbnails:  ParseYTThumbnails(&thumbnails),
+		},
+	}
+
+	actual := ParseSearchResponseIntoVideos(input)
+
+	assert.Equal(t, expected, actual)
+
+}
+
+func getFakeThumbnails() youtube.ThumbnailDetails {
+	return youtube.ThumbnailDetails{
+		Default: &youtube.Thumbnail{
+			Url:    "ytlocker.com",
+			Height: 200,
+			Width:  200,
+		},
+		Standard: &youtube.Thumbnail{
+			Url:    "ytlocker.com",
+			Height: 200,
+			Width:  200,
+		},
+		Medium: &youtube.Thumbnail{
+			Url:    "ytlocker.com",
+			Height: 200,
+			Width:  200,
+		},
+		High: &youtube.Thumbnail{
+			Url:    "ytlocker.com",
+			Height: 200,
+			Width:  200,
+		},
+		Maxres: &youtube.Thumbnail{
+			Url:    "ytlocker.com",
+			Height: 200,
+			Width:  200,
+		},
+	}
 }

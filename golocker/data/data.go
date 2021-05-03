@@ -136,3 +136,17 @@ func (d *Data) GetVideosFromLast24Hours() (*[]models.Video, error) {
 
 	return videos, nil
 }
+
+func (d *Data) GetAllChannels() (*[]models.Channel, error) {
+
+	channels := &[]models.Channel{}
+
+	result := d.db.Find(&channels)
+
+	if result.Error != nil || notFound(result.Error) {
+		return nil, removeNotFound(result.Error)
+	}
+
+	return channels, nil
+
+}

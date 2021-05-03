@@ -2,6 +2,7 @@ package ytservice
 
 import (
 	"fmt"
+	"time"
 
 	"golang.org/x/oauth2"
 	"google.golang.org/api/youtube/v3"
@@ -57,6 +58,43 @@ func (s *YTSerivceFake) GetChannel(channelID string) (*youtube.Channel, error) {
 			Title:       "wow cool title",
 			Description: "wow that is a super cool description",
 			Thumbnails:  &thumbnails,
+		},
+	}, nil
+
+}
+
+// GetLastVideosFromChannel fake impl, gets the last 25 videos from a channel AFTER some time
+// pageToken is blank or a pagetoken given by response
+func (s *YTSerivceFake) GetLastVideosFromChannel(channelID string, pageToken string, after time.Time) (*youtube.SearchListResponse, error) {
+
+	thumbnails := getThumbnails()
+
+	return &youtube.SearchListResponse{
+		Items: []*youtube.SearchResult{
+			{
+				Id: &youtube.ResourceId{
+					Kind:    "youtube#video",
+					VideoId: "video-id-one",
+				},
+				Snippet: &youtube.SearchResultSnippet{
+					ChannelId:   channelID,
+					Title:       "Video Name 1",
+					Description: "Video Description",
+					Thumbnails:  &thumbnails,
+				},
+			},
+			{
+				Id: &youtube.ResourceId{
+					Kind:    "youtube#video",
+					VideoId: "video-id-two",
+				},
+				Snippet: &youtube.SearchResultSnippet{
+					ChannelId:   channelID,
+					Title:       "Video Name 1",
+					Description: "Video Description",
+					Thumbnails:  &thumbnails,
+				},
+			},
 		},
 	}, nil
 

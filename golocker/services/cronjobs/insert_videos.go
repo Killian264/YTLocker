@@ -26,8 +26,6 @@ func NewInsertVideosJob(s *services.Services, l *log.Logger) *InsertVideosJob {
 
 func (j InsertVideosJob) Run() error {
 
-	j.l.Print("Starting Insert Videos CronJob: -------------")
-
 	err := j.saveWorkUnits()
 	if err != nil {
 		j.l.Print("Failed to save work units error: ", err)
@@ -62,8 +60,6 @@ func (j InsertVideosJob) Run() error {
 		}
 
 	}
-
-	j.l.Print("Completed Insert Videos CronJob: -------------")
 
 	return nil
 

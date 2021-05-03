@@ -14,8 +14,12 @@ type login struct {
 	Password string
 }
 
-//TODO: implement service features
-func HandleRegistration(w http.ResponseWriter, r *http.Request, s *services.Services) error {
+// UserRegister registers a new user,
+// email must be unique,
+// password must be 8 characters,
+// username must be longer than 3 characters
+// returns nothing
+func UserRegister(w http.ResponseWriter, r *http.Request, s *services.Services) error {
 
 	user := models.User{}
 
@@ -49,7 +53,9 @@ func HandleRegistration(w http.ResponseWriter, r *http.Request, s *services.Serv
 	return err
 }
 
-func HandleLogin(w http.ResponseWriter, r *http.Request, s *services.Services) error {
+// UserLogin logs in a user,
+// returns a bearer string
+func UserLogin(w http.ResponseWriter, r *http.Request, s *services.Services) error {
 
 	info := login{}
 
@@ -76,7 +82,9 @@ func HandleLogin(w http.ResponseWriter, r *http.Request, s *services.Services) e
 
 }
 
-func GetUserInformation(w http.ResponseWriter, r *http.Request, s *services.Services) error {
+// UserInformation not including playlists
+// returns user information
+func UserInformation(w http.ResponseWriter, r *http.Request, s *services.Services) error {
 
 	user := GetUserFromRequest(r)
 

@@ -11,7 +11,7 @@ import (
 )
 
 // HandleSubscriptionNoError handles a new subscription request wrap in a middleware that handles errors
-func CreatePlaylist(w http.ResponseWriter, r *http.Request, s *services.Services) error {
+func PlaylistCreate(w http.ResponseWriter, r *http.Request, s *services.Services) error {
 
 	user := GetUserFromRequest(r)
 
@@ -41,7 +41,7 @@ func CreatePlaylist(w http.ResponseWriter, r *http.Request, s *services.Services
 }
 
 // HandleSubscriptionNoError handles a new subscription request wrap in a middleware that handles errors
-func GetAllPlaylists(w http.ResponseWriter, r *http.Request, s *services.Services) error {
+func PlaylistList(w http.ResponseWriter, r *http.Request, s *services.Services) error {
 
 	user := GetUserFromRequest(r)
 

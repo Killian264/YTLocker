@@ -166,3 +166,23 @@ func ParseYoutubeToken(token models.YoutubeToken) oauth2.Token {
 		Expiry:       expiry,
 	}
 }
+
+func ParseSearchResponseIntoVideos(response *youtube.SearchListResponse) []models.Video {
+
+	videos := []models.Video{}
+
+	for _, item := range response.Items {
+
+		video := models.Video{
+			YoutubeID:   item.Id.VideoId,
+			Title:       item.Snippet.Title,
+			Description: item.Snippet.Description,
+			Thumbnails:  ParseYTThumbnails(item.Snippet.Thumbnails),
+		}
+
+		videos = append(videos, video)
+	}
+
+	return videos
+
+}

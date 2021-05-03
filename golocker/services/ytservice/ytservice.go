@@ -2,6 +2,7 @@ package ytservice
 
 import (
 	"net/http"
+	"time"
 
 	"google.golang.org/api/googleapi/transport"
 	"google.golang.org/api/youtube/v3"
@@ -40,16 +41,17 @@ func NewYoutubeService(apiKey string) *YTService {
 	return &service
 }
 
-// GetLastVideosFromChannel gets the last 25 videos from a channel.
+// GetLastVideosFromChannel gets the last 25 videos from a channel AFTER some time
 // pageToken is blank or a pagetoken given by response
-func (s *YTService) GetLastVideosFromChannel(channelID string, pageToken string) (*youtube.SearchListResponse, error) {
+func (s *YTService) GetLastVideosFromChannel(channelID string, pageToken string, after time.Time) (*youtube.SearchListResponse, error) {
 
-	parts := []string{"snippet", "contentDetails"}
+	parts := []string{"snippet"}
 	call := s.searchService.List(parts)
 
 	call.ChannelId(channelID)
 	call.Order("date")
 	call.MaxResults(25)
+	call.PublishedAfter(after.Format(time.RFC3339))
 
 	if pageToken != "" {
 		call.PageToken(pageToken)

@@ -1,8 +1,6 @@
 package data
 
 import (
-	"fmt"
-
 	"github.com/Killian264/YTLocker/golocker/models"
 	"gorm.io/gorm/clause"
 )
@@ -109,8 +107,6 @@ func (d *Data) GetAllPlaylistsSubscribedTo(channel *models.Channel) (*[]models.P
 	playlists := &[]models.Playlist{}
 
 	join := "LEFT JOIN playlist_channel ON playlist_channel.channel_id = ?"
-
-	fmt.Print(channel)
 
 	result := d.db.Joins(join, channel.ID).Find(playlists)
 

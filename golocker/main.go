@@ -158,24 +158,21 @@ func InitializeRoutes(services *services.Services, router *mux.Router) {
 
 	logger := log.New(os.Stdout, "Han: ", log.Lshortfile)
 
-	ServiceInjector := handlers.CreateServiceInjector(services)
+	Injector := handlers.CreateServiceInjector(services)
+	Errors := handlers.CreateErrorHandler(logger)
+	UserAuth := handlers.CreateUserAuthenticator(services)
+	PlaylistAuth := handlers.CreatePlaylistAuthenticator(services)
 
-	ErrorHandler := handlers.CreateErrorHandler(logger)
+	router.HandleFunc("/subscribe/{secret}", Errors(Injector(handlers.HandleYoutubePush)))
 
-	UserAuthenticator := handlers.CreateUserAuthenticator(services)
+	router.HandleFunc("/user/login", Errors(Injector(handlers.UserLogin)))
+	router.HandleFunc("/user/register", Errors(Injector(handlers.UserRegister)))
+	router.HandleFunc("/user/information", Errors(Injector(UserAuth(handlers.UserInformation))))
 
-	PlaylistAuthenticator := handlers.CreatePlaylistAuthenticator(services)
-
-	router.HandleFunc("/subscribe/{secret}", ErrorHandler(ServiceInjector(handlers.HandleYoutubePush)))
-
-	router.HandleFunc("/user/register", ErrorHandler(ServiceInjector(handlers.HandleRegistration)))
-	router.HandleFunc("/user/login", ErrorHandler(ServiceInjector(handlers.HandleLogin)))
-	router.HandleFunc("/user/information", ErrorHandler(ServiceInjector(UserAuthenticator(handlers.GetUserInformation))))
-
-	router.HandleFunc("/playlist/create", ErrorHandler(ServiceInjector(UserAuthenticator(handlers.CreatePlaylist))))
-	router.HandleFunc("/playlist/all", ErrorHandler(ServiceInjector(UserAuthenticator(handlers.GetAllPlaylists))))
-	router.HandleFunc("/playlist/{playlist_id}/subscribe/{channel_id}", ErrorHandler(ServiceInjector(UserAuthenticator(PlaylistAuthenticator(handlers.PlaylistAddSubscription)))))
-	router.HandleFunc("/playlist/{playlist_id}/unsubscribe/{channel_id}", ErrorHandler(ServiceInjector(UserAuthenticator(PlaylistAuthenticator(handlers.PlaylistRemoveSubscription)))))
+	router.HandleFunc("/playlist/create", Errors(Injector(UserAuth(handlers.PlaylistCreate))))
+	router.HandleFunc("/playlist/list", Errors(Injector(UserAuth(handlers.PlaylistList))))
+	router.HandleFunc("/playlist/{playlist_id}/subscribe/{channel_id}", Errors(Injector(UserAuth(PlaylistAuth(handlers.PlaylistAddSubscription)))))
+	router.HandleFunc("/playlist/{playlist_id}/unsubscribe/{channel_id}", Errors(Injector(UserAuth(PlaylistAuth(handlers.PlaylistRemoveSubscription)))))
 
 }
 
@@ -255,12 +252,33 @@ func InitializeCronJobs(service *services.Services) {
 	job := cronjobs.NewInsertVideosJob(service, logger)
 
 	c.AddFunc("*/60 * * * *", func() {
+		logger.Print("Starting Insert Videos CronJob: -------------")
+
 		job.Run()
+
+		logger.Print("Finished Insert Videos CronJob: -------------")
 	})
 
 	c.AddFunc("@weekly", func() {
+		logger.Print("Starting Resubscribe CronJob: -------------")
+
 		err := service.Subscribe.ResubscribeAll()
-		logger.Print(err)
+		if err != nil {
+			logger.Print(err)
+		}
+
+		logger.Print("Finished Resubscribe CronJob: -------------")
+	})
+
+	c.AddFunc("0 */12 * * *", func() {
+		logger.Print("Starting CheckForMissedUploads CronJob: -------------")
+
+		err := service.Youtube.CheckForMissedUploads(logger)
+		if err != nil {
+			logger.Print(err)
+		}
+
+		logger.Print("Finished CheckForMissedUploads CronJob: -------------")
 	})
 
 	c.Start()

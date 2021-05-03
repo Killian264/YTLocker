@@ -1,6 +1,8 @@
 package ytmanager
 
 import (
+	"log"
+	"os"
 	"testing"
 
 	"github.com/Killian264/YTLocker/golocker/data"
@@ -130,6 +132,22 @@ func Test_Get_All_Videos(t *testing.T) {
 
 	assert.Equal(t, len(*actual), len(expected))
 
+}
+
+func Test_CheckForMissedUploads(t *testing.T) {
+
+	service := createMockServices(t)
+	logger := log.New(os.Stdout, "Cron: ", log.Lshortfile)
+
+	channel, _ := service.NewChannel("valid-id")
+	service.NewVideo(channel, "video-id-one") // valid id one is specified in ytservicefake getlastvideosfromchannel
+
+	err := service.CheckForMissedUploads(logger)
+	assert.Nil(t, err)
+
+	saved, err := service.GetVideoByID("video-id-two")
+	assert.NotNil(t, saved)
+	assert.Nil(t, err)
 }
 
 // New Video Wrong Channel is not tested
