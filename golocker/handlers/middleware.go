@@ -3,11 +3,13 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/Killian264/YTLocker/golocker/services"
 	"github.com/gorilla/context"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -126,4 +128,38 @@ func GetUserFromRequest(r *http.Request) models.User {
 // GetPlaylistFromRequest gets the playlist set from the request, playlist is set by playlistauthenticator
 func GetPlaylistFromRequest(r *http.Request) models.Playlist {
 	return context.Get(r, "playlist").(models.Playlist)
+}
+
+// CreateLoggerMiddleware logs api hits
+func CreateLoggerMiddleware(l *log.Logger) mux.MiddlewareFunc {
+	return func(next http.Handler) http.Handler {
+		return handlers.LoggingHandler(os.Stdout, next)
+	}
+}
+
+// CreateUserAuthenticator returns a route wrapper that authenticate the admin bearer
+func CreateAdminAuthenticator(s *services.Services, bearer string) func(next Handler) Handler {
+	return func(next Handler) Handler {
+		return func(w http.ResponseWriter, r *http.Request) {
+
+			header := r.Header["Authorization"]
+
+			if len(header) != 1 {
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte("no authorization header"))
+				return
+			}
+
+			token := header[0]
+
+			if token != bearer {
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte("invalid bearer"))
+				return
+			}
+
+			next(w, r)
+
+		}
+	}
 }

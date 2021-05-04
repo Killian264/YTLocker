@@ -92,7 +92,7 @@ func NewServices(logger *log.Logger) *services.Services {
 		s.Data,
 	)
 
-	InitializeRoutes(s, s.Router)
+	InitializeRoutes(s, s.Router, os.Getenv("ADMIN_BEARER"))
 
 	InitializeCronJobs(s)
 
@@ -148,13 +148,14 @@ func InitializeRouter() *mux.Router {
 	router := mux.NewRouter()
 
 	router.Use(muxhandler.RecoveryHandler())
+	router.Use(handlers.CreateLoggerMiddleware(log.New(os.Stdout, "", log.Lshortfile)))
 
 	return router
 
 }
 
 // InitializeRoutes creates the routes
-func InitializeRoutes(services *services.Services, router *mux.Router) {
+func InitializeRoutes(services *services.Services, router *mux.Router, adminBearer string) {
 
 	logger := log.New(os.Stdout, "Han: ", log.Lshortfile)
 
@@ -163,7 +164,7 @@ func InitializeRoutes(services *services.Services, router *mux.Router) {
 	UserAuth := handlers.CreateUserAuthenticator(services)
 	PlaylistAuth := handlers.CreatePlaylistAuthenticator(services)
 
-	router.HandleFunc("/subscribe/{secret}", Errors(Injector(handlers.HandleYoutubePush)))
+	router.HandleFunc("/subscribe/{secret}/", Errors(Injector(handlers.HandleYoutubePush)))
 
 	router.HandleFunc("/user/login", Errors(Injector(handlers.UserLogin)))
 	router.HandleFunc("/user/register", Errors(Injector(handlers.UserRegister)))
@@ -173,6 +174,16 @@ func InitializeRoutes(services *services.Services, router *mux.Router) {
 	router.HandleFunc("/playlist/list", Errors(Injector(UserAuth(handlers.PlaylistList))))
 	router.HandleFunc("/playlist/{playlist_id}/subscribe/{channel_id}", Errors(Injector(UserAuth(PlaylistAuth(handlers.PlaylistAddSubscription)))))
 	router.HandleFunc("/playlist/{playlist_id}/unsubscribe/{channel_id}", Errors(Injector(UserAuth(PlaylistAuth(handlers.PlaylistRemoveSubscription)))))
+
+	AdminAuth := handlers.CreateAdminAuthenticator(services, adminBearer)
+
+	router.HandleFunc("/admin/check/uploads", AdminAuth(func(rw http.ResponseWriter, r *http.Request) {
+		checkForMissedUploads(services, logger)
+	}))
+
+	router.HandleFunc("/admin/update/subscriptions", AdminAuth(func(rw http.ResponseWriter, r *http.Request) {
+		resubscribeAllSubscriptions(services, logger)
+	}))
 
 }
 
@@ -260,27 +271,35 @@ func InitializeCronJobs(service *services.Services) {
 	})
 
 	c.AddFunc("@weekly", func() {
-		logger.Print("Starting Resubscribe CronJob: -------------")
-
-		err := service.Subscribe.ResubscribeAll()
-		if err != nil {
-			logger.Print(err)
-		}
-
-		logger.Print("Finished Resubscribe CronJob: -------------")
+		resubscribeAllSubscriptions(service, logger)
 	})
 
 	c.AddFunc("@every 6h", func() {
-		logger.Print("Starting CheckForMissedUploads CronJob: -------------")
-
-		err := service.Youtube.CheckForMissedUploads(logger)
-		if err != nil {
-			logger.Print(err)
-		}
-
-		logger.Print("Finished CheckForMissedUploads CronJob: -------------")
+		checkForMissedUploads(service, logger)
 	})
 
 	c.Start()
 
+}
+
+func checkForMissedUploads(service *services.Services, logger *log.Logger) {
+	logger.Print("Starting CheckForMissedUploads CronJob: -------------")
+
+	err := service.Youtube.CheckForMissedUploads(logger)
+	if err != nil {
+		logger.Print(err)
+	}
+
+	logger.Print("Finished CheckForMissedUploads CronJob: -------------")
+}
+
+func resubscribeAllSubscriptions(service *services.Services, logger *log.Logger) {
+	logger.Print("Starting Resubscribe CronJob: -------------")
+
+	err := service.Subscribe.ResubscribeAll()
+	if err != nil {
+		logger.Print(err)
+	}
+
+	logger.Print("Finished Resubscribe CronJob: -------------")
 }
