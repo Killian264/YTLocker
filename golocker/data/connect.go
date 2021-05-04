@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/Killian264/YTLocker/golocker/models"
 	"gorm.io/driver/mysql"
@@ -84,19 +85,29 @@ func MySQLConnect(username string, password string, ip string, port string, name
 
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, ip, port, name)
 
-	db, err := gorm.Open(mysql.Open(connectionString),
-		&gorm.Config{Logger: logger},
-	)
-	if err != nil {
-		panic("Error creating db connection")
-	}
-
 	data := Data{
-		db:   db,
 		rand: DataRand(&ActualRand{}),
 	}
 
-	err = data.createTables()
+	for true {
+
+		db, err := gorm.Open(mysql.Open(connectionString),
+			&gorm.Config{Logger: logger},
+		)
+
+		if err == nil {
+			data.db = db
+			break
+		}
+
+		fmt.Println("Waiting for MySQL connection...")
+		time.Sleep(15 * time.Second)
+
+	}
+
+	fmt.Println("Connected...")
+
+	err := data.createTables()
 	if err != nil {
 		panic("error initializing db")
 	}

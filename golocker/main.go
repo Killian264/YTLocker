@@ -251,7 +251,7 @@ func InitializeCronJobs(service *services.Services) {
 
 	job := cronjobs.NewInsertVideosJob(service, logger)
 
-	c.AddFunc("*/60 * * * *", func() {
+	c.AddFunc("@every 2m", func() {
 		logger.Print("Starting Insert Videos CronJob: -------------")
 
 		job.Run()
@@ -270,7 +270,7 @@ func InitializeCronJobs(service *services.Services) {
 		logger.Print("Finished Resubscribe CronJob: -------------")
 	})
 
-	c.AddFunc("0 */12 * * *", func() {
+	c.AddFunc("@every 6h", func() {
 		logger.Print("Starting CheckForMissedUploads CronJob: -------------")
 
 		err := service.Youtube.CheckForMissedUploads(logger)
