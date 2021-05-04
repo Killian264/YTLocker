@@ -73,12 +73,12 @@ func (s *Subscriber) Subscribe(channel *models.Channel) (*models.SubscriptionReq
 		return nil, err
 	}
 
-	err = s.postSubscription(request, s.pushSubscribeURL, s.pushHandlerURL)
+	err = s.dataService.NewSubscription(request)
 	if err != nil {
 		return nil, err
 	}
 
-	err = s.dataService.NewSubscription(request)
+	err = s.postSubscription(request, s.pushSubscribeURL, s.pushHandlerURL)
 	if err != nil {
 		return nil, err
 	}
