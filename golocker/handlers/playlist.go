@@ -11,7 +11,7 @@ import (
 )
 
 // HandleSubscriptionNoError handles a new subscription request wrap in a middleware that handles errors
-func PlaylistCreate(w http.ResponseWriter, r *http.Request, s *services.Services) error {
+func PlaylistCreate(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
 
 	user := GetUserFromRequest(r)
 
@@ -19,49 +19,35 @@ func PlaylistCreate(w http.ResponseWriter, r *http.Request, s *services.Services
 
 	err := json.NewDecoder(r.Body).Decode(&playlist)
 	if err != nil {
-		return err
+		return BlankResponse(err)
 	}
 
 	playlist = parsers.ParsePlaylist(playlist)
 
 	created, err := s.Playlist.New(&playlist, &user)
 	if err != nil {
-		return err
+		return BlankResponse(err)
 	}
 
-	marshal, err := json.Marshal(created)
-	if err != nil {
-		return nil
-	}
-
-	w.Write(marshal)
-
-	return err
+	return NewResponse(http.StatusOK, created, "")
 
 }
 
 // HandleSubscriptionNoError handles a new subscription request wrap in a middleware that handles errors
-func PlaylistList(w http.ResponseWriter, r *http.Request, s *services.Services) error {
+func PlaylistList(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
 
 	user := GetUserFromRequest(r)
 
 	playlists, err := s.Playlist.GetAllUserPlaylists(&user)
 	if err != nil {
-		return err
+		return BlankResponse(err)
 	}
 
-	marshal, err := json.Marshal(playlists)
-	if err != nil {
-		return nil
-	}
-
-	w.Write(marshal)
-
-	return nil
+	return NewResponse(http.StatusOK, playlists, "")
 
 }
 
-func PlaylistAddSubscription(w http.ResponseWriter, r *http.Request, s *services.Services) error {
+func PlaylistAddSubscription(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
 
 	playlist := GetPlaylistFromRequest(r)
 
@@ -69,24 +55,19 @@ func PlaylistAddSubscription(w http.ResponseWriter, r *http.Request, s *services
 
 	channel, err := s.Youtube.NewChannel(channelID)
 	if err != nil {
-		return err
+		return BlankResponse(err)
 	}
 
 	_, err = s.Subscribe.Subscribe(channel)
 	if err != nil {
-		return err
+		return BlankResponse(err)
 	}
 
 	err = s.Playlist.Subscribe(&playlist, channel)
-	if err != nil {
-		return err
-	}
-
-	return nil
-
+	return BlankResponse(err)
 }
 
-func PlaylistRemoveSubscription(w http.ResponseWriter, r *http.Request, s *services.Services) error {
+func PlaylistRemoveSubscription(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
 
 	playlist := GetPlaylistFromRequest(r)
 
@@ -94,14 +75,10 @@ func PlaylistRemoveSubscription(w http.ResponseWriter, r *http.Request, s *servi
 
 	channel, err := s.Youtube.GetChannelByID(channelID)
 	if err != nil {
-		return err
+		return BlankResponse(err)
 	}
 
 	err = s.Playlist.Unsubscribe(&playlist, channel)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return BlankResponse(err)
 
 }

@@ -160,11 +160,12 @@ func InitializeRoutes(services *services.Services, router *mux.Router, adminBear
 	logger := log.New(os.Stdout, "Han: ", log.Lshortfile)
 
 	Injector := handlers.CreateServiceInjector(services)
-	Errors := handlers.CreateErrorHandler(logger)
+	Errors := handlers.CreateResponseHandler(logger)
 	UserAuth := handlers.CreateUserAuthenticator(services)
 	PlaylistAuth := handlers.CreatePlaylistAuthenticator(services)
+	SubscribeErrors := handlers.CreateSubscribeHandler(logger)
 
-	router.HandleFunc("/subscribe/{secret}/", Errors(Injector(handlers.HandleYoutubePush)))
+	router.HandleFunc("/subscribe/{secret}/", SubscribeErrors(Injector(handlers.HandleYoutubePush)))
 
 	router.HandleFunc("/user/login", Errors(Injector(handlers.UserLogin)))
 	router.HandleFunc("/user/register", Errors(Injector(handlers.UserRegister)))

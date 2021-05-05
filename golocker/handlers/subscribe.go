@@ -14,7 +14,7 @@ import (
 )
 
 // HandleSubscriptionNoError handles a new subscription request
-func HandleYoutubePush(w http.ResponseWriter, r *http.Request, s *services.Services) error {
+func HandleYoutubePush(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
 
 	challenge := r.URL.Query().Get("hub.challenge")
 
@@ -25,7 +25,7 @@ func HandleYoutubePush(w http.ResponseWriter, r *http.Request, s *services.Servi
 	return handleNewVideoPush(w, r, s)
 }
 
-func handleChallenge(w http.ResponseWriter, r *http.Request, s *services.Services) error {
+func handleChallenge(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
 
 	secret := mux.Vars(r)["secret"]
 	challenge := r.URL.Query().Get("hub.challenge")
@@ -36,7 +36,7 @@ func handleChallenge(w http.ResponseWriter, r *http.Request, s *services.Service
 	lease, err := strconv.Atoi(leaseStr)
 
 	if err != nil {
-		return fmt.Errorf("Failed to parse lease_seconds got: %s", leaseStr)
+		return BlankResponse(fmt.Errorf("Failed to parse lease_seconds got: %s", leaseStr))
 	}
 
 	request := models.SubscriptionRequest{
@@ -49,32 +49,33 @@ func handleChallenge(w http.ResponseWriter, r *http.Request, s *services.Service
 	isValid, err := s.Subscribe.HandleChallenge(&request, channelID)
 
 	if err != nil {
-		return err
+		return BlankResponse(err)
 	}
 
 	if !isValid {
-		return fmt.Errorf("Invalid")
+		return BlankResponse(fmt.Errorf("Invalid"))
 	}
 
 	fmt.Fprintf(w, challenge)
-	return nil
+
+	return BlankResponse(nil)
 }
 
-func handleNewVideoPush(w http.ResponseWriter, r *http.Request, s *services.Services) error {
+func handleNewVideoPush(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
 
 	secret := mux.Vars(r)["secret"]
 	bytes, err := ioutil.ReadAll(r.Body)
 
 	if err != nil {
-		return err
+		return BlankResponse(err)
 	}
 
 	body := string(bytes)
 
 	push, err := parsers.ParseYTHook(body)
 	if err != nil {
-		return err
+		return BlankResponse(err)
 	}
 
-	return s.Subscribe.HandleVideoPush(&push, secret)
+	return BlankResponse(s.Subscribe.HandleVideoPush(&push, secret))
 }

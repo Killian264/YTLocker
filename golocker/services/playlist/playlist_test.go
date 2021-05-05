@@ -142,6 +142,35 @@ func Test_ProcessNewVideo(t *testing.T) {
 
 }
 
+func Test_Fix_Join_Bug(t *testing.T) {
+
+	service := createMockServices(t)
+
+	other, _ := service.New(playlist, user)
+
+	expected, _ := service.New(playlist, user)
+
+	other2, _ := service.New(playlist, user)
+
+	err := service.Subscribe(expected, channel)
+	assert.Nil(t, err)
+
+	err = service.ProcessNewVideo(channel, video)
+	assert.Nil(t, err)
+
+	expected.Channels = append(expected.Channels, *channel)
+	expected.Videos = append(expected.Videos, *video)
+
+	created, _ := service.Get(user, expected.ID)
+
+	PlaylistsAreEqual(t, expected, created)
+	assert.Equal(t, 1, len(created.Videos))
+
+	assert.Equal(t, 0, len(other.Videos))
+	assert.Equal(t, 0, len(other2.Videos))
+
+}
+
 func Test_IgnoreDuplicates_ProcessNewVideo(t *testing.T) {
 
 	service := createMockServices(t)

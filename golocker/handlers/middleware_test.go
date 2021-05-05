@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/Killian264/YTLocker/golocker/helpers/test"
 	"github.com/Killian264/YTLocker/golocker/models"
 	service "github.com/Killian264/YTLocker/golocker/services"
 	"github.com/gorilla/context"
@@ -32,16 +31,16 @@ var playlist = models.Playlist{
 var handleUser = models.User{}
 var handlePlaylist = models.Playlist{}
 
-var handler = func(w http.ResponseWriter, r *http.Request, s *service.Services) error {
+var handler = func(w http.ResponseWriter, r *http.Request, s *service.Services) Response {
 	handleUser = GetUserFromRequest(r)
 
 	_, ok := context.GetOk(r, "playlist")
 	if !ok {
-		return nil
+		return BlankResponse(nil)
 	}
 
 	handlePlaylist = GetPlaylistFromRequest(r)
-	return nil
+	return BlankResponse(nil)
 }
 
 func Test_User_Authenticator(t *testing.T) {
@@ -55,14 +54,14 @@ func Test_User_Authenticator(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/user/information/", nil)
 	req.Header["Authorization"] = []string{bearer}
 
-	fake := test.FakeRequest{
+	fake := FakeRequest{
 		Services: services,
 		Route:    "/user/information/",
 		Request:  req,
 		Handler:  Authenticator(handler),
 	}
 
-	res := test.SendFakeRequest(fake)
+	res := SendFakeRequest(fake)
 	assert.Equal(t, 200, res.StatusCode)
 
 	actual := handleUser
@@ -103,13 +102,13 @@ func Send_Authenticated_Playlist_Request(t *testing.T, s *service.Services, play
 	req, _ := http.NewRequest("GET", fmt.Sprintf("/playlist/%d/information/", playlist.ID), nil)
 	req.Header["Authorization"] = []string{bearer}
 
-	fake := test.FakeRequest{
+	fake := FakeRequest{
 		Services: s,
 		Route:    "/playlist/{playlist_id}/information/",
 		Request:  req,
 		Handler:  UserAuthenticator(PlaylistAuthenticator(handler)),
 	}
 
-	test.SendFakeRequest(fake)
+	SendFakeRequest(fake)
 
 }

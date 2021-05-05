@@ -1,133 +1,50 @@
 package handlers
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 
-	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/Killian264/YTLocker/golocker/services"
-	"github.com/gorilla/context"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
-type ServiceHandler func(w http.ResponseWriter, r *http.Request, s *services.Services) error
-type ErrorHandler func(w http.ResponseWriter, r *http.Request) error
+type ServiceHandler func(w http.ResponseWriter, r *http.Request, s *services.Services) Response
+type ErrorHandler func(w http.ResponseWriter, r *http.Request) Response
 type Handler func(w http.ResponseWriter, r *http.Request)
 
 // CreateServiceInjector returns a route wrapper that injects services
 func CreateServiceInjector(s *services.Services) func(next ServiceHandler) ErrorHandler {
 	return func(next ServiceHandler) ErrorHandler {
-		return func(w http.ResponseWriter, r *http.Request) error {
+		return func(w http.ResponseWriter, r *http.Request) Response {
 			return next(w, r, s)
 		}
 	}
 }
 
 // CreateErrorHandler returns a route wrapper that handles errors
-func CreateErrorHandler(l *log.Logger) func(next ErrorHandler) Handler {
+func CreateResponseHandler(l *log.Logger) func(next ErrorHandler) Handler {
 	return func(next ErrorHandler) Handler {
 		return func(w http.ResponseWriter, r *http.Request) {
-			err := next(w, r)
+			res := next(w, r)
 
-			if err == nil {
-				return
+			if res.Status == http.StatusInternalServerError {
+				l.Printf("\nERROR occurred on ROUTE: '%s' \nERROR: '%s'", r.URL, res.Message)
+				res.Message = "An Error Occurred"
 			}
 
-			l.Printf("\nERROR occurred on ROUTE: '%s' \nERROR: '%s'", r.URL, err.Error())
+			marshaled, err := json.Marshal(res)
+			if err != nil {
+				l.Printf("Failed to marshal json %v", err)
+			}
 
-			w.WriteHeader(http.StatusInternalServerError)
-
-			w.Write([]byte("An Error Occurred"))
-
+			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+			w.WriteHeader(res.Status)
+			w.Write(marshaled)
 		}
 	}
-}
-
-// CreateUserAuthenticator returns a route wrapper that authenticates the user and adds them to the session
-func CreateUserAuthenticator(s *services.Services) func(next ServiceHandler) ServiceHandler {
-	return func(next ServiceHandler) ServiceHandler {
-		return func(w http.ResponseWriter, r *http.Request, s *services.Services) error {
-
-			header := r.Header["Authorization"]
-
-			if len(header) != 1 {
-				w.WriteHeader(http.StatusUnauthorized)
-				w.Write([]byte("no authorization header"))
-				return nil
-			}
-
-			token := header[0]
-
-			user, err := s.User.GetUserFromBearer(token)
-			if err != nil {
-				return err
-			}
-
-			if user == nil {
-				w.WriteHeader(http.StatusUnauthorized)
-				w.Write([]byte("invalid authorization header"))
-				return nil
-			}
-
-			context.Set(r, "user", *user)
-
-			return next(w, r, s)
-
-		}
-	}
-}
-
-// CreateUserAuthenticator returns a route wrapper that authenticates the user and adds them to the session
-func CreatePlaylistAuthenticator(s *services.Services) func(next ServiceHandler) ServiceHandler {
-	return func(next ServiceHandler) ServiceHandler {
-		return func(w http.ResponseWriter, r *http.Request, s *services.Services) error {
-
-			idStr := mux.Vars(r)["playlist_id"]
-			if idStr == "" {
-				w.WriteHeader(http.StatusUnauthorized)
-				w.Write([]byte("no playlist id provided"))
-				return nil
-			}
-
-			id, err := strconv.ParseUint(idStr, 10, 64)
-			if err != nil {
-				w.WriteHeader(http.StatusUnauthorized)
-				w.Write([]byte("invalid playlist id"))
-				return nil
-			}
-
-			user := GetUserFromRequest(r)
-
-			playlist, err := s.Playlist.Get(&user, id)
-			if err != nil {
-				return err
-			}
-
-			if playlist == nil {
-				w.WriteHeader(http.StatusUnauthorized)
-				w.Write([]byte("playlist does not exist"))
-				return nil
-			}
-
-			context.Set(r, "playlist", *playlist)
-
-			return next(w, r, s)
-
-		}
-	}
-}
-
-// GetUserFromRequest gets the user from the request, user is set by user authenticator
-func GetUserFromRequest(r *http.Request) models.User {
-	return context.Get(r, "user").(models.User)
-}
-
-// GetPlaylistFromRequest gets the playlist set from the request, playlist is set by playlistauthenticator
-func GetPlaylistFromRequest(r *http.Request) models.Playlist {
-	return context.Get(r, "playlist").(models.Playlist)
 }
 
 // CreateLoggerMiddleware logs api hits
@@ -137,29 +54,17 @@ func CreateLoggerMiddleware(l *log.Logger) mux.MiddlewareFunc {
 	}
 }
 
-// CreateUserAuthenticator returns a route wrapper that authenticate the admin bearer
-func CreateAdminAuthenticator(s *services.Services, bearer string) func(next Handler) Handler {
-	return func(next Handler) Handler {
+// CreateSubscribeHandler just sets the response header and logs if an error occurs
+func CreateSubscribeHandler(l *log.Logger) func(next ErrorHandler) Handler {
+	return func(next ErrorHandler) Handler {
 		return func(w http.ResponseWriter, r *http.Request) {
+			res := next(w, r)
 
-			header := r.Header["Authorization"]
-
-			if len(header) != 1 {
-				w.WriteHeader(http.StatusUnauthorized)
-				w.Write([]byte("no authorization header"))
-				return
+			if res.Status == http.StatusInternalServerError {
+				l.Printf("\nERROR occurred on ROUTE: '%s' \nERROR: '%s'", r.URL, res.Message)
 			}
 
-			token := header[0]
-
-			if token != bearer {
-				w.WriteHeader(http.StatusUnauthorized)
-				w.Write([]byte("invalid bearer"))
-				return
-			}
-
-			next(w, r)
-
+			w.WriteHeader(res.Status)
 		}
 	}
 }

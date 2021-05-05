@@ -106,7 +106,7 @@ func (d *Data) RemovePlaylistChannel(playlistID uint64, channelID uint64) error 
 func (d *Data) GetAllPlaylistsSubscribedTo(channel *models.Channel) (*[]models.Playlist, error) {
 	playlists := &[]models.Playlist{}
 
-	join := "LEFT JOIN playlist_channel ON playlist_channel.channel_id = ?"
+	join := "LEFT JOIN playlist_channel ON playlist_channel.channel_id = ? AND playlist_channel.playlist_id = playlists.id"
 
 	result := d.db.Joins(join, channel.ID).Find(playlists)
 
@@ -121,7 +121,7 @@ func (d *Data) PlaylistHasVideo(playlistID uint64, videoID uint64) (bool, error)
 
 	playlist := &models.Playlist{ID: playlistID}
 
-	join := "INNER JOIN playlist_video ON playlist_video.video_id = ?"
+	join := "INNER JOIN playlist_video ON playlist_video.video_id = ? AND playlist_video.playlist_id = playlists.id"
 
 	result := d.db.Model(playlist).Joins(join, videoID).First(playlist)
 
