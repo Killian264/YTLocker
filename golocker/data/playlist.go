@@ -106,7 +106,7 @@ func (d *Data) RemovePlaylistChannel(playlistID uint64, channelID uint64) error 
 func (d *Data) GetAllPlaylistsSubscribedTo(channel *models.Channel) (*[]models.Playlist, error) {
 	playlists := &[]models.Playlist{}
 
-	join := "LEFT JOIN playlist_channel ON playlist_channel.channel_id = ? AND playlist_channel.playlist_id = playlists.id"
+	join := "INNER JOIN playlist_channel ON playlist_channel.channel_id = ? AND playlist_channel.playlist_id = playlists.id"
 
 	result := d.db.Joins(join, channel.ID).Find(playlists)
 

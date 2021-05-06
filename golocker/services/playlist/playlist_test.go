@@ -166,8 +166,11 @@ func Test_Fix_Join_Bug(t *testing.T) {
 	PlaylistsAreEqual(t, expected, created)
 	assert.Equal(t, 1, len(created.Videos))
 
-	assert.Equal(t, 0, len(other.Videos))
-	assert.Equal(t, 0, len(other2.Videos))
+	created1, _ := service.Get(user, other.ID)
+	created2, _ := service.Get(user, other2.ID)
+
+	assert.Equal(t, 0, len(created1.Videos))
+	assert.Equal(t, 0, len(created2.Videos))
 
 }
 
