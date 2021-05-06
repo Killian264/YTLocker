@@ -4,11 +4,8 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/Killian264/YTLocker/golocker/services"
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
 )
 
 type ServiceHandler func(w http.ResponseWriter, r *http.Request, s *services.Services) Response
@@ -25,13 +22,13 @@ func CreateServiceInjector(s *services.Services) func(next ServiceHandler) Error
 }
 
 // CreateErrorHandler returns a route wrapper that handles errors
-func CreateResponseHandler(l *log.Logger) func(next ErrorHandler) Handler {
+func CreateResponseWriter(l *log.Logger) func(next ErrorHandler) Handler {
 	return func(next ErrorHandler) Handler {
 		return func(w http.ResponseWriter, r *http.Request) {
 			res := next(w, r)
 
 			if res.Status == http.StatusInternalServerError {
-				l.Printf("\nERROR occurred on ROUTE: '%s' \nERROR: '%s'", r.URL, res.Message)
+				l.Printf("ERROR: - - ROUTE: %s - - ERROR: %s", r.URL, res.Message)
 				res.Message = "An Error Occurred"
 			}
 
@@ -43,14 +40,11 @@ func CreateResponseHandler(l *log.Logger) func(next ErrorHandler) Handler {
 			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 			w.WriteHeader(res.Status)
 			w.Write(marshaled)
-		}
-	}
-}
 
-// CreateLoggerMiddleware logs api hits
-func CreateLoggerMiddleware(l *log.Logger) mux.MiddlewareFunc {
-	return func(next http.Handler) http.Handler {
-		return handlers.LoggingHandler(os.Stdout, next)
+			// now := time.Now().Format("2006-01-02 15:04:05")
+			// l.Printf("[%s] %s - - %s %s %s %d %d", now, r.RemoteAddr, r.Method, r.URL, r.Proto, res.Status, len(marshaled))
+			l.Printf("%s - - %s %s %s %d %d", r.RemoteAddr, r.Method, r.URL, r.Proto, res.Status, len(marshaled))
+		}
 	}
 }
 
@@ -61,7 +55,7 @@ func CreateSubscribeHandler(l *log.Logger) func(next ErrorHandler) Handler {
 			res := next(w, r)
 
 			if res.Status == http.StatusInternalServerError {
-				l.Printf("\nERROR occurred on ROUTE: '%s' \nERROR: '%s'", r.URL, res.Message)
+				l.Printf(" ERROR:\nROUTE: '%s'\nERROR: '%s'", r.URL, res.Message)
 			}
 
 			w.WriteHeader(res.Status)

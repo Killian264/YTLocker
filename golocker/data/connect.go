@@ -81,7 +81,7 @@ func InMemoryMySQLConnect() *Data {
 }
 
 // MySQLConnect connects to a mysql db
-func MySQLConnect(username string, password string, ip string, port string, name string, logger logger.Interface) *Data {
+func MySQLConnect(username string, password string, ip string, port string, name string, logBase *log.Logger) *Data {
 
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, ip, port, name)
 
@@ -91,8 +91,13 @@ func MySQLConnect(username string, password string, ip string, port string, name
 
 	for true {
 
+		logBase.Println("MYSQL Waiting...")
+
 		db, err := gorm.Open(mysql.Open(connectionString),
-			&gorm.Config{Logger: logger},
+			&gorm.Config{Logger: logger.New(
+				logBase,
+				logger.Config{},
+			)},
 		)
 
 		if err == nil {
@@ -100,12 +105,11 @@ func MySQLConnect(username string, password string, ip string, port string, name
 			break
 		}
 
-		fmt.Println("Waiting for MySQL connection...")
 		time.Sleep(15 * time.Second)
 
 	}
 
-	fmt.Println("Connected...")
+	logBase.Println("MYSQL Connected...")
 
 	err := data.createTables()
 	if err != nil {
