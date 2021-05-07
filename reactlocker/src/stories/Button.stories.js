@@ -23,7 +23,7 @@ const Mocked = ({
 export const Primary = Mocked.bind({})
 
 Primary.argTypes = {
-	size: toEnum(["small", "large"]),
+	size: toEnum(["small", "medium", "large"]),
 	color: toEnum(["primary", "secondary"]),
 	disabled: toBoolean(),
 	loading: toBoolean(),

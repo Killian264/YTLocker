@@ -145,7 +145,6 @@ func InitializeRouter() *mux.Router {
 	router := mux.NewRouter()
 
 	router.Use(muxhandler.RecoveryHandler())
-	// router.Use(handlers.CreateLoggerMiddleware(log.New(os.Stdout, "", log.Lshortfile)))
 
 	return router
 

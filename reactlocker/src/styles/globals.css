@@ -29,3 +29,7 @@
     --color-accent-text: #000000;
     --color-accent-text-disabled: var(--color-primary-700);
   }
+
+body {
+  background-color: var(--color-primary-800);
+}

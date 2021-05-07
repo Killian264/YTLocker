@@ -5,7 +5,8 @@ import "../styles/tailwind.css"
 
 const sizes = {
 	large: "py-2 px-6 text-sm rounded-lg",
-	small: "py-1 px-3 text-xs rounded-md"
+	medium: "py-1.5 px-5 text-sm rounded-md",
+	small: "py-1 px-3 text-xs rounded-md",
 }
 
 const colors = {
@@ -14,12 +15,12 @@ const colors = {
 }
 
 
-export const Button = ({ children, size="large", color="primary", disabled, loading, ...props }) => {
+export const Button = ({ className, children, size="large", color="primary", disabled, loading, ...props }) => {
 	return (
 	<button
 		disabled={ disabled || loading }
 		type="button"
-		className={`${sizes[size]}  ${colors[color]} font-bold`}
+		className={`${sizes[size]}  ${colors[color]} font-bold ${className}`}
 		{...props}
 	>
 		{children}
@@ -28,8 +29,9 @@ export const Button = ({ children, size="large", color="primary", disabled, load
 };
 
 Button.propTypes = {
-	size: PropTypes.oneOf(['small', 'large']),
+	size: PropTypes.oneOf(['small', 'medium', 'large']),
 	color: PropTypes.oneOf(['primary', 'secondary']),
+	className: PropTypes.string,
 	disabled: PropTypes.bool,
 	loading: PropTypes.bool,
 };
