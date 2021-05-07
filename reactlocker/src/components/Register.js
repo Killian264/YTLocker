@@ -9,6 +9,7 @@ function validName(name){
 }
 
 function validEmail(email){
+	/* eslint-disable-next-line */
 	return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)
 }
 
@@ -26,7 +27,7 @@ export const Register = ({ onSubmit, onClickLogin }) => {
 		let pass1Valid = validPassword(pass1)
 		setValid({...valid, 
 			password: pass1Valid,
-			password2: !pass1Valid || pass2 == pass1
+			password2: !pass1Valid || pass2 === pass1
 		});
 	}
 

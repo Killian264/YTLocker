@@ -17,15 +17,15 @@ export const LoginPage = ({ className }) => {
 
 	return (
 		<div className={className}>
-			{ page == "login" &&
+			{ page === "login" &&
 				<Login
 					onSubmit={login}
 					onClickRegister={() => {setPage("register")}}
 				/>
 			}
-			{ page == "register" &&
+			{ page === "register" &&
 				<Register
-					onSubmit={login}
+					onSubmit={register}
 					onClickLogin={() => {setPage("login")}}
 				/>
 			}
