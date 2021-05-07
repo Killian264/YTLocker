@@ -1,11 +1,10 @@
+import { LoginPage } from "./LoginPage";
 
 function Base() {
   return (
-    <div className="bg-black">
-      HELLO
-      <button class="bg-green-500">Button</button>
-    </div>
-    
+    <LoginPage
+      className="flex m-auto"
+    ></LoginPage>
   );
 }
 

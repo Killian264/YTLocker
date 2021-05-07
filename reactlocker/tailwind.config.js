@@ -1,3 +1,4 @@
+const colors = require('tailwindcss/colors')
 /* eslint-disable global-require */
 module.exports = {
   darkMode: "class",
@@ -59,6 +60,16 @@ module.exports = {
           disabled: "var(--color-accent-text-disabled)",
         },
       },
+      black: colors.black,
+      white: colors.white,
+      gray: colors.coolGray,
+      red: colors.red,
+      yellow: colors.amber,
+      green: colors.emerald,
+      blue: colors.blue,
+      indigo: colors.indigo,
+      purple: colors.violet,
+      pink: colors.pink,
     },
     spacing: {
       0: "0px",

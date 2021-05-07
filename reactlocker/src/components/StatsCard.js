@@ -1,9 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-
 const border = "border-t-8 border-accent border-solid";
-
 
 export const StatsCard = ({ children, header, count, measurement, classes="", ...props }) => {
 	return (

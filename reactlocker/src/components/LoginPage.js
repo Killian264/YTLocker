@@ -3,8 +3,7 @@ import { Login } from './Login';
 import { Register } from './Register';
 
 
-
-export const LoginPage = ({ }) => {
+export const LoginPage = ({ className }) => {
 
 	const [page, setPage] = React.useState("login")
 
@@ -17,21 +16,19 @@ export const LoginPage = ({ }) => {
 	}
 
 	return (
-		<div>
-			<div>
-				{ page == "login" &&
-					<Login
-						onSubmit={login}
-						onClickRegister={() => {setPage("register")}}
-					/>
-				}
-				{ page == "register" &&
-					<Register
-						onSubmit={login}
-						onClickLogin={() => {setPage("login")}}
-					/>
-				}
-			</div>
+		<div className={className}>
+			{ page == "login" &&
+				<Login
+					onSubmit={login}
+					onClickRegister={() => {setPage("register")}}
+				/>
+			}
+			{ page == "register" &&
+				<Register
+					onSubmit={login}
+					onClickLogin={() => {setPage("login")}}
+				/>
+			}
 		</div>
 	);
 };

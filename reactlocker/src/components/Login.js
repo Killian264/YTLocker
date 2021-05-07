@@ -2,13 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from './Button';
 import { Input } from './Input';
-
-
-const Link = ({ children, ...props }) => {
-	return (
-		<span className="text-sm underline text-secondary-text cursor-pointer select-none" {...props} >{children}</span>
-	);
-};
+import { Link } from './Link';
 
 export const Login = ({ onSubmit, onClickRegister }) => {
 

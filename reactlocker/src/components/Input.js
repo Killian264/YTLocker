@@ -1,6 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import "../styles/tailwind.css"
 
 export const Input = ({ className, ...props }) => {
 	const bg = `bg-primary-700`;
