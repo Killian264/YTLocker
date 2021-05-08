@@ -33,8 +33,3 @@
 body {
   background-color: var(--color-primary-800);
 }
-
-#root {
-  height: 100vh;
-  display: flex;
-}

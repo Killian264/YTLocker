@@ -35,7 +35,7 @@ export const Login = ({ onSubmit, onClickRegister }) => {
 					Login
 				</Button>
 				<span className="my-auto">
-					<Link onClick={() => {onClickRegister()}} >Register</Link>
+					<Link onClick={() => {onClickRegister()}} >Create an account instead</Link>
 				</span>
 			</div>
 		</div>

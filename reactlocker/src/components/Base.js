@@ -2,9 +2,9 @@ import { LoginPage } from "./LoginPage";
 
 function Base() {
   return (
-    <LoginPage
-      className="flex m-auto"
-    ></LoginPage>
+    <div className="flex h-screen">
+      <LoginPage className="m-auto" />
+    </div>
   );
 }
 
