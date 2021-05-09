@@ -17,7 +17,8 @@ export const PlaylistListItem = ({ className, children, ...props }) => {
 					>Youtube Playlist</Link>
 				</div>
 			</div>
-			<div className="mr-1 text-3xl my-auto select-none">
+			<div className="mr-3 text-3xl my-auto select-none">
+				{'>'}
 			</div>
 		</div>
 	);

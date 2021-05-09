@@ -5,14 +5,14 @@ import { Register } from '../components/Register';
 import { LogoBar } from '../components/LogoBar';
 
 
-export const LoginPage = ({ className }) => {
+export const LoginPage = ({ className, history }) => {
 
 	const [page, setPage] = React.useState("login")
 
 	let [alert, setAlert] = useState("")
 
 	const login = (user) => {
-
+		history.push("/")
 	}
 
 	const register = (user) => {

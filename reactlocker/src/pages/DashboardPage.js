@@ -34,7 +34,7 @@ const statsCards = [
 export const DashboardPage = ({ className }) => {
 
 	return (
-		<div className="m-4 mx-auto max-w-7xl" >
+		<div className="p-4 mx-auto max-w-7xl" >
 			<UserInfoBar className="flex-grow"  user={user} statCards={statsCards} ></UserInfoBar>
 		</div>
 	);
