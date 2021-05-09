@@ -7,8 +7,8 @@ export const StatsCard = ({ children, header, count, measurement, classes="", ..
 	return (
 		<div className={`bg-primary-600 m-1 px-2 pb-1 pt-2 rounded-md ${border} ${classes}`} {...props} >
 			<h2>{header}</h2>
-			<span className="text-2xl text-accent">{count}</span>
-			<span className="font-semibold text-xl tracking-wider"> {measurement}</span>
+			<span className="text-xl text-accent">{count}</span>
+			<span className="text-xl tracking-wider"> {measurement}</span>
 		</div>
 	);
 };

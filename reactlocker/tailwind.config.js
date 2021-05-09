@@ -4,6 +4,17 @@ module.exports = {
   darkMode: "class",
   purge: ["./src/**/*.tsx", "./public/index.html"],
   theme: {
+    objectPosition: {
+      bottom: 'bottom',
+      center: 'center',
+      left: 'left',
+      'left-bottom': 'left bottom',
+      'left-top': 'left top',
+      right: 'right',
+      'right-bottom': 'right bottom',
+      'right-top': 'right top',
+      top: 'top',
+    },
     fontFamily: {
       sans: [
         "Inter",
@@ -73,6 +84,7 @@ module.exports = {
     },
     spacing: {
       0: "0px",
+      0.5: '3px',
       1: "5px",
       1.5: "7.5px",
       2: "10px",
