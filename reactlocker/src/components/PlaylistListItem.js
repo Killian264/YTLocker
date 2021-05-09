@@ -18,7 +18,6 @@ export const PlaylistListItem = ({ className, children, ...props }) => {
 				</div>
 			</div>
 			<div className="mr-1 text-3xl my-auto select-none">
-				>
 			</div>
 		</div>
 	);

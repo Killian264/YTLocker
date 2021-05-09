@@ -9,7 +9,7 @@ const colors = {
 
 export const PlusButton = ({ className, color="primary", disabled, children, ...props }) => {
 
-	let size = "px-2 text-sm rounded-lg inline-block select-none"
+	let size = "px-2 py-0.5 text-sm rounded-lg inline-block select-none"
 
 	return (
 	<button

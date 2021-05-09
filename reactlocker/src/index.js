@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './styles/tailwind.css'
-import Base from './components/Base';
+import { IndexPage } from './pages/IndexPage'
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
-    <Base />
+    <IndexPage />
   </React.StrictMode>,
   document.getElementById('root')
 );

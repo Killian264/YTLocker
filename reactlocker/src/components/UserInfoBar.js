@@ -20,7 +20,7 @@ export const UserInfoBar = ({ user, statCards, className, ...props }) => {
 	return (
 		<div className={`${className} flex`} {...props}>
 			<UserProfile/>
-			<div className="max-w-7xl flex-grow flex items-end">
+			<div className="flex-grow flex items-end">
 				<Card className="flex-grow" >
 					<BarHeader user={user} />
 					<MultiCard cards={statCards} />
