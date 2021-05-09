@@ -9,7 +9,7 @@ export const Login = ({ onSubmit, onClickRegister }) => {
 	const [user, setUser] = React.useState({email: "", password: ""})
 
 	return (
-		<div className={`bg-secondary p-6 rounded-md sm:w-400 `}>
+		<div className={`bg-secondary p-10 rounded-md sm:w-96 `}>
 			<span className="text-2xl font-bold" >Login</span>
 			<Input
 				className="mt-3"

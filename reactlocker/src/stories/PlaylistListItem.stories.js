@@ -1,5 +1,7 @@
 import React from 'react';
+import { Card } from '../components/Card';
 import { PlaylistListItem } from '../components/PlaylistListItem';
+import { PlusButton } from '../components/PlusButton';
 import { toEnum, toBoolean} from "./utils/utils"
 
 export default {
@@ -13,9 +15,22 @@ const Mocked = ({
   ...props
 }) => {
 	return (
-		<PlaylistListItem {...props} >
-			{children}
-		</PlaylistListItem>
+		<Card>
+			<div className="flex justify-between">
+				<div className="text-2xl">
+					<span className="font-bold inline-block align-middle leading-none">Playlists</span>
+				</div>
+				<PlusButton></PlusButton>
+			</div>
+			<div>
+				<PlaylistListItem></PlaylistListItem>
+				<PlaylistListItem className="mt-2" ></PlaylistListItem>
+				<PlaylistListItem className="mt-2" ></PlaylistListItem>
+			</div>
+		</Card>
+		// <PlaylistListItem {...props} >
+		// 	{children}
+		// </PlaylistListItem>
 	);
 };
 

@@ -55,7 +55,7 @@ export const Register = ({ onSubmit, onClickLogin }) => {
 	}
 
 	return (
-		<div className={`bg-secondary p-6 rounded-md sm:w-400 `}>
+		<div className={`bg-secondary p-10 rounded-md sm:w-96 `}>
 			<span className="text-2xl font-bold" >Register</span>
 			<Input
 				className={`mt-3 ${valid.username ? "" : err}`}

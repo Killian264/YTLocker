@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 
 const sizes = {
-	large: "py-2 px-6 text-sm rounded-lg",
+	large: "py-2 px-7 text-sm rounded-lg",
 	medium: "py-1.5 px-5 text-sm rounded-md",
 	small: "py-1 px-3 text-xs rounded-md",
 }

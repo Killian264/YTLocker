@@ -5,10 +5,12 @@ const border = "border-t-8 border-accent border-solid";
 
 export const StatsCard = ({ children, header, count, measurement, classes="", ...props }) => {
 	return (
-		<div className={`bg-primary-600 m-1 px-2 pb-1 pt-2 rounded-md ${border} ${classes}`} {...props} >
-			<h2>{header}</h2>
-			<span className="text-xl text-accent">{count}</span>
-			<span className="text-xl tracking-wider"> {measurement}</span>
+		<div className={`bg-primary-600 m-1 px-4 pb-2 pt-3 rounded-md ${border} ${classes}`} {...props} >
+			<span className="text-lg">{header}</span>
+			<div>
+				<span className="text-xl text-accent">{count}</span>
+				<span className="text-lg font-bold tracking-wider"> {measurement}</span>
+			</div>
 		</div>
 	);
 };
