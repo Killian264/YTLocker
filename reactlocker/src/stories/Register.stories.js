@@ -1,6 +1,5 @@
 import React from 'react';
 import { Register } from '../components/Register'
-import { toEnum, toBoolean} from "./utils/utils"
 
 export default {
   title: 'Register',

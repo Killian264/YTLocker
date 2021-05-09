@@ -1,6 +1,6 @@
 import React from 'react';
 import { Alert } from '../components/Alert';
-import { toEnum, toBoolean, toStr} from "./utils/utils"
+import { toEnum, toStr} from "./utils/utils"
 
 export default {
   title: 'Alert',

@@ -1,8 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { PlusButton } from './PlusButton';
-import { StatsCard } from './StatsCard';
-import { Badge } from './Badge';
 
 export const Card = ({ children, className, ...props }) => {
 	return (

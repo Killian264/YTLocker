@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Alert } from './Alert';
 import { Login } from './Login';
-import { LogoBar } from './LogoBar';
 import { Register } from './Register';
 
 

@@ -1,6 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { PlusButton } from './PlusButton';
 import no_thumbnail from '../static/no_thumbnail.png';
 import { Link } from './Link';
 

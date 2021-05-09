@@ -17,7 +17,7 @@ export const StatsCard = ({ children, header, count, measurement, classes="", ..
 
 StatsCard.propTypes = {
 	header: PropTypes.string,
-	count: PropTypes.string,
+	count: PropTypes.number,
 	measurement: PropTypes.string,
 	classes: PropTypes.string,
 };

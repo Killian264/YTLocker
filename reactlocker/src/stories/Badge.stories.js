@@ -1,6 +1,6 @@
 import React from 'react';
 import { Badge } from '../components/Badge';
-import { toEnum, toBoolean} from "./utils/utils"
+import { toEnum} from "./utils/utils"
 
 export default {
   title: 'Badge',

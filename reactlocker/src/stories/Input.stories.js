@@ -1,6 +1,6 @@
 import React from 'react';
 import { Input } from '../components/Input';
-import { toEnum, toBoolean, toStr} from "./utils/utils"
+import {toStr} from "./utils/utils"
 
 export default {
   title: 'Input',

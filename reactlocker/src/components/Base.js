@@ -1,4 +1,3 @@
-import { Alert } from "./Alert";
 import { LoginPage } from "./LoginPage";
 import { LogoBar } from "./LogoBar"
 

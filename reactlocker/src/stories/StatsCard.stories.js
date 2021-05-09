@@ -1,6 +1,6 @@
 import React from 'react';
 import { StatsCard } from '../components/StatsCard';
-import { toEnum, toBoolean, toStr } from "./utils/utils"
+import { toStr } from "./utils/utils"
 
 export default {
   title: 'StatsCard',

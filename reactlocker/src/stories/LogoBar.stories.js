@@ -1,6 +1,6 @@
 import React from 'react';
 import { LogoBar } from '../components/LogoBar';
-import { toEnum, toBoolean, toStr} from "./utils/utils"
+import { toStr}  from "./utils/utils"
 
 export default {
   title: 'LogoBar',

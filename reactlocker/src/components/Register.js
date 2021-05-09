@@ -19,33 +19,35 @@ function validPassword(password){
 
 const err = "border-2 border-red-500"
 
+const validateFields = (user, isAllowEmpty) => {
+
+	let validPass = validPassword(user.password)
+	let validPass2 = !validPass || user.password === user.password2
+
+	let update = {
+		username: validName(user.username) || (!user.username && isAllowEmpty), 
+		email: validEmail(user.email) || (!user.email && isAllowEmpty), 
+		password: validPass || (!user.password && isAllowEmpty), 
+		password2: validPass2, 
+	}
+
+	return update
+}
+
 export const Register = ({ onSubmit, onClickLogin }) => {
 
 	const [user, setUser] = React.useState({username: "", email: "", password: "", password2: ""})
 	const [valid, setValid] = React.useState({username: true, email: true, password: true, password2: true})
 
-	useEffect(() => { validateFields(true) }, [user, setUser])
-
-	const validateFields = (isAllowEmpty) => {
-
-		let validPass = validPassword(user.password)
-		let validPass2 = !validPass || user.password === user.password2
-
-		let update = {
-			username: validName(user.username) || (!user.username && isAllowEmpty), 
-			email: validEmail(user.email) || (!user.email && isAllowEmpty), 
-			password: validPass || (!user.password && isAllowEmpty), 
-			password2: validPass2, 
-		}
-
+	useEffect(() => { 
+		let update = validateFields(user, true) 
 		setValid(update)
-
-		return update
-	}
+	}, [user, setUser])
 
 	const formSubmit = () => {
 
-		let fields = validateFields(false)
+		let fields = validateFields(user, false)
+		setValid(fields)
 
 		for (let field in fields) {
 			if (!fields[field]) return

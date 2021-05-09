@@ -1,6 +1,5 @@
 import React from 'react';
 import { Login } from '../components/Login'
-import { toEnum, toBoolean} from "./utils/utils"
 
 export default {
   title: 'Login',
