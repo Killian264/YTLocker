@@ -14,7 +14,7 @@ export const Badge = ({ className, color="primary", children, ...props }) => {
 	return (
 		<span
 			type="button"
-			className={`${size} ${colors[color]} font-bold ${className}`}
+			className={`${className} ${size} ${colors[color]} font-bold`}
 			{...props}
 		>
 			{children}

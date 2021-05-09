@@ -19,7 +19,7 @@ export const Button = ({ className, children, size="large", color="primary", dis
 	<button
 		disabled={ disabled || loading }
 		type="button"
-		className={`${sizes[size]}  ${colors[color]} font-bold ${className}`}
+		className={`${className} ${sizes[size]}  ${colors[color]} font-bold`}
 		{...props}
 	>
 		{children}

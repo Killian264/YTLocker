@@ -5,7 +5,7 @@ import image from '../static/logo.png'
 export const LogoBar = ({ className, children, ...props }) => {
 
 	let pos = "inset-x-0 mx-auto mt-3"
-	let css = `flex ${pos} ${className}`
+	let css = `${className} ${pos} flex`
 
 	return (
 		<div

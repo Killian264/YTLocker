@@ -15,7 +15,7 @@ export const PlusButton = ({ className, color="primary", disabled, children, ...
 	<button
 		disabled={ disabled }
 		type="button"
-		className={`${size} ${colors[color]} ${className}`}
+		className={`${className} ${size} ${colors[color]}`}
 		{...props}
 	>
 		<div className="text-4xl leading-none">+</div>
