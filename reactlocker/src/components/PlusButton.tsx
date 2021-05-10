@@ -22,7 +22,7 @@ export const PlusButton: React.FC<PlusButtonProps> = ({
 	children,
 	...props
 }) => {
-	let size = "px-2 text-sm rounded-lg inline-block select-none";
+	let size = "text-sm rounded-lg inline-block select-none";
 
 	return (
 		<button
@@ -31,7 +31,34 @@ export const PlusButton: React.FC<PlusButtonProps> = ({
 			className={`${className} ${size} ${colors[color]}`}
 			{...props}
 		>
-			<div className="text-4xl leading-none">+</div>
+			<span className="text-4xl leading-none font-bold">
+				<Plus size={31.5}></Plus>
+			</span>
 		</button>
+	);
+};
+
+export interface PlusProps {
+	size: number;
+}
+
+export const Plus: React.FC<PlusProps> = ({ size }) => {
+	return (
+		<svg width={size} height={size} fill="none" viewBox="0 0 24 24">
+			<path
+				stroke="currentColor"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				stroke-width="1.9"
+				d="M12 5.75V18.25"
+			/>
+			<path
+				stroke="currentColor"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				stroke-width="1.9"
+				d="M18.25 12L5.75 12"
+			/>
+		</svg>
 	);
 };

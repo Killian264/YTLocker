@@ -1,10 +1,10 @@
+import { Story } from "@storybook/react";
 import React from "react";
-import { UserInfoBar } from "../components/UserInfoBar";
+import { UserInfoBar, UserInfoBarProps } from "../components/UserInfoBar";
 
 export default {
 	title: "UserInfoBar",
 	component: UserInfoBar,
-	argTypes: { onClick: { action: "clicked" } },
 };
 
 const user = {
@@ -36,7 +36,7 @@ const statsCards = [
 	},
 ];
 
-const Mocked = ({ children, ...props }) => {
+const Mocked: Story<UserInfoBarProps> = ({ ...props }) => {
 	return <UserInfoBar user={user} stats={statsCards}></UserInfoBar>;
 };
 

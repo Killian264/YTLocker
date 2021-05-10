@@ -8,7 +8,7 @@ const user = {
 	joined: "Mar 13 2021",
 };
 
-const statsCards: StatCard[] = [
+const stats: StatCard[] = [
 	{
 		header: "Playlists",
 		count: 454,
@@ -37,7 +37,7 @@ export const DashboardPage: React.FC<{}> = () => {
 			<UserInfoBar
 				className="flex-grow"
 				user={user}
-				stats={statsCards}
+				stats={stats}
 			></UserInfoBar>
 		</div>
 	);

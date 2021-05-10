@@ -1,11 +1,10 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { StatsCard } from "./StatsCard";
 import { Badge } from "./Badge";
 import { Card } from "./Card";
 import { StatCard, User } from "../shared/types";
 
-interface UserInfoBarProps {
+export interface UserInfoBarProps {
 	className?: string;
 	user: User;
 	stats: StatCard[];
@@ -30,11 +29,11 @@ export const UserInfoBar: React.FC<UserInfoBarProps> = ({
 	);
 };
 
-interface BarHeader {
+interface BarHeaderProps {
 	user: User;
 }
 
-const BarHeader: React.FC<BarHeader> = ({ user }) => {
+const BarHeader: React.FC<BarHeaderProps> = ({ user }) => {
 	return (
 		<div className="flex justify-between">
 			<div>
@@ -52,11 +51,11 @@ const BarHeader: React.FC<BarHeader> = ({ user }) => {
 	);
 };
 
-interface MultiCard {
+interface MultiCardProps {
 	stats: StatCard[];
 }
 
-const MultiCard: React.FC<MultiCard> = ({ stats }) => {
+const MultiCard: React.FC<MultiCardProps> = ({ stats }) => {
 	const cards = stats.map((stat, index) => {
 		return <StatsCard key={index} {...stat} />;
 	});

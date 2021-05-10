@@ -1,5 +1,4 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { StatCard } from "../shared/types";
 
 export interface StatsCardProps extends StatCard {
@@ -20,13 +19,10 @@ export const StatsCard: React.FC<StatsCardProps> = ({
 			className={`bg-primary-600 m-1 px-4 pb-2 pt-3 rounded-md ${border} ${className}`}
 			{...props}
 		>
-			<span className="text-lg">{header}</span>
+			<span className="text-lg font-semibold">{header}</span>
 			<div>
 				<span className="text-xl text-accent">{count}</span>
-				<span className="text-lg font-bold tracking-wider">
-					{" "}
-					{measurement}
-				</span>
+				<span className="text-lg"> {measurement}</span>
 			</div>
 		</div>
 	);

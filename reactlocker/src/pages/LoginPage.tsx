@@ -6,7 +6,7 @@ import { LogoBar } from "../components/LogoBar";
 import { UserLogin, UserRegister } from "../shared/types";
 import { RouteComponentProps } from "react-router-dom";
 
-interface LoginPageProps extends RouteComponentProps {
+export interface LoginPageProps extends RouteComponentProps {
 	className?: string;
 }
 

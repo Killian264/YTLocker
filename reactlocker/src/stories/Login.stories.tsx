@@ -1,13 +1,12 @@
-import React from "react";
-import { Login } from "../components/Login";
+import { Story } from "@storybook/react";
+import { Login, LoginProps } from "../components/Login";
 
 export default {
 	title: "Login",
 	component: Login,
-	argTypes: { onClick: { action: "clicked" } },
 };
 
-const Mocked = ({ children, ...props }) => {
+const Mocked: Story<LoginProps> = ({ ...props }) => {
 	return (
 		<Login
 			{...props}

@@ -5,7 +5,7 @@ import { Link } from "./Link";
 import { UserRegister } from "../shared/types";
 import { validateFields } from "../shared/validation";
 
-export interface LoginProps {
+export interface RegisterProps {
 	className?: string;
 	onSubmit: (user: UserRegister) => void;
 	onClickLogin: () => void;
@@ -13,7 +13,10 @@ export interface LoginProps {
 
 const err = "border-2 border-red-500";
 
-export const Register: React.FC<LoginProps> = ({ onSubmit, onClickLogin }) => {
+export const Register: React.FC<RegisterProps> = ({
+	onSubmit,
+	onClickLogin,
+}) => {
 	const [user, setUser] = React.useState<UserRegister>({
 		username: "",
 		email: "",

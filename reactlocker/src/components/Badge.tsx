@@ -13,7 +13,7 @@ const colors = {
 };
 
 export const Badge: React.FC<BadgeProps> = ({ className, color, children }) => {
-	let size = "px-1 text-xs rounded-md";
+	let size = "px-1 text-xs rounded";
 
 	return (
 		<span

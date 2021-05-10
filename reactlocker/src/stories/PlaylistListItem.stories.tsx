@@ -1,24 +1,23 @@
-import React from "react";
-import { Card } from "../components/Card";
+import { Story } from "@storybook/react";
+import { Card, CardProps } from "../components/Card";
 import { PlaylistListItem } from "../components/PlaylistListItem";
 import { PlusButton } from "../components/PlusButton";
 
 export default {
 	title: "PlaylistListItem",
 	component: PlaylistListItem,
-	argTypes: { onClick: { action: "clicked" } },
 };
 
-const Mocked = ({ children, ...props }) => {
+const Mocked: Story<{}> = ({ ...props }) => {
 	return (
 		<Card>
-			<div className="flex justify-between">
+			<div className="flex justify-between -mb-1">
 				<div className="text-2xl">
-					<span className="font-bold inline-block align-middle leading-none">
+					<span className="font-bold leading-none -mt-0.5">
 						Playlists
 					</span>
 				</div>
-				<PlusButton></PlusButton>
+				<PlusButton color="primary" disabled={false}></PlusButton>
 			</div>
 			<div>
 				<PlaylistListItem></PlaylistListItem>
@@ -26,9 +25,6 @@ const Mocked = ({ children, ...props }) => {
 				<PlaylistListItem className="mt-2"></PlaylistListItem>
 			</div>
 		</Card>
-		// <PlaylistListItem {...props} >
-		// 	{children}
-		// </PlaylistListItem>
 	);
 };
 

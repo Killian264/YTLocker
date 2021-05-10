@@ -1,11 +1,11 @@
 import React from "react";
 import logo from "../static/logo.png";
 
-export interface InputProps {
+export interface LogoBarProps {
 	className?: string;
 }
 
-export const LogoBar: React.FC<InputProps> = ({ className, children }) => {
+export const LogoBar: React.FC<LogoBarProps> = ({ className, children }) => {
 	let pos = "inset-x-0 mx-auto mt-3";
 	let css = `${className} ${pos} flex`;
 

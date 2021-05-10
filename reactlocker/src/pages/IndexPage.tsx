@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { DashboardPage } from "./DashboardPage";
-import { LoginPage } from "./LoginPage.tsx";
+import { LoginPage } from "./LoginPage";
 
 export const IndexPage: React.FC<{}> = () => {
 	return (
