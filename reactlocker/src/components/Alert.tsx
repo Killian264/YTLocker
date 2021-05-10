@@ -1,26 +1,23 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
 
-interface Props {
-	className: string;
+export interface AlertProps {
+	className?: string;
 	type: keyof typeof colors;
 }
 
 const colors = {
 	success: "text-accent-text bg-green-400",
 	failure: "text-accent-text bg-red-400",
-}
+};
 
-export const Alert: React.FC<Props> = ({ className, type="success", children, ...props }) => {
-
-	let size = "md:w-9/12 sm:w-full"
-	let pos = "z-10 fixed inset-x-0 mx-auto mt-3"
-	let css = `${className} ${size} ${pos} ${colors[type]}`
+export const Alert: React.FC<AlertProps> = ({ className, type, children }) => {
+	let size = "md:w-9/12 sm:w-full";
+	let pos = "z-10 fixed inset-x-0 mx-auto mt-3";
+	let css = `${className} ${size} ${pos} ${colors[type]}`;
 
 	return (
 		<div
 			className={`flex justify-center py-2 px-6 rounded-lg text-sm font-bold ${css}`}
-			{...props}
 		>
 			<span>{children}</span>
 		</div>

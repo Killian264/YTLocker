@@ -1,26 +1,22 @@
-import React from 'react';
-import { Alert } from '../components/Alert';
-import { toEnum, toStr} from "./utils/utils"
+import React from "react";
+import { Alert } from "../components/Alert";
+import { toEnum, toStr } from "./utils/utils";
 
 export default {
-  title: 'Alert',
-  component: Alert,
-  argTypes: { onClick: { action: "clicked" } },
+	title: "Alert",
+	component: Alert,
+	argTypes: { onClick: { action: "clicked" } },
 };
 
-const Mocked = ({
-  children,
-  ...props
-}) => {
+const Mocked = ({ children, ...props }) => {
 	return (
-		<Alert {...props} >
+		<Alert {...props} type={props.type || "success"}>
 			{children || "Successfully created user account."}
 		</Alert>
 	);
 };
 
-
-export const Primary = Mocked.bind({})
+export const Primary = Mocked.bind({});
 
 Primary.argTypes = {
 	type: toEnum(["success", "failure"]),

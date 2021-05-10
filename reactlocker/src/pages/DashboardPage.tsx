@@ -1,11 +1,6 @@
 import React from "react";
 import { UserInfoBar } from "../components/UserInfoBar";
-
-export default {
-	title: "UserInfoBar",
-	component: UserInfoBar,
-	argTypes: { onClick: { action: "clicked" } },
-};
+import { StatCard } from "../shared/types";
 
 const user = {
 	username: "Killian",
@@ -13,7 +8,7 @@ const user = {
 	joined: "Mar 13 2021",
 };
 
-const statsCards = [
+const statsCards: StatCard[] = [
 	{
 		header: "Playlists",
 		count: 454,
@@ -36,10 +31,16 @@ const statsCards = [
 	},
 ];
 
-const Mocked = ({ children, ...props }) => {
-	return <UserInfoBar user={user} stats={statsCards}></UserInfoBar>;
+export const DashboardPage: React.FC<{}> = () => {
+	return (
+		<div className="p-4 mx-auto max-w-7xl">
+			<UserInfoBar
+				className="flex-grow"
+				user={user}
+				stats={statsCards}
+			></UserInfoBar>
+		</div>
+	);
 };
 
-export const Primary = Mocked.bind({});
-
-Primary.argTypes = {};
+DashboardPage.propTypes = {};

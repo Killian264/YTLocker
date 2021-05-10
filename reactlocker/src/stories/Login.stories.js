@@ -1,27 +1,22 @@
-import React from 'react';
-import { Login } from '../components/Login'
+import React from "react";
+import { Login } from "../components/Login";
 
 export default {
-  title: 'Login',
-  component: Login,
-  argTypes: { onClick: { action: "clicked" } },
+	title: "Login",
+	component: Login,
+	argTypes: { onClick: { action: "clicked" } },
 };
 
-const Mocked = ({
-  children,
-  ...props
-}) => {
+const Mocked = ({ children, ...props }) => {
 	return (
 		<Login
-			{...props} 
+			{...props}
 			onSubmit={(user) => console.log("Submitted", user)}
 			onClickRegister={() => console.log("Swapped to register page.")}
-		>
-		</Login>
+		></Login>
 	);
 };
 
-
-export const Primary = Mocked.bind({})
+export const Primary = Mocked.bind({});
 
 Primary.argTypes = {};

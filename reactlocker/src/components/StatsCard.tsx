@@ -1,0 +1,33 @@
+import React from "react";
+import PropTypes from "prop-types";
+import { StatCard } from "../shared/types";
+
+export interface StatsCardProps extends StatCard {
+	className?: string;
+}
+
+const border = "border-t-8 border-accent border-solid";
+
+export const StatsCard: React.FC<StatsCardProps> = ({
+	className = "",
+	header,
+	count,
+	measurement,
+	...props
+}) => {
+	return (
+		<div
+			className={`bg-primary-600 m-1 px-4 pb-2 pt-3 rounded-md ${border} ${className}`}
+			{...props}
+		>
+			<span className="text-lg">{header}</span>
+			<div>
+				<span className="text-xl text-accent">{count}</span>
+				<span className="text-lg font-bold tracking-wider">
+					{" "}
+					{measurement}
+				</span>
+			</div>
+		</div>
+	);
+};
