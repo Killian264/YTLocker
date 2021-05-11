@@ -1,14 +1,14 @@
 import React from "react";
-import { Playlist } from "../shared/types";
+import { Channel } from "../shared/types";
 import { Link } from "./Link";
 
-export interface PlaylistItemProps {
+export interface ChannelListItemProps {
 	className?: string;
-	playlist: Playlist;
+	channel: Channel;
 }
 
-export const PlaylistListItem: React.FC<PlaylistItemProps> = ({
-	playlist,
+export const ChannelListItem: React.FC<ChannelListItemProps> = ({
+	channel,
 	className,
 }) => {
 	return (
@@ -17,17 +17,17 @@ export const PlaylistListItem: React.FC<PlaylistItemProps> = ({
 		>
 			<div className="flex">
 				<img
-					src={playlist.thumbnail}
+					src={channel.thumbnail}
 					alt="Logo"
 					width="140"
 					height="120"
 					className="rounded-lg"
 				/>
 				<div className="pl-3 flex flex-col">
-					<span>{playlist.title}</span>
+					<span>{channel.title}</span>
 					<Link
 						className="text-accent text-lg ml-0.5"
-						href={playlist.url}
+						href={channel.url}
 						target="_blank"
 					>
 						Youtube Link

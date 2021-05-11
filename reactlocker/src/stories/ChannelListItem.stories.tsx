@@ -1,15 +1,14 @@
 import { Story } from "@storybook/react";
-import { Card, CardProps } from "../components/Card";
-import { PlaylistListItem } from "../components/PlaylistListItem";
-import { PlusButton } from "../components/PlusButton";
-import { Playlist } from "../shared/types";
+import { Card } from "../components/Card";
+import { ChannelListItem } from "../components/ChannelListItem";
+import { Channel } from "../shared/types";
 
 export default {
-	title: "PlaylistListItem",
-	component: PlaylistListItem,
+	title: "ChannelListItem",
+	component: ChannelListItem,
 };
 
-const playlists: Playlist[] = [
+const channels: Channel[] = [
 	{
 		id: 932423423,
 		youtube: "PLamdXAekZPYiqLDNQXQTbm4N_cPBmLPyr",
@@ -27,15 +26,15 @@ const Mocked: Story<{}> = ({ ...props }) => {
 		<Card>
 			<div></div>
 			<div>
-				<PlaylistListItem playlist={playlists[0]}></PlaylistListItem>
-				<PlaylistListItem
-					playlist={playlists[0]}
+				<ChannelListItem channel={channels[0]}></ChannelListItem>
+				<ChannelListItem
+					channel={channels[0]}
 					className="mt-3"
-				></PlaylistListItem>
-				<PlaylistListItem
-					playlist={playlists[0]}
+				></ChannelListItem>
+				<ChannelListItem
+					channel={channels[0]}
 					className="mt-3"
-				></PlaylistListItem>
+				></ChannelListItem>
 			</div>
 		</Card>
 	);

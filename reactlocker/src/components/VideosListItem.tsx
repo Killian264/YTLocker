@@ -1,14 +1,14 @@
 import React from "react";
-import { Playlist } from "../shared/types";
+import { Video } from "../shared/types";
 import { Link } from "./Link";
 
-export interface PlaylistItemProps {
+export interface VideoListItemProps {
 	className?: string;
-	playlist: Playlist;
+	video: Video;
 }
 
-export const PlaylistListItem: React.FC<PlaylistItemProps> = ({
-	playlist,
+export const VideoListItem: React.FC<VideoListItemProps> = ({
+	video,
 	className,
 }) => {
 	return (
@@ -17,17 +17,17 @@ export const PlaylistListItem: React.FC<PlaylistItemProps> = ({
 		>
 			<div className="flex">
 				<img
-					src={playlist.thumbnail}
+					src={video.thumbnail}
 					alt="Logo"
 					width="140"
 					height="120"
 					className="rounded-lg"
 				/>
 				<div className="pl-3 flex flex-col">
-					<span>{playlist.title}</span>
+					<span>{video.title}</span>
 					<Link
 						className="text-accent text-lg ml-0.5"
-						href={playlist.url}
+						href={video.url}
 						target="_blank"
 					>
 						Youtube Link

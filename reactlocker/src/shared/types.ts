@@ -21,3 +21,30 @@ export interface StatCard {
 	count: number;
 	measurement: string;
 }
+
+export interface Playlist {
+	id: number;
+	youtube: string;
+	thumbnail: string;
+	title: string;
+	description: string;
+	url: string;
+}
+
+export interface Video {
+	id: number;
+	youtube: string;
+	thumbnail: string;
+	title: string;
+	description: string;
+	url: string;
+}
+
+export interface Channel {
+	id: number;
+	youtube: string;
+	thumbnail: string;
+	title: string;
+	description: string;
+	url: string;
+}

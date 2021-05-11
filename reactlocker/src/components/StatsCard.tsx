@@ -16,7 +16,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({
 }) => {
 	return (
 		<div
-			className={`bg-primary-600 m-1 px-4 pb-2 pt-3 rounded-md ${border} ${className}`}
+			className={`bg-primary-600 m-1 px-4 pb-2 pt-2 rounded-md ${border} ${className}`}
 			{...props}
 		>
 			<span className="text-lg font-semibold">{header}</span>

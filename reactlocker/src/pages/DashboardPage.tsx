@@ -1,6 +1,11 @@
 import React from "react";
+import { Card } from "../components/Card";
+import { ChannelListItem } from "../components/ChannelListItem";
+import { PlaylistListItem } from "../components/PlaylistListItem";
+import { PlusButton } from "../components/PlusButton";
 import { UserInfoBar } from "../components/UserInfoBar";
-import { StatCard } from "../shared/types";
+import { VideoListItem } from "../components/VideosListItem";
+import { Playlist, StatCard } from "../shared/types";
 
 const user = {
 	username: "Killian",
@@ -31,15 +36,108 @@ const stats: StatCard[] = [
 	},
 ];
 
+const playlists: Playlist[] = [
+	{
+		id: 932423423,
+		youtube: "PLamdXAekZPYiqLDNQXQTbm4N_cPBmLPyr",
+		thumbnail:
+			"https://i.ytimg.com/vi/1PBNAoKd-70/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLCFnLzV-VCKC28TFfjTi5cQL7zXiA",
+		title: "DogeLog",
+		description: "Videos showing Ben Awad as he builds dogehouse.",
+		url:
+			"https://www.youtube.com/playlist?list=PLN3n1USn4xlkZgqq9SdgUXPmgpoxUM9QK",
+	},
+];
+
 export const DashboardPage: React.FC<{}> = () => {
 	return (
-		<div className="p-4 mx-auto max-w-7xl">
-			<UserInfoBar
-				className="flex-grow"
-				user={user}
-				stats={stats}
-			></UserInfoBar>
-		</div>
+		<>
+			<div className="p-4 mx-auto max-w-7xl">
+				<UserInfoBar
+					className="flex-grow"
+					user={user}
+					stats={stats}
+				></UserInfoBar>
+			</div>
+			<div className="px-4 mx-auto max-w-7xl flex">
+				<Card className="w-7/12 mr-3">
+					<div className="flex justify-between -mb-1 -mt-1">
+						<div className="text-2xl">
+							<span className="leading-none -mt-0.5">
+								Playlists
+							</span>
+						</div>
+						<PlusButton
+							color="primary"
+							disabled={false}
+						></PlusButton>
+					</div>
+					<div>
+						<PlaylistListItem
+							playlist={playlists[0]}
+						></PlaylistListItem>
+						<PlaylistListItem
+							playlist={playlists[0]}
+							className="mt-3"
+						></PlaylistListItem>
+						<PlaylistListItem
+							playlist={playlists[0]}
+							className="mt-3"
+						></PlaylistListItem>
+					</div>
+				</Card>
+				<Card className="w-5/12">
+					<div className="flex justify-between -mb-1 -mt-1">
+						<div className="text-2xl">
+							<span className="leading-none -mt-0.5">Videos</span>
+						</div>
+					</div>
+					<div>
+						<VideoListItem video={playlists[0]}></VideoListItem>
+						<VideoListItem
+							video={playlists[0]}
+							className="mt-3"
+						></VideoListItem>
+						<VideoListItem
+							video={playlists[0]}
+							className="mt-3"
+						></VideoListItem>
+						<VideoListItem
+							video={playlists[0]}
+							className="mt-3"
+						></VideoListItem>
+						<VideoListItem
+							video={playlists[0]}
+							className="mt-3"
+						></VideoListItem>
+					</div>
+				</Card>
+			</div>
+			<div className="px-4 mx-auto max-w-7xl m-3">
+				<Card>
+					<div className="flex justify-between -mb-1 -mt-1">
+						<div className="text-2xl">
+							<span className="leading-none -mt-0.5">
+								Channels
+							</span>
+						</div>
+					</div>
+					<div>
+						<ChannelListItem
+							channel={playlists[0]}
+						></ChannelListItem>
+						<ChannelListItem
+							channel={playlists[0]}
+							className="mt-3"
+						></ChannelListItem>
+						<ChannelListItem
+							channel={playlists[0]}
+							className="mt-3"
+						></ChannelListItem>
+					</div>
+				</Card>
+			</div>
+		</>
 	);
 };
 

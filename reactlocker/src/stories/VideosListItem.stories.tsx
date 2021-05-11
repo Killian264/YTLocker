@@ -1,15 +1,15 @@
 import { Story } from "@storybook/react";
-import { Card, CardProps } from "../components/Card";
-import { PlaylistListItem } from "../components/PlaylistListItem";
+import { Card } from "../components/Card";
+import { VideoListItem } from "../components/VideosListItem";
 import { PlusButton } from "../components/PlusButton";
-import { Playlist } from "../shared/types";
+import { Video } from "../shared/types";
 
 export default {
-	title: "PlaylistListItem",
-	component: PlaylistListItem,
+	title: "VideoListItem",
+	component: VideoListItem,
 };
 
-const playlists: Playlist[] = [
+const videos: Video[] = [
 	{
 		id: 932423423,
 		youtube: "PLamdXAekZPYiqLDNQXQTbm4N_cPBmLPyr",
@@ -27,15 +27,15 @@ const Mocked: Story<{}> = ({ ...props }) => {
 		<Card>
 			<div></div>
 			<div>
-				<PlaylistListItem playlist={playlists[0]}></PlaylistListItem>
-				<PlaylistListItem
-					playlist={playlists[0]}
+				<VideoListItem video={videos[0]}></VideoListItem>
+				<VideoListItem
+					video={videos[0]}
 					className="mt-3"
-				></PlaylistListItem>
-				<PlaylistListItem
-					playlist={playlists[0]}
+				></VideoListItem>
+				<VideoListItem
+					video={videos[0]}
 					className="mt-3"
-				></PlaylistListItem>
+				></VideoListItem>
 			</div>
 		</Card>
 	);
