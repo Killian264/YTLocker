@@ -37,7 +37,7 @@ const BarHeader: React.FC<BarHeaderProps> = ({ user }) => {
 	return (
 		<div className="flex justify-between">
 			<div>
-				<span className=" text-2xl inline-block align-bottom leading-none">
+				<span className=" text-2xl font-semibold inline-block align-bottom leading-none">
 					{user.username}
 				</span>
 				<Badge className="ml-1 mt-3" color="primary">

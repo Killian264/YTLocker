@@ -62,7 +62,7 @@ export const DashboardPage: React.FC<{}> = () => {
 			<div className="px-4 mx-auto max-w-7xl flex">
 				<Card className="w-7/12 mr-3">
 					<div className="flex justify-between -mb-1 -mt-1">
-						<div className="text-2xl">
+						<div className="text-2xl font-semibold">
 							<span className="leading-none -mt-0.5">
 								Playlists
 							</span>
@@ -88,7 +88,7 @@ export const DashboardPage: React.FC<{}> = () => {
 				</Card>
 				<Card className="w-5/12">
 					<div className="flex justify-between -mb-1 -mt-1">
-						<div className="text-2xl">
+						<div className="text-2xl font-semibold">
 							<span className="leading-none -mt-0.5">Videos</span>
 						</div>
 					</div>
@@ -116,7 +116,7 @@ export const DashboardPage: React.FC<{}> = () => {
 			<div className="px-4 mx-auto max-w-7xl m-3">
 				<Card>
 					<div className="flex justify-between -mb-1 -mt-1">
-						<div className="text-2xl">
+						<div className="text-2xl font-semibold">
 							<span className="leading-none -mt-0.5">
 								Channels
 							</span>

@@ -14,7 +14,7 @@ export const PlaylistListItem: React.FC<PlaylistItemProps> = ({
 }) => {
 	return (
 		<div
-			className={`${className} font-semibold text-xl hover:bg-primary-600 rounded-md flex justify-between`}
+			className={`${className} hover:bg-primary-600 rounded-md flex justify-between`}
 		>
 			<div className="flex p-1">
 				<img
@@ -25,7 +25,9 @@ export const PlaylistListItem: React.FC<PlaylistItemProps> = ({
 					className="rounded-lg"
 				/>
 				<div className="pl-3 flex flex-col">
-					<span>{playlist.title}</span>
+					<span className="text-lg font-semibold">
+						{playlist.title}
+					</span>
 					<Link
 						className="text-accent text-lg ml-0.5"
 						href={playlist.url}
