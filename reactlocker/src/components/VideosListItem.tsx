@@ -12,22 +12,26 @@ export const VideoListItem: React.FC<VideoListItemProps> = ({
 	video,
 	className,
 }) => {
+	const css = `${className} hover:bg-primary-600 rounded-md flex justify-between`;
+
+	const imageSize = "md:h-20 sm:h-16 h-16";
+
+	const textSize = "sm:text-lg text-md";
+
 	return (
-		<div
-			className={`${className} hover:bg-primary-600 rounded-md flex justify-between`}
-		>
+		<div className={css}>
 			<div className="flex p-1">
 				<img
 					src={video.thumbnail}
 					alt="Logo"
-					width="140"
-					height="120"
-					className="rounded-lg"
+					className={`rounded-lg object-cover ${imageSize}`}
 				/>
 				<div className="pl-3 flex flex-col">
-					<span className="text-lg font-semibold">{video.title}</span>
+					<span className={`${textSize} font-semibold`}>
+						{video.title}
+					</span>
 					<Link
-						className="text-accent text-lg ml-0.5"
+						className={`${textSize} text-accent ml-0.5`}
 						href={video.url}
 						target="_blank"
 					>
@@ -35,7 +39,7 @@ export const VideoListItem: React.FC<VideoListItemProps> = ({
 					</Link>
 				</div>
 			</div>
-			<div className="mr-3 my-auto select-none">
+			<div className="mr-2 my-auto select-none">
 				<Arrow size={24}></Arrow>
 			</div>
 		</div>

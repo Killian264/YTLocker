@@ -59,8 +59,8 @@ export const DashboardPage: React.FC<{}> = () => {
 					stats={stats}
 				></UserInfoBar>
 			</div>
-			<div className="px-4 mx-auto max-w-7xl flex">
-				<Card className="w-7/12 mr-3">
+			<div className="px-4 mx-auto max-w-7xl grid grid-cols-12 gap-4">
+				<Card className="xl:col-span-7 lg:col-span-6 col-span-12">
 					<div className="flex justify-between -mb-1 -mt-1">
 						<div className="text-2xl font-semibold">
 							<span className="leading-none -mt-0.5">
@@ -86,7 +86,7 @@ export const DashboardPage: React.FC<{}> = () => {
 						></PlaylistListItem>
 					</div>
 				</Card>
-				<Card className="w-5/12">
+				<Card className="xl:col-span-5 lg:col-span-6 col-span-12">
 					<div className="flex justify-between -mb-1 -mt-1">
 						<div className="text-2xl font-semibold">
 							<span className="leading-none -mt-0.5">Videos</span>
@@ -112,9 +112,7 @@ export const DashboardPage: React.FC<{}> = () => {
 						></VideoListItem>
 					</div>
 				</Card>
-			</div>
-			<div className="px-4 mx-auto max-w-7xl m-3">
-				<Card>
+				<Card className="col-span-12">
 					<div className="flex justify-between -mb-1 -mt-1">
 						<div className="text-2xl font-semibold">
 							<span className="leading-none -mt-0.5">
@@ -137,6 +135,7 @@ export const DashboardPage: React.FC<{}> = () => {
 					</div>
 				</Card>
 			</div>
+			<div className="px-4 mx-auto max-w-7xl m-3"></div>
 		</>
 	);
 };
