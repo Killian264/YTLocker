@@ -1,6 +1,7 @@
 import React from "react";
 import { Channel } from "../shared/types";
 import { Link } from "./Link";
+import { Arrow } from "./Svg";
 
 export interface ChannelListItemProps {
 	className?: string;
@@ -13,9 +14,9 @@ export const ChannelListItem: React.FC<ChannelListItemProps> = ({
 }) => {
 	return (
 		<div
-			className={`${className} font-semibold text-xl hover:bg-secondary-hover rounded-md flex justify-between`}
+			className={`${className} font-semibold text-xl hover:bg-primary-600 rounded-md flex justify-between`}
 		>
-			<div className="flex">
+			<div className="flex p-1">
 				<img
 					src={channel.thumbnail}
 					alt="Logo"
@@ -34,7 +35,9 @@ export const ChannelListItem: React.FC<ChannelListItemProps> = ({
 					</Link>
 				</div>
 			</div>
-			<div className="mr-3 text-3xl my-auto select-none">{">"}</div>
+			<div className="mr-3 my-auto select-none">
+				<Arrow size={24}></Arrow>
+			</div>
 		</div>
 	);
 };

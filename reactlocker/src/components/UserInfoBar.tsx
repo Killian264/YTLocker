@@ -69,7 +69,7 @@ const MultiCard: React.FC<MultiCardProps> = ({ stats }) => {
 
 const UserProfile: React.FC<{}> = () => {
 	return (
-		<div className="bg-secondary p-32 rounded-md mr-3 hidden md:block">
+		<div className="bg-primary-700 p-32 rounded-md mr-3 hidden md:block">
 			{" "}
 		</div>
 	);

@@ -8,8 +8,6 @@ export interface BadgeProps {
 const colors = {
 	primary:
 		"text-accent-text bg-accent disabled:bg-accent-disabled disabled:text-accent-text-disabled",
-	secondary:
-		"text-secondary-text bg-secondary disabled:bg-secondary-disabled disabled:text-secondary-text-disabled",
 };
 
 export const Badge: React.FC<BadgeProps> = ({ className, color, children }) => {

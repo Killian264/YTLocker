@@ -12,9 +12,10 @@ export const Input: React.FC<InputProps> = ({
 	type = "",
 	...props
 }) => {
-	const bg = `bg-primary-700`;
-	const ring = `focus:outline-none`;
-	const c = `${className} ${ring} ${bg} w-full py-2 px-4 rounded-md text-primary-100 placeholder-primary-300 focus:text-secondary-text`;
+	const bg = `bg-primary-600`;
+	const ring = `focus:outline-none focus:ring-2 focus:ring-accent`;
+	const text = `text-primary-text-200 focus:text-primary-text`;
+	const c = `${className} ${ring} ${bg} ${text} w-full py-2 px-4 rounded-md placeholder-primary-text-300`;
 
 	return <input className={c} type={type} value={value} {...props} />;
 };

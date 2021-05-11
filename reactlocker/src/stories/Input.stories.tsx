@@ -1,4 +1,5 @@
 import { Story } from "@storybook/react";
+import { useState } from "react";
 import { Input, InputProps } from "../components/Input";
 import { sString } from "./utils/utils";
 
@@ -8,7 +9,18 @@ export default {
 };
 
 const Mocked: Story<InputProps> = ({ children, ...props }) => {
-	return <Input {...props} placeholder={"Placeholder"}></Input>;
+	let [value, setValue] = useState("");
+
+	return (
+		<Input
+			{...props}
+			value={value}
+			onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+				setValue(e.target.value)
+			}
+			placeholder={"Placeholder"}
+		></Input>
+	);
 };
 
 export const Primary = Mocked.bind({});

@@ -18,7 +18,7 @@ const colors = {
 	primary:
 		"text-accent-text    bg-accent    hover:bg-accent-hover    disabled:bg-accent-disabled    disabled:text-accent-text-disabled",
 	secondary:
-		"text-secondary-text bg-secondary hover:bg-secondary-hover disabled:bg-secondary-disabled disabled:text-secondary-text-disabled",
+		"text-primary-text bg-primary-600 hover:bg-primary-500 disabled:bg-primary-700 disabled:text-primary-text-disabled",
 };
 
 export const Button: React.FC<ButtonProps> = ({

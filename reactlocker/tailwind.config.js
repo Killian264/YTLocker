@@ -28,22 +28,18 @@ module.exports = {
 			pink: colors.pink,
 
 			primary: {
+				text: {
+					DEFAULT: "var(--color-primary-text)",
+					disabled: "var(--color-primary-text-disabled)",
+					200: "var(--color-primary-text-200)",
+					300: "var(--color-primary-text-300)",
+				},
 				100: "var(--color-primary-100)",
 				200: "var(--color-primary-200)",
-				// 300: "var(--color-primary-300)",
+				500: "var(--color-primary-500)",
 				600: "var(--color-primary-600)",
 				700: "var(--color-primary-700)",
 				800: "var(--color-primary-800)",
-				// 900: "var(--color-primary-900)",
-			},
-			secondary: {
-				DEFAULT: "var(--color-secondary)",
-				hover: "var(--color-secondary-hover)",
-				disabled: "var(--color-secondary-disabled)",
-				text: {
-					DEFAULT: "var(--color-secondary-text)",
-					disabled: "var(--color-secondary-text-disabled)",
-				},
 			},
 			accent: {
 				DEFAULT: "var(--color-accent)",

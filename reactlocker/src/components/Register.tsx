@@ -53,7 +53,7 @@ export const Register: React.FC<RegisterProps> = ({
 	};
 
 	return (
-		<div className={`bg-secondary p-10 rounded-md sm:w-96 `}>
+		<div className={`bg-primary-700 p-10 rounded-md sm:w-96 `}>
 			<span className="text-2xl font-bold">Register</span>
 			<Input
 				className={`mt-3 ${valid.username ? "" : err}`}

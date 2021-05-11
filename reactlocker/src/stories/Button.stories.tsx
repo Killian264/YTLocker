@@ -15,7 +15,7 @@ export const Primary = Mocked.bind({});
 
 Primary.argTypes = {
 	size: sRadio(["small", "medium", "large"]),
-	color: sRadio(["primary", "secondary"]),
+	color: sRadio(["primary"]),
 	disabled: sBoolean(),
 	loading: sBoolean(),
 	message: sString(),

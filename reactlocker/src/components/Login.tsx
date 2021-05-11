@@ -21,7 +21,7 @@ export const Login: React.FC<LoginProps> = ({
 	});
 
 	return (
-		<div className={`${className} bg-secondary p-10 rounded-md sm:w-96 `}>
+		<div className={`${className} bg-primary-700 p-10 rounded-md sm:w-96 `}>
 			<span className="text-2xl font-bold">Login</span>
 			<Input
 				className="mt-3"

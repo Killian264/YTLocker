@@ -68,7 +68,7 @@ export const DashboardPage: React.FC<{}> = () => {
 							</span>
 						</div>
 						<PlusButton
-							color="primary"
+							color="secondary"
 							disabled={false}
 						></PlusButton>
 					</div>
@@ -78,11 +78,11 @@ export const DashboardPage: React.FC<{}> = () => {
 						></PlaylistListItem>
 						<PlaylistListItem
 							playlist={playlists[0]}
-							className="mt-3"
+							className="mt-2"
 						></PlaylistListItem>
 						<PlaylistListItem
 							playlist={playlists[0]}
-							className="mt-3"
+							className="mt-2"
 						></PlaylistListItem>
 					</div>
 				</Card>
@@ -96,19 +96,19 @@ export const DashboardPage: React.FC<{}> = () => {
 						<VideoListItem video={playlists[0]}></VideoListItem>
 						<VideoListItem
 							video={playlists[0]}
-							className="mt-3"
+							className="mt-2"
 						></VideoListItem>
 						<VideoListItem
 							video={playlists[0]}
-							className="mt-3"
+							className="mt-2"
 						></VideoListItem>
 						<VideoListItem
 							video={playlists[0]}
-							className="mt-3"
+							className="mt-2"
 						></VideoListItem>
 						<VideoListItem
 							video={playlists[0]}
-							className="mt-3"
+							className="mt-2"
 						></VideoListItem>
 					</div>
 				</Card>
@@ -128,11 +128,11 @@ export const DashboardPage: React.FC<{}> = () => {
 						></ChannelListItem>
 						<ChannelListItem
 							channel={playlists[0]}
-							className="mt-3"
+							className="mt-2"
 						></ChannelListItem>
 						<ChannelListItem
 							channel={playlists[0]}
-							className="mt-3"
+							className="mt-2"
 						></ChannelListItem>
 					</div>
 				</Card>
