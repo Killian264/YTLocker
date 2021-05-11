@@ -1,5 +1,4 @@
 import React from "react";
-import PropTypes from "prop-types";
 
 export interface PlusButtonProps
 	extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -28,7 +27,7 @@ export const PlusButton: React.FC<PlusButtonProps> = ({
 		<button
 			disabled={disabled}
 			type="button"
-			className={`${className} ${size} ${colors[color]}`}
+			className={`${className} ${size} ${colors[color]} focus:outline-none`}
 			{...props}
 		>
 			<span className="text-4xl leading-none font-bold">
@@ -47,16 +46,16 @@ export const Plus: React.FC<PlusProps> = ({ size }) => {
 		<svg width={size} height={size} fill="none" viewBox="0 0 24 24">
 			<path
 				stroke="currentColor"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				stroke-width="1.9"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeWidth="1.9"
 				d="M12 5.75V18.25"
 			/>
 			<path
 				stroke="currentColor"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				stroke-width="1.9"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeWidth="1.9"
 				d="M18.25 12L5.75 12"
 			/>
 		</svg>

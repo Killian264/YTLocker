@@ -5,9 +5,6 @@ import { sRadio, sBoolean, sString } from "./utils/utils";
 export default {
 	title: "Button",
 	component: Button,
-	color: {
-		defaultValue: "primary",
-	},
 };
 
 const Mocked: Story<ButtonProps & { message: string }> = ({ ...props }) => {
