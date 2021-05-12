@@ -8,11 +8,7 @@ export default {
 };
 
 const Mocked: Story<AlertProps & { message: string }> = ({ ...props }) => {
-	return (
-		<Alert {...props}>
-			{props.message || "Successfully created user account."}
-		</Alert>
-	);
+	return <Alert {...props}></Alert>;
 };
 
 export const Primary = Mocked.bind({});

@@ -19,6 +19,7 @@ const videos: Video[] = [
 		description: "Videos showing Ben Awad as he builds dogehouse.",
 		url:
 			"https://www.youtube.com/playlist?list=PLN3n1USn4xlkZgqq9SdgUXPmgpoxUM9QK",
+		created: new Date(),
 	},
 ];
 

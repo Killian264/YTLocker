@@ -242,7 +242,14 @@ func InitializeDatabase(username string, password string, ip string, port string
 }
 
 func Run(s *services.Services, host string, port string) {
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", host, port), s.Router))
+
+	headersOk := muxhandler.AllowedHeaders([]string{"Authorization"})
+	originsOk := muxhandler.AllowedOrigins([]string{"*"})
+	methodsOk := muxhandler.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
+
+	router := muxhandler.CORS(originsOk, headersOk, methodsOk)(s.Router)
+
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", host, port), router))
 }
 
 func InitializeCronJobs(service *services.Services) {

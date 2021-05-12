@@ -61,7 +61,7 @@ const MultiCard: React.FC<MultiCardProps> = ({ stats }) => {
 	});
 
 	return (
-		<div className="grid xs:grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 max-w-7xl">
+		<div className="grid xs:grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 max-w-7xl">
 			{cards}
 		</div>
 	);

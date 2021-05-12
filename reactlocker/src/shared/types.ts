@@ -29,6 +29,7 @@ export interface Playlist {
 	title: string;
 	description: string;
 	url: string;
+	created: Date;
 }
 
 export interface Video {
@@ -38,6 +39,7 @@ export interface Video {
 	title: string;
 	description: string;
 	url: string;
+	created: Date;
 }
 
 export interface Channel {
@@ -47,4 +49,5 @@ export interface Channel {
 	title: string;
 	description: string;
 	url: string;
+	created: Date;
 }
