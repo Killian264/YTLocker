@@ -8,33 +8,24 @@ export interface PlaylistItemProps {
 	playlist: Playlist;
 }
 
-export const PlaylistListItem: React.FC<PlaylistItemProps> = ({
-	playlist,
-	className,
-}) => {
-	const css = `${className} hover:bg-primary-600 rounded-md flex justify-between`;
+export const PlaylistListItem: React.FC<PlaylistItemProps> = ({ playlist, className }) => {
+	const css = `${className} hover:bg-primary-600 rounded-md flex justify-between cursor-pointer`;
 
 	const imageSize = "md:h-20 sm:h-16 h-16";
 
 	const textSize = "sm:text-lg text-md";
 
+	const open = () => {
+		window.open(playlist.url, "_blank");
+	};
+
 	return (
-		<div className={css}>
+		<div className={css} onClick={open}>
 			<div className="flex p-1">
-				<img
-					src={playlist.thumbnail}
-					alt="Logo"
-					className={`rounded-lg object-cover ${imageSize}`}
-				/>
+				<img src={playlist.thumbnail} alt="Logo" className={`rounded-lg object-cover ${imageSize}`} />
 				<div className="pl-3 flex flex-col">
-					<span className={`${textSize} font-semibold`}>
-						{playlist.title}
-					</span>
-					<Link
-						className={`${textSize} text-accent ml-0.5`}
-						href={playlist.url}
-						target="_blank"
-					>
+					<span className={`${textSize} font-semibold`}>{playlist.title}</span>
+					<Link className={`${textSize} text-accent ml-0.5`} href={playlist.url} target="_blank">
 						Youtube Link
 					</Link>
 				</div>

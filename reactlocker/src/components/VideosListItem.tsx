@@ -12,14 +12,18 @@ export const VideoListItem: React.FC<VideoListItemProps> = ({
 	video,
 	className,
 }) => {
-	const css = `${className} hover:bg-primary-600 rounded-md flex justify-between`;
+	const css = `${className} hover:bg-primary-600 rounded-md flex justify-between cursor-pointer`;
 
 	const imageSize = "md:h-20 sm:h-16 h-16";
 
 	const textSize = "sm:text-lg text-md";
 
+	const open = () => {
+		window.open(video.url, "_blank");
+	};
+
 	return (
-		<div className={css}>
+		<div className={css} onClick={open}>
 			<div className="flex p-1">
 				<img
 					src={video.thumbnail}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { Card } from "../components/Card";
 import { ChannelListItem } from "../components/ChannelListItem";
@@ -6,7 +6,7 @@ import { PlaylistListItem } from "../components/PlaylistListItem";
 import { PlusButton } from "../components/PlusButton";
 import { UserInfoBar } from "../components/UserInfoBar";
 import { VideoListItem } from "../components/VideosListItem";
-import { API } from "../shared/api";
+import { API, PlaylistListResponse } from "../shared/api";
 import { useBearer } from "../shared/hooks/useBearer";
 import { Channel, Playlist, StatCard, Video } from "../shared/types";
 
@@ -39,63 +39,103 @@ const stats: StatCard[] = [
 	},
 ];
 
-const playlists: Playlist[] = [
-	{
-		id: 932423423,
-		youtube: "PLamdXAekZPYiqLDNQXQTbm4N_cPBmLPyr",
-		thumbnail:
-			"https://i.ytimg.com/vi/1PBNAoKd-70/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLCFnLzV-VCKC28TFfjTi5cQL7zXiA",
-		title: "DogeLog",
-		description: "Videos showing Ben Awad as he builds dogehouse.",
-		url:
-			"https://www.youtube.com/playlist?list=PLN3n1USn4xlkZgqq9SdgUXPmgpoxUM9QK",
-		created: new Date(),
-	},
-];
-
 export const DashboardPage: React.FC<RouteComponentProps> = ({ history }) => {
 	const [bearer, setBearer] = useBearer("");
+	const [playlists, setPlaylists] = useState<Playlist[]>([]);
+	const [channels, setChannels] = useState<Channel[]>([]);
+	const [videos, setVideos] = useState<Video[]>([]);
+	const [stats, setStats] = useState<StatCard[]>([]);
 
 	if (bearer == "") {
 		history.push("/login");
 	}
 
-	// API.PlaylistList().then((res) => {
-	// 	console.log(res);
-	// });
+	useEffect(() => {
+		API.PlaylistList(bearer).then((res) => {
+			if (!res.success) {
+				history.push("/login");
+			}
+
+			let [playlistsList, channelsList, videosList] = ParsePlaylistListIntoLists(res);
+			let stats = ParseStats(playlistsList, channelsList, videosList);
+
+			setPlaylists(playlistsList);
+			setChannels(channelsList);
+			setVideos(videosList);
+			setStats(stats);
+		});
+	}, []);
 
 	return (
 		<>
 			<div className="p-4 mx-auto max-w-7xl">
-				<UserInfoBar
-					className="flex-grow"
-					user={user}
-					stats={stats}
-				></UserInfoBar>
+				<UserInfoBar className="flex-grow" user={user} stats={stats}></UserInfoBar>
 			</div>
 			<div className="px-4 mx-auto max-w-7xl grid grid-cols-12 gap-4">
 				<PlaylistList
 					className="xl:col-span-7 lg:col-span-6 col-span-12"
-					playlists={[playlists[0], playlists[0]]}
+					playlists={playlists}
 				></PlaylistList>
-				<VideoList
-					className="xl:col-span-5 lg:col-span-6 col-span-12"
-					videos={[
-						playlists[0],
-						playlists[0],
-						playlists[0],
-						playlists[0],
-						playlists[0],
-					]}
-				></VideoList>
-				<ChannelsList
-					className="col-span-12"
-					channels={[playlists[0], playlists[0], playlists[0]]}
-				></ChannelsList>
+				<VideoList className="xl:col-span-5 lg:col-span-6 col-span-12" videos={videos}></VideoList>
+				<ChannelsList className="col-span-12" channels={channels}></ChannelsList>
 			</div>
 			<div className="px-4 mx-auto max-w-7xl m-3"></div>
 		</>
 	);
+};
+
+const ParsePlaylistListIntoLists = (res: PlaylistListResponse): [Playlist[], Channel[], Video[]] => {
+	let items = res.items;
+
+	let channels: Channel[] = [];
+	let videos: Video[] = [];
+
+	items.forEach((playlist) => {
+		channels.push(...playlist.Channels);
+	});
+
+	items.forEach((playlist) => {
+		videos.push(...playlist.Videos);
+	});
+
+	channels = channels.sort((a: Channel, b: Channel) => {
+		return a.created.getTime() - b.created.getTime();
+	});
+
+	videos = videos.sort((a: Video, b: Video) => {
+		return a.created.getTime() - b.created.getTime();
+	});
+
+	return [items, channels, videos];
+};
+
+const ParseStats = (playlists: Playlist[], channels: Channel[], videos: Video[]): StatCard[] => {
+	let today = new Date();
+
+	let date = videos.length > 0 ? videos[0].created : today;
+
+	return [
+		{
+			header: "Playlists",
+			count: playlists.length,
+			measurement: "total",
+		},
+		{
+			header: "Videos",
+			count: videos.length,
+			measurement: "total",
+		},
+		{
+			header: "Subscriptions",
+			count: channels.length,
+			measurement: "total",
+		},
+		{
+			header: "Updated",
+			count: date.getHours() - today.getHours(),
+			measurement: "hours ago",
+		},
+	];
 };
 
 interface PlaylistListProps {
@@ -103,12 +143,13 @@ interface PlaylistListProps {
 	playlists: Playlist[];
 }
 
-export const PlaylistList: React.FC<PlaylistListProps> = ({
-	className,
-	playlists,
-}) => {
-	let list = playlists.map((playlist) => {
-		return <PlaylistListItem playlist={playlist}></PlaylistListItem>;
+export const PlaylistList: React.FC<PlaylistListProps> = ({ className, playlists }) => {
+	let list = playlists.map((playlist, index) => {
+		if (index >= 5) {
+			return;
+		}
+
+		return <PlaylistListItem key={index} playlist={playlist}></PlaylistListItem>;
 	});
 
 	return (
@@ -130,8 +171,12 @@ interface VideoListProps {
 }
 
 export const VideoList: React.FC<VideoListProps> = ({ className, videos }) => {
-	let list = videos.map((video) => {
-		return <VideoListItem video={video}></VideoListItem>;
+	let list = videos.map((video, index) => {
+		if (index >= 5) {
+			return;
+		}
+
+		return <VideoListItem key={index} video={video}></VideoListItem>;
 	});
 
 	return (
@@ -151,12 +196,13 @@ interface ChannelsListProp {
 	channels: Channel[];
 }
 
-export const ChannelsList: React.FC<ChannelsListProp> = ({
-	className,
-	channels,
-}) => {
-	let list = channels.map((channel) => {
-		return <ChannelListItem channel={channel}></ChannelListItem>;
+export const ChannelsList: React.FC<ChannelsListProp> = ({ className, channels }) => {
+	let list = channels.map((channel, index) => {
+		if (index >= 5) {
+			return;
+		}
+
+		return <ChannelListItem key={index} channel={channel}></ChannelListItem>;
 	});
 
 	return (
