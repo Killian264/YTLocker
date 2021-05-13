@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
-import { Card } from "../components/Card";
-import { ChannelListItem } from "../components/ChannelListItem";
 import { ChannelsList, PlaylistList, VideoList } from "../components/ListCards";
-import { PlaylistListItem } from "../components/PlaylistListItem";
-import { PlusButton } from "../components/PlusButton";
 import { UserInfoBar } from "../components/UserInfoBar";
-import { VideoListItem } from "../components/VideosListItem";
 import { API, PlaylistListResponse } from "../shared/api";
 import { useBearer } from "../shared/hooks/useBearer";
 import { Channel, Playlist, StatCard, User, Video } from "../shared/types";
@@ -24,7 +19,21 @@ export const DashboardPage: React.FC<RouteComponentProps> = ({ history }) => {
 	}
 
 	useEffect(() => {
-		API.PlaylistList(bearer).then((res) => {
+		(async () => {
+			let res = await API.UserInformation(bearer);
+
+			if (!res.success) {
+				history.push("/login");
+			}
+
+			setUser(res.user);
+		})();
+	}, [bearer, history]);
+
+	useEffect(() => {
+		(async () => {
+			let res = await API.PlaylistList(bearer);
+
 			if (!res.success) {
 				history.push("/login");
 			}
@@ -36,21 +45,11 @@ export const DashboardPage: React.FC<RouteComponentProps> = ({ history }) => {
 			setChannels(channelsList);
 			setVideos(videosList);
 			setStats(stats);
-		});
+		})();
 	}, [bearer, history]);
 
-	useEffect(() => {
-		API.UserInformation(bearer).then((res) => {
-			if (!res.success) {
-				history.push("/login");
-			}
-
-			setUser(res.user);
-		});
-	}, []);
-
 	return (
-		<>
+		<div>
 			<div className="p-4 mx-auto max-w-7xl">
 				{user !== null && <UserInfoBar className="flex-grow" user={user} stats={stats}></UserInfoBar>}
 			</div>
@@ -58,26 +57,34 @@ export const DashboardPage: React.FC<RouteComponentProps> = ({ history }) => {
 				<PlaylistList
 					className="xl:col-span-7 lg:col-span-6 col-span-12"
 					playlists={playlists}
+					limit={5}
 				></PlaylistList>
-				<VideoList className="xl:col-span-5 lg:col-span-6 col-span-12" videos={videos}></VideoList>
-				<ChannelsList className="col-span-12" channels={channels}></ChannelsList>
+				<VideoList
+					className="xl:col-span-5 lg:col-span-6 col-span-12"
+					videos={videos}
+					limit={5}
+				></VideoList>
+				<ChannelsList
+					className="col-span-12"
+					channels={channels}
+					limit={Number.MAX_VALUE}
+				></ChannelsList>
 			</div>
 			<div className="px-4 mx-auto max-w-7xl m-3"></div>
-		</>
+		</div>
 	);
 };
 
 const ParsePlaylistListIntoLists = (res: PlaylistListResponse): [Playlist[], Channel[], Video[]] => {
-	let items = res.items;
-
+	let playlists = res.items;
 	let channels: Channel[] = [];
 	let videos: Video[] = [];
 
-	items.forEach((playlist) => {
+	playlists.forEach((playlist) => {
 		channels.push(...playlist.Channels);
 	});
 
-	items.forEach((playlist) => {
+	playlists.forEach((playlist) => {
 		videos.push(...playlist.Videos);
 	});
 
@@ -89,7 +96,7 @@ const ParsePlaylistListIntoLists = (res: PlaylistListResponse): [Playlist[], Cha
 		return b.created.getTime() - a.created.getTime();
 	});
 
-	return [items, channels, videos];
+	return [playlists, channels, videos];
 };
 
 const ParseStats = (playlists: Playlist[], channels: Channel[], videos: Video[]): StatCard[] => {

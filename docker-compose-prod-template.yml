@@ -20,8 +20,6 @@ services:
 
     golang_api:
         build: golocker
-        depends_on:
-            - mysql_db
         volumes:
             - ./golocker:/go/src/golocker
         ports:

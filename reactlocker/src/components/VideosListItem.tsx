@@ -8,15 +8,12 @@ export interface VideoListItemProps {
 	video: Video;
 }
 
-export const VideoListItem: React.FC<VideoListItemProps> = ({
-	video,
-	className,
-}) => {
+export const VideoListItem: React.FC<VideoListItemProps> = ({ video, className }) => {
 	const css = `${className} hover:bg-primary-600 rounded-md flex justify-between cursor-pointer`;
 
 	const imageSize = "md:h-20 sm:h-16 h-16";
 
-	const textSize = "sm:text-lg text-md";
+	const textSize = "sm:text-md text-md";
 
 	const open = () => {
 		window.open(video.url, "_blank");
@@ -25,20 +22,10 @@ export const VideoListItem: React.FC<VideoListItemProps> = ({
 	return (
 		<div className={css} onClick={open}>
 			<div className="flex p-1">
-				<img
-					src={video.thumbnail}
-					alt="Logo"
-					className={`rounded-lg object-cover ${imageSize}`}
-				/>
+				<img src={video.thumbnail} alt="Logo" className={`rounded-lg object-cover ${imageSize}`} />
 				<div className="pl-3 flex flex-col">
-					<span className={`${textSize} font-semibold`}>
-						{video.title}
-					</span>
-					<Link
-						className={`${textSize} text-accent ml-0.5`}
-						href={video.url}
-						target="_blank"
-					>
+					<span className={`${textSize} font-semibold`}>{video.title}</span>
+					<Link className={`${textSize} text-accent ml-0.5`} href={video.url} target="_blank">
 						Youtube Link
 					</Link>
 				</div>

@@ -8,11 +8,12 @@ import { VideoListItem } from "./VideosListItem";
 interface PlaylistListProps {
 	className?: string;
 	playlists: Playlist[];
+	limit: number;
 }
 
-export const PlaylistList: React.FC<PlaylistListProps> = ({ className, playlists }) => {
+export const PlaylistList: React.FC<PlaylistListProps> = ({ className, playlists, limit }) => {
 	let list = playlists.map((playlist, index) => {
-		if (index >= 5) {
+		if (index >= limit) {
 			return "";
 		}
 
@@ -35,11 +36,12 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({ className, playlists
 interface VideoListProps {
 	className?: string;
 	videos: Video[];
+	limit: number;
 }
 
-export const VideoList: React.FC<VideoListProps> = ({ className, videos }) => {
+export const VideoList: React.FC<VideoListProps> = ({ className, videos, limit }) => {
 	let list = videos.map((video, index) => {
-		if (index >= 5) {
+		if (index >= limit) {
 			return "";
 		}
 
@@ -61,11 +63,12 @@ export const VideoList: React.FC<VideoListProps> = ({ className, videos }) => {
 interface ChannelsListProp {
 	className?: string;
 	channels: Channel[];
+	limit: number;
 }
 
-export const ChannelsList: React.FC<ChannelsListProp> = ({ className, channels }) => {
+export const ChannelsList: React.FC<ChannelsListProp> = ({ className, channels, limit }) => {
 	let list = channels.map((channel, index) => {
-		if (index >= 5) {
+		if (index >= limit) {
 			return "";
 		}
 

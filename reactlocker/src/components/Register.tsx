@@ -33,7 +33,6 @@ export const Register: React.FC<RegisterProps> = ({ onSubmit, onClickLogin }) =>
 	}, [user, setUser]);
 
 	const formSubmit = () => {
-		console.log("hello");
 		let fields = validateFields(user, false);
 		setValid(fields);
 

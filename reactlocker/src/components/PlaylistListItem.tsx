@@ -13,7 +13,7 @@ export const PlaylistListItem: React.FC<PlaylistItemProps> = ({ playlist, classN
 
 	const imageSize = "md:h-20 sm:h-16 h-16";
 
-	const textSize = "sm:text-lg text-md";
+	const textSize = "sm:text-md text-md";
 
 	const open = () => {
 		window.open(playlist.url, "_blank");

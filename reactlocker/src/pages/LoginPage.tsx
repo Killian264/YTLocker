@@ -21,39 +21,37 @@ export const LoginPage: React.FC<LoginPageProps> = ({ className, history }) => {
 		type: "success",
 	});
 
-	const login = (user: UserLogin) => {
-		API.UserLogin(user).then((res) => {
-			if (res.success) {
-				setBearer(res.bearer);
-				history.push("/");
-				return;
-			}
+	const login = async (user: UserLogin) => {
+		let res = await API.UserLogin(user);
 
-			const alert: AlertProps = {
-				message: "The provided email and password were incorrect. User may not exist.",
-				type: "failure",
-			};
+		if (res.success) {
+			setBearer(res.bearer);
+			history.push("/");
+			return;
+		}
 
-			setAlert(alert);
-		});
+		const alert: AlertProps = {
+			message: "The provided email and password were incorrect. User may not exist.",
+			type: "failure",
+		};
+
+		setAlert(alert);
 	};
 
-	const register = (user: UserRegister) => {
-		console.log("hello");
+	const register = async (user: UserRegister) => {
+		let res = await API.UserRegister(user);
 
-		API.UserRegister(user).then((res) => {
-			if (res.success) {
-				setPage("login");
-			}
+		if (res.success) {
+			setPage("login");
+		}
 
-			const type = res.success ? "success" : "failure";
+		const type = res.success ? "success" : "failure";
 
-			const message = res.success ? "Successfully created user account." : res.message;
+		const message = res.success ? "Successfully created user account." : res.message;
 
-			setAlert({
-				message: message,
-				type: type,
-			});
+		setAlert({
+			message: message,
+			type: type,
 		});
 	};
 

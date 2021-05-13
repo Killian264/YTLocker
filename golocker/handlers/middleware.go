@@ -41,8 +41,6 @@ func CreateResponseWriter(l *log.Logger) func(next ErrorHandler) Handler {
 			w.WriteHeader(res.Status)
 			w.Write(marshaled)
 
-			// now := time.Now().Format("2006-01-02 15:04:05")
-			// l.Printf("[%s] %s - - %s %s %s %d %d", now, r.RemoteAddr, r.Method, r.URL, r.Proto, res.Status, len(marshaled))
 			l.Printf("%s - - %s %s %s %d %d", r.RemoteAddr, r.Method, r.URL, r.Proto, res.Status, len(marshaled))
 		}
 	}
