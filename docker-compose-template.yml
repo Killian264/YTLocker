@@ -1,8 +1,7 @@
 version: "3.8"
 services:
     mysql_db:
-        build:
-            mysqllocker
+        build: mysqllocker
         restart: always
         ports:
             - 3306:3306
@@ -20,8 +19,7 @@ services:
             - default
 
     test_db:
-        build:
-            mysqllocker
+        build: mysqllocker
         restart: always
         ports:
             - 9906:9906
@@ -39,9 +37,8 @@ services:
             - /var/lib/mysql
 
     golang_api:
-        build:
-            golocker
-        depends_on: 
+        build: golocker
+        depends_on:
             - mysql_db
         volumes:
             - ./golocker:/go/src/golocker
@@ -57,12 +54,12 @@ services:
             GO_API_HOST: ""
             GO_API_PORT: "8080"
             ADMIN_BEARER: "TEMP_ADMIN_BEARER"
+            WEB_URL: "*"
         networks:
             - default
 
     react_web:
-        build:
-            reactlocker
+        build: reactlocker
         volumes:
             - ./reactlocker:/app
         ports:
@@ -70,13 +67,13 @@ services:
         environment:
             CHOKIDAR_USEPOLLING: "true"
             SKIP_PREFLIGHT_CHECK: "true"
+            REACT_APP_DROPLET_URL: "http://localhost:8080"
         command: ["yarn", "start"]
         networks:
             - default
 
     story_book:
-        build:
-            reactlocker
+        build: reactlocker
         volumes:
             - ./reactlocker:/app
         ports:
@@ -84,10 +81,10 @@ services:
         environment:
             CHOKIDAR_USEPOLLING: "true"
             SKIP_PREFLIGHT_CHECK: "true"
+            REACT_APP_DROPLET_URL: "http://localhost:8080"
         command: ["yarn", "storybook"]
         networks:
             - default
-
 
 networks:
     default:

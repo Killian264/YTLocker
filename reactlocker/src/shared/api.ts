@@ -1,6 +1,5 @@
-import { Channel, Playlist, UserLogin, UserRegister, Video } from "./types";
+import { Channel, Playlist, User, UserLogin, Video } from "./types";
 import { DROPLET_BASE } from "./env";
-import { useBearer } from "./hooks/useBearer";
 
 interface ApiResponse {
 	success: boolean;
@@ -11,7 +10,7 @@ interface InternalResponse extends ApiResponse {
 	data: any;
 }
 
-interface LoginResponse extends ApiResponse {
+interface UserLoginResponse extends ApiResponse {
 	bearer: string;
 }
 
@@ -22,6 +21,10 @@ export interface PlaylistListItem extends Playlist {
 
 export interface PlaylistListResponse extends ApiResponse {
 	items: PlaylistListItem[];
+}
+
+export interface UserInformationResponse extends ApiResponse {
+	user: User | null;
 }
 
 const Login = (user: UserLogin) => {
@@ -55,9 +58,26 @@ const PlaylistList = (bearer: string) => {
 		.then((data) => ParsePlaylistListResponse(data));
 };
 
+const UserInformation = (bearer: string) => {
+	const url = DROPLET_BASE + "/user/information";
+
+	const options = {
+		method: "GET",
+		headers: {
+			Authorization: bearer,
+		},
+	};
+
+	return fetch(url, options)
+		.then((res) => res.json())
+		.then((data) => ParseApiResponse(data))
+		.then((data) => ParseUserInformationResponse(data));
+};
+
 export const API = {
-	Login,
+	UserLogin: Login,
 	PlaylistList,
+	UserInformation,
 };
 
 const ParsePlaylistListResponse = (res: InternalResponse): PlaylistListResponse => {
@@ -91,6 +111,38 @@ const ParsePlaylistListResponse = (res: InternalResponse): PlaylistListResponse 
 	return {
 		...res,
 		items: playlists,
+	};
+};
+
+const ParseLoginResponse = (data: InternalResponse): UserLoginResponse => {
+	if (!data.success) {
+		return {
+			...data,
+			bearer: "",
+		};
+	}
+
+	return {
+		...data,
+		bearer: data.success ? data.data.Bearer : "",
+	};
+};
+
+const ParseUserInformationResponse = (data: InternalResponse): UserInformationResponse => {
+	if (!data.success) {
+		return {
+			...data,
+			user: null,
+		};
+	}
+
+	return {
+		...data,
+		user: {
+			username: data.data.Username,
+			email: data.data.Email,
+			joined: new Date(Date.parse(data.data.CreatedAt)),
+		},
 	};
 };
 
@@ -138,13 +190,6 @@ const ParseVideos = (json: any, playlist: Playlist): Video[] => {
 	});
 
 	return videos;
-};
-
-const ParseLoginResponse = (data: InternalResponse): LoginResponse => {
-	return {
-		...data,
-		bearer: data.success ? data.data.Bearer : "",
-	};
 };
 
 const ParseApiResponse = (data: any): InternalResponse => {

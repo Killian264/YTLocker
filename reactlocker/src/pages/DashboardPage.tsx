@@ -8,45 +8,17 @@ import { UserInfoBar } from "../components/UserInfoBar";
 import { VideoListItem } from "../components/VideosListItem";
 import { API, PlaylistListResponse } from "../shared/api";
 import { useBearer } from "../shared/hooks/useBearer";
-import { Channel, Playlist, StatCard, Video } from "../shared/types";
-
-const user = {
-	username: "Killian",
-	email: "killiandebacker@gmail.com",
-	joined: "Mar 13 2021",
-};
-
-const stats: StatCard[] = [
-	{
-		header: "Playlists",
-		count: 454,
-		measurement: "total",
-	},
-	{
-		header: "Videos",
-		count: 357,
-		measurement: "total",
-	},
-	{
-		header: "Subscriptions",
-		count: 17,
-		measurement: "total",
-	},
-	{
-		header: "Updated",
-		count: 13,
-		measurement: "seconds ago",
-	},
-];
+import { Channel, Playlist, StatCard, User, Video } from "../shared/types";
 
 export const DashboardPage: React.FC<RouteComponentProps> = ({ history }) => {
-	const [bearer, setBearer] = useBearer("");
+	const [bearer] = useBearer("");
 	const [playlists, setPlaylists] = useState<Playlist[]>([]);
 	const [channels, setChannels] = useState<Channel[]>([]);
 	const [videos, setVideos] = useState<Video[]>([]);
 	const [stats, setStats] = useState<StatCard[]>([]);
+	const [user, setUser] = useState<User | null>(null);
 
-	if (bearer == "") {
+	if (bearer === "") {
 		history.push("/login");
 	}
 
@@ -64,12 +36,22 @@ export const DashboardPage: React.FC<RouteComponentProps> = ({ history }) => {
 			setVideos(videosList);
 			setStats(stats);
 		});
-	}, []);
+	}, [bearer, history]);
+
+	useEffect(() => {
+		API.UserInformation(bearer).then((res) => {
+			if (!res.success) {
+				history.push("/login");
+			}
+
+			setUser(res.user);
+		});
+	});
 
 	return (
 		<>
 			<div className="p-4 mx-auto max-w-7xl">
-				<UserInfoBar className="flex-grow" user={user} stats={stats}></UserInfoBar>
+				{user !== null && <UserInfoBar className="flex-grow" user={user} stats={stats}></UserInfoBar>}
 			</div>
 			<div className="px-4 mx-auto max-w-7xl grid grid-cols-12 gap-4">
 				<PlaylistList
@@ -146,7 +128,7 @@ interface PlaylistListProps {
 export const PlaylistList: React.FC<PlaylistListProps> = ({ className, playlists }) => {
 	let list = playlists.map((playlist, index) => {
 		if (index >= 5) {
-			return;
+			return "";
 		}
 
 		return <PlaylistListItem key={index} playlist={playlist}></PlaylistListItem>;
@@ -173,7 +155,7 @@ interface VideoListProps {
 export const VideoList: React.FC<VideoListProps> = ({ className, videos }) => {
 	let list = videos.map((video, index) => {
 		if (index >= 5) {
-			return;
+			return "";
 		}
 
 		return <VideoListItem key={index} video={video}></VideoListItem>;
@@ -199,7 +181,7 @@ interface ChannelsListProp {
 export const ChannelsList: React.FC<ChannelsListProp> = ({ className, channels }) => {
 	let list = channels.map((channel, index) => {
 		if (index >= 5) {
-			return;
+			return "";
 		}
 
 		return <ChannelListItem key={index} channel={channel}></ChannelListItem>;

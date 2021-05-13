@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Alert, AlertProps } from "../components/Alert";
 import { Login } from "../components/Login";
 import { Register } from "../components/Register";
@@ -15,14 +15,14 @@ export interface LoginPageProps extends RouteComponentProps {
 
 export const LoginPage: React.FC<LoginPageProps> = ({ className, history }) => {
 	const [page, setPage] = React.useState("login");
-	const [bearer, setBearer] = useBearer("success");
+	const [, setBearer] = useBearer("success");
 	const [alert, setAlert] = useAlert({
 		message: "",
 		type: "success",
 	});
 
 	const login = (user: UserLogin) => {
-		API.Login(user).then((res) => {
+		API.UserLogin(user).then((res) => {
 			if (res.success) {
 				setBearer(res.bearer);
 				history.push("/");
@@ -30,8 +30,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ className, history }) => {
 			}
 
 			const alert: AlertProps = {
-				message:
-					"The provided email and password were incorrect. User may not exist.",
+				message: "The provided email and password were incorrect. User may not exist.",
 				type: "failure",
 			};
 

@@ -1,7 +1,7 @@
 export interface User {
 	username: string;
 	email: string;
-	joined: string;
+	joined: Date;
 }
 
 export interface UserLogin {

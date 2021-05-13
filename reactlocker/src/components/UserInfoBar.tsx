@@ -10,12 +10,7 @@ export interface UserInfoBarProps {
 	stats: StatCard[];
 }
 
-export const UserInfoBar: React.FC<UserInfoBarProps> = ({
-	user,
-	stats,
-	className,
-	...props
-}) => {
+export const UserInfoBar: React.FC<UserInfoBarProps> = ({ user, stats, className, ...props }) => {
 	return (
 		<div className={`${className} flex`} {...props}>
 			<UserProfile />
@@ -45,7 +40,7 @@ const BarHeader: React.FC<BarHeaderProps> = ({ user }) => {
 				</Badge>
 			</div>
 			<div className="flex flex-col justify-end">
-				<span className="text-sm leading-none">{`Joined ${user.joined}`}</span>
+				<span className="text-sm leading-none">{`Joined ${user.joined.toDateString()}`}</span>
 			</div>
 		</div>
 	);
@@ -60,17 +55,9 @@ const MultiCard: React.FC<MultiCardProps> = ({ stats }) => {
 		return <StatsCard key={index} {...stat} />;
 	});
 
-	return (
-		<div className="grid xs:grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 max-w-7xl">
-			{cards}
-		</div>
-	);
+	return <div className="grid xs:grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 max-w-7xl">{cards}</div>;
 };
 
 const UserProfile: React.FC<{}> = () => {
-	return (
-		<div className="bg-primary-700 p-32 rounded-md mr-3 hidden md:block">
-			{" "}
-		</div>
-	);
+	return <div className="bg-primary-700 p-32 rounded-md mr-3 hidden md:block"> </div>;
 };

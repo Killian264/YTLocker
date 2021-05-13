@@ -1,5 +1,4 @@
 import { Story } from "@storybook/react";
-import React from "react";
 import { UserInfoBar, UserInfoBarProps } from "../components/UserInfoBar";
 
 export default {
@@ -10,7 +9,7 @@ export default {
 const user = {
 	username: "Killian",
 	email: "killiandebacker@gmail.com",
-	joined: "Mar 13 2021",
+	joined: new Date(),
 };
 
 const statsCards = [
