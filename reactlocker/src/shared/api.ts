@@ -1,4 +1,4 @@
-import { Channel, Playlist, User, UserLogin, Video } from "./types";
+import { Channel, Playlist, User, UserLogin, UserRegister, Video } from "./types";
 import { DROPLET_BASE } from "./env";
 
 interface ApiResponse {
@@ -42,6 +42,21 @@ const Login = (user: UserLogin) => {
 		.then((data) => ParseLoginResponse(data));
 };
 
+const Register = (user: UserRegister) => {
+	const url = DROPLET_BASE + "/user/register";
+
+	const options = {
+		method: "POST",
+		headers: {},
+		body: JSON.stringify(user),
+	};
+
+	return fetch(url, options)
+		.then((res) => res.json())
+		.then((data) => ParseApiResponse(data))
+		.then((data) => ParseRegisterResponse(data));
+};
+
 const PlaylistList = (bearer: string) => {
 	const url = DROPLET_BASE + "/playlist/list";
 
@@ -76,6 +91,7 @@ const UserInformation = (bearer: string) => {
 
 export const API = {
 	UserLogin: Login,
+	UserRegister: Register,
 	PlaylistList,
 	UserInformation,
 };
@@ -125,6 +141,12 @@ const ParseLoginResponse = (data: InternalResponse): UserLoginResponse => {
 	return {
 		...data,
 		bearer: data.success ? data.data.Bearer : "",
+	};
+};
+
+const ParseRegisterResponse = (data: InternalResponse): ApiResponse => {
+	return {
+		...data,
 	};
 };
 

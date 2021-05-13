@@ -39,10 +39,21 @@ export const LoginPage: React.FC<LoginPageProps> = ({ className, history }) => {
 	};
 
 	const register = (user: UserRegister) => {
-		setPage("login");
-		setAlert({
-			message: "Successfully created user account.",
-			type: "success",
+		console.log("hello");
+
+		API.UserRegister(user).then((res) => {
+			if (res.success) {
+				setPage("login");
+			}
+
+			const type = res.success ? "success" : "failure";
+
+			const message = res.success ? "Successfully created user account." : res.message;
+
+			setAlert({
+				message: message,
+				type: type,
+			});
 		});
 	};
 

@@ -13,10 +13,7 @@ export interface RegisterProps {
 
 const err = "border-2 border-red-500";
 
-export const Register: React.FC<RegisterProps> = ({
-	onSubmit,
-	onClickLogin,
-}) => {
+export const Register: React.FC<RegisterProps> = ({ onSubmit, onClickLogin }) => {
 	const [user, setUser] = React.useState<UserRegister>({
 		username: "",
 		email: "",
@@ -36,16 +33,12 @@ export const Register: React.FC<RegisterProps> = ({
 	}, [user, setUser]);
 
 	const formSubmit = () => {
+		console.log("hello");
 		let fields = validateFields(user, false);
 		setValid(fields);
 
 		// TODO learn how to iterate instead
-		if (
-			fields.username ||
-			fields.email ||
-			fields.password ||
-			fields.password2
-		) {
+		if (!fields.username || !fields.email || !fields.password || !fields.password2) {
 			return;
 		}
 
