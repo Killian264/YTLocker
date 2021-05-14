@@ -1,11 +1,10 @@
 import React from "react";
 
-export interface ButtonProps
-	extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 	color: keyof typeof colors;
 	size: keyof typeof sizes;
-	disabled: boolean;
-	loading: boolean;
+	disabled?: boolean;
+	loading?: boolean;
 }
 
 const sizes = {
@@ -25,8 +24,8 @@ export const Button: React.FC<ButtonProps> = ({
 	className,
 	size,
 	color,
-	disabled,
-	loading,
+	disabled = false,
+	loading = false,
 	children,
 	...props
 }) => {
@@ -34,7 +33,7 @@ export const Button: React.FC<ButtonProps> = ({
 		<button
 			disabled={disabled || loading}
 			type="button"
-			className={`${className} ${sizes[size]}  ${colors[color]} font-bold`}
+			className={`${className} ${sizes[size]}  ${colors[color]} font-bold focus:outline-none`}
 			{...props}
 		>
 			{children}
