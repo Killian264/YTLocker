@@ -23,9 +23,36 @@ export const Modal: React.FC<ModalProps> = ({ header, body, AcceptClick, RejectC
 		setTimeout(AcceptClick, 300);
 	};
 
+	const modalCSSReqs = "inline-block w-full overflow-hidden align-middle transition-all transform";
+
+	return (
+		<ModalDialogWrapper isOpen={isOpen} CloseClick={reject}>
+			<div className={`${modalCSSReqs} bg-primary-700 max-w-xs p-6 my-8 text-left rounded-2xl`}>
+				<span className="text-lg font-medium leading-6">{header}</span>
+				<p className="mt-2 text-sm">{body}</p>
+
+				<div className="mt-4 flex justify-between">
+					<Button onClick={accept} size={"medium"} color={"primary"}>
+						Confirm
+					</Button>
+					<Button onClick={reject} className={"ml-2"} size={"medium"} color={"secondary"}>
+						Reject
+					</Button>
+				</div>
+			</div>
+		</ModalDialogWrapper>
+	);
+};
+
+export interface ModalDialogWrapperProps {
+	isOpen: boolean;
+	CloseClick: () => void;
+}
+
+export const ModalDialogWrapper: React.FC<ModalDialogWrapperProps> = ({ isOpen, CloseClick, children }) => {
 	return (
 		<Transition appear show={isOpen} as={Fragment}>
-			<Dialog as="div" className="fixed inset-0 z-10 overflow-y-auto" onClose={reject}>
+			<Dialog as="div" className="fixed inset-0 z-10 overflow-y-auto" onClose={CloseClick}>
 				<div className="min-h-screen px-4 text-center">
 					<Transition.Child
 						as={Fragment}
@@ -51,26 +78,7 @@ export const Modal: React.FC<ModalProps> = ({ header, body, AcceptClick, RejectC
 						leaveFrom="opacity-100 scale-100"
 						leaveTo="opacity-0 scale-95"
 					>
-						<div className="bg-primary-700 inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform rounded-2xl">
-							<Dialog.Title as="h3" className="text-lg font-medium leading-6">
-								{header}
-							</Dialog.Title>
-							<p className="mt-2 text-sm">{body}</p>
-
-							<div className="mt-4">
-								<Button onClick={accept} size={"medium"} color={"primary"}>
-									Confirm
-								</Button>
-								<Button
-									onClick={reject}
-									className={"ml-2"}
-									size={"medium"}
-									color={"secondary"}
-								>
-									Reject
-								</Button>
-							</div>
-						</div>
+						{children}
 					</Transition.Child>
 				</div>
 			</Dialog>
