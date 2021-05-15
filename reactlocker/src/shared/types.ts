@@ -29,6 +29,8 @@ export interface Playlist {
 	title: string;
 	description: string;
 	url: string;
+	Channels: Channel[];
+	Videos: Video[];
 	created: Date;
 }
 

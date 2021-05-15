@@ -76,7 +76,7 @@ export const DashboardPage: React.FC<RouteComponentProps> = ({ history }) => {
 };
 
 const ParsePlaylistListIntoLists = (res: PlaylistListResponse): [Playlist[], Channel[], Video[]] => {
-	let playlists = res.items;
+	let playlists = res.playlists;
 	let channels: Channel[] = [];
 	let videos: Video[] = [];
 

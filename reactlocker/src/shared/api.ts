@@ -14,17 +14,12 @@ interface UserLoginResponse extends ApiResponse {
 	bearer: string;
 }
 
-export interface PlaylistListItem extends Playlist {
-	Channels: Channel[];
-	Videos: Video[];
+export interface UserInformationResponse extends ApiResponse {
+	user: User | null;
 }
 
 export interface PlaylistListResponse extends ApiResponse {
-	items: PlaylistListItem[];
-}
-
-export interface UserInformationResponse extends ApiResponse {
-	user: User | null;
+	playlists: Playlist[];
 }
 
 const Login = (user: UserLogin) => {
@@ -100,11 +95,11 @@ const ParsePlaylistListResponse = (res: InternalResponse): PlaylistListResponse 
 	if (!res.success) {
 		return {
 			...res,
-			items: [],
+			playlists: [],
 		};
 	}
 
-	let playlists: PlaylistListItem[] = res.data.map((playlistJSON: any) => {
+	let playlists: Playlist[] = res.data.map((playlistJSON: any) => {
 		let thumbnail = playlistJSON.Thumbnails[playlistJSON.Thumbnails.length - 1];
 
 		let playlist: Playlist = {
@@ -115,6 +110,8 @@ const ParsePlaylistListResponse = (res: InternalResponse): PlaylistListResponse 
 			description: playlistJSON.Description,
 			url: "https://www.youtube.com/playlist?list=" + playlistJSON.YoutubeID,
 			created: new Date(Date.parse(playlistJSON.CreatedAt)),
+			Videos: [],
+			Channels: [],
 		};
 
 		return {
@@ -126,7 +123,7 @@ const ParsePlaylistListResponse = (res: InternalResponse): PlaylistListResponse 
 
 	return {
 		...res,
-		items: playlists,
+		playlists: playlists,
 	};
 };
 

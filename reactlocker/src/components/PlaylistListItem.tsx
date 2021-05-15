@@ -1,7 +1,7 @@
 import React from "react";
 import { Playlist } from "../shared/types";
 import { Link } from "./Link";
-import { Arrow } from "./Svg";
+import { RightArrow } from "./Svg";
 
 export interface PlaylistItemProps {
 	className?: string;
@@ -31,7 +31,7 @@ export const PlaylistListItem: React.FC<PlaylistItemProps> = ({ playlist, classN
 				</div>
 			</div>
 			<div className="mr-2 my-auto select-none">
-				<Arrow size={24}></Arrow>
+				<RightArrow size={24}></RightArrow>
 			</div>
 		</div>
 	);

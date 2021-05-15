@@ -1,13 +1,14 @@
 import { Story } from "@storybook/react";
 import { useState } from "react";
 import { Modal } from "../components/Modal";
+import { sString } from "./utils/utils";
 
 export default {
 	title: "Modal",
 	component: Modal,
 };
 
-const Mocked: Story<{}> = () => {
+const Mocked: Story<{}> = ({ ...props }) => {
 	let [isOpen, setIsOpen] = useState(true);
 
 	setTimeout(() => {
@@ -36,4 +37,7 @@ const Mocked: Story<{}> = () => {
 
 export const Primary = Mocked.bind({});
 
-Primary.argTypes = {};
+Primary.argTypes = {
+	header: sString(),
+	body: sString(),
+};
