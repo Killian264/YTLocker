@@ -63,10 +63,10 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 							<span className="md:text-3xl text-2xl font-semibold">{playlist.title}</span>
 							<div className="flex gap-2">
 								<SvgBox className="text-primary-200 border-primary-200" onClick={edit}>
-									<Cog size={32}></Cog>
+									<Cog size={28}></Cog>
 								</SvgBox>
 								<SvgBox className="text-red-500 border-red-500" onClick={remove}>
-									<Trash className="text-red-500" size={32}></Trash>
+									<Trash className="text-red-500" size={28}></Trash>
 								</SvgBox>
 							</div>
 						</div>
