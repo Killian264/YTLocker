@@ -2,49 +2,9 @@ package data
 
 import (
 	"github.com/Killian264/YTLocker/golocker/models"
-	"gorm.io/gorm/clause"
 )
 
-func (d *Data) NewYoutubeClientConfig(config *models.YoutubeClientConfig) error {
-	config.ID = d.rand.ID()
-
-	result := d.db.Create(&config)
-
-	return result.Error
-}
-
-func (d *Data) NewYoutubeToken(token *models.YoutubeToken) error {
-	token.ID = d.rand.ID()
-
-	result := d.db.Create(&token)
-
-	return result.Error
-}
-
-func (d *Data) GetFirstYoutubeClientConfig() (*models.YoutubeClientConfig, error) {
-	config := models.YoutubeClientConfig{}
-
-	result := d.db.First(&config)
-
-	if result.Error != nil || notFound(result.Error) {
-		return nil, removeNotFound(result.Error)
-	}
-
-	return &config, nil
-}
-func (d *Data) GetFirstYoutubeToken() (*models.YoutubeToken, error) {
-	token := models.YoutubeToken{}
-
-	result := d.db.First(&token)
-
-	if result.Error != nil || notFound(result.Error) {
-		return nil, removeNotFound(result.Error)
-	}
-
-	return &token, nil
-}
-
-func (d *Data) NewPlaylist(userID uint64, playlist *models.Playlist) error {
+func (d *Data) NewPlaylist(userID uint64, playlist models.Playlist) (models.Playlist, error) {
 
 	playlist.ID = d.rand.ID()
 
@@ -56,59 +16,48 @@ func (d *Data) NewPlaylist(userID uint64, playlist *models.Playlist) error {
 
 	result := d.db.Create(&playlist)
 
-	return result.Error
-
+	return playlist, result.Error
 }
 
-func (d *Data) GetPlaylist(userID uint64, playlistID uint64) (*models.Playlist, error) {
-	playlist := &models.Playlist{ID: playlistID}
+func (d *Data) GetPlaylist(playlistID uint64) (models.Playlist, error) {
+	playlist := models.Playlist{ID: playlistID}
 
-	result := d.db.Preload(clause.Associations).Where(playlist).First(playlist)
+	result := d.db.Where(playlist).First(&playlist)
 
 	if result.Error != nil || notFound(result.Error) {
-		return nil, removeNotFound(result.Error)
-	}
-
-	if userID != playlist.UserID {
-		return nil, nil
+		return models.Playlist{}, removeNotFound(result.Error)
 	}
 
 	return playlist, nil
 }
 
 func (d *Data) NewPlaylistVideo(playlistID uint64, videoID uint64) error {
-
 	playlist := &models.Playlist{ID: playlistID}
 	video := &models.Video{ID: videoID}
 
 	return d.db.Model(playlist).Association("Videos").Append(video)
-
 }
 
 func (d *Data) NewPlaylistChannel(playlistID uint64, channelID uint64) error {
-
 	playlist := &models.Playlist{ID: playlistID}
 	channel := &models.Channel{ID: channelID}
 
 	return d.db.Model(playlist).Association("Channels").Append(channel)
-
 }
 
 func (d *Data) RemovePlaylistChannel(playlistID uint64, channelID uint64) error {
-
 	playlist := &models.Playlist{ID: playlistID}
 	channel := &models.Channel{ID: channelID}
 
 	return d.db.Model(playlist).Association("Channels").Delete(channel)
-
 }
 
-func (d *Data) GetAllPlaylistsSubscribedTo(channel *models.Channel) (*[]models.Playlist, error) {
-	playlists := &[]models.Playlist{}
+func (d *Data) GetAllPlaylistsSubscribedTo(channel models.Channel) ([]models.Playlist, error) {
+	playlists := []models.Playlist{}
 
 	join := "INNER JOIN playlist_channel ON playlist_channel.channel_id = ? AND playlist_channel.playlist_id = playlists.id"
 
-	result := d.db.Joins(join, channel.ID).Find(playlists)
+	result := d.db.Joins(join, channel.ID).Find(&playlists)
 
 	if result.Error != nil || notFound(result.Error) {
 		return nil, removeNotFound(result.Error)
@@ -118,7 +67,6 @@ func (d *Data) GetAllPlaylistsSubscribedTo(channel *models.Channel) (*[]models.P
 }
 
 func (d *Data) PlaylistHasVideo(playlistID uint64, videoID uint64) (bool, error) {
-
 	playlist := &models.Playlist{ID: playlistID}
 
 	join := "INNER JOIN playlist_video ON playlist_video.video_id = ? AND playlist_video.playlist_id = playlists.id"
@@ -126,19 +74,92 @@ func (d *Data) PlaylistHasVideo(playlistID uint64, videoID uint64) (bool, error)
 	result := d.db.Model(playlist).Joins(join, videoID).First(playlist)
 
 	return !notFound(result.Error), removeNotFound(result.Error)
-
 }
 
-func (d *Data) GetAllUserPlaylists(userID uint64) (*[]models.Playlist, error) {
+func (d *Data) GetAllUserPlaylists(userID uint64) ([]models.Playlist, error) {
+	playlists := []models.Playlist{}
 
-	playlists := &[]models.Playlist{}
-
-	result := d.db.Preload(clause.Associations).Where("user_id = ?", userID).Find(playlists)
+	result := d.db.Where("user_id = ?", userID).Find(&playlists)
 
 	if result.Error != nil || notFound(result.Error) {
 		return playlists, removeNotFound(result.Error)
 	}
 
 	return playlists, nil
+}
 
+func (d *Data) GetAllPlaylistVideos(ID uint64) ([]uint64, error) {
+	type res struct {
+		ID uint64
+	}
+
+	videos := []res{}
+
+	result := d.db.Raw(
+		`SELECT V.video_id AS id FROM playlists P 
+		JOIN playlist_video V
+			ON P.id = V.playlist_id
+		WHERE P.id = ?;`, 
+		ID,
+	).Scan(&videos);
+
+	if removeNotFound(result.Error) != nil {
+		return nil, result.Error
+	}
+
+	ids := []uint64{}
+
+	for _, video := range videos {
+		ids = append(ids, video.ID)
+	}
+
+	return ids, nil;
+}
+
+
+func (d *Data) GetAllPlaylistChannels(ID uint64) ([]uint64, error) {
+	type res struct {
+		ID uint64
+	}
+
+	channels := []res{}
+
+	result := d.db.Raw(
+		`SELECT C.channel_id AS id FROM playlists P 
+		JOIN playlist_channel C
+			ON P.id = C.playlist_id
+		WHERE P.id = ?;`, 
+		ID,
+	).Scan(&channels);
+
+	if removeNotFound(result.Error) != nil {
+		return nil, result.Error
+	}
+
+	ids := []uint64{}
+
+	for _, video := range channels {
+		ids = append(ids, video.ID)
+	}
+
+	return ids, nil;
+}
+
+func (d *Data) GetAllPlaylistThumbnails(ID uint64) ([]models.Thumbnail, error) {
+	thumbnails := []models.Thumbnail{}
+
+	result := d.db.Raw(
+		`SELECT T.* FROM playlists AS P 
+		JOIN thumbnails AS T
+			ON T.owner_id = P.id
+			AND T.owner_type = "playlists"
+		WHERE P.id = ?;`, 
+		ID,
+	).Scan(&thumbnails);
+
+	if removeNotFound(result.Error) != nil {
+		return nil, result.Error
+	}
+
+	return thumbnails, nil;
 }

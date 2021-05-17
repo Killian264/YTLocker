@@ -1,125 +1,44 @@
 package playlist
 
 import (
+	"reflect"
+
 	"github.com/Killian264/YTLocker/golocker/helpers/parsers"
 	"github.com/Killian264/YTLocker/golocker/models"
-	"github.com/Killian264/YTLocker/golocker/services/ytservice"
-	"golang.org/x/oauth2"
-	"google.golang.org/api/youtube/v3"
 )
 
-type IYTPlaylist interface {
-	Initialize(config oauth2.Config, token oauth2.Token) error
-	Create(title string, description string) (*youtube.Playlist, error)
-	Insert(playlistID string, videoID string) error
-}
-
-type IPlaylistManagerData interface {
-	NewPlaylist(userID uint64, playlist *models.Playlist) error
-	GetPlaylist(userID uint64, playlistID uint64) (*models.Playlist, error)
-
-	NewPlaylistVideo(playlistID uint64, videoID uint64) error
-	NewPlaylistChannel(playlistID uint64, channelID uint64) error
-	RemovePlaylistChannel(playlistID uint64, channelID uint64) error
-
-	PlaylistHasVideo(playlistID uint64, videoID uint64) (bool, error)
-
-	GetFirstYoutubeClientConfig() (*models.YoutubeClientConfig, error)
-	GetFirstYoutubeToken() (*models.YoutubeToken, error)
-
-	GetAllPlaylistsSubscribedTo(channel *models.Channel) (*[]models.Playlist, error)
-
-	GetAllUserPlaylists(userID uint64) (*[]models.Playlist, error)
-}
-
-// PlaylistManager manages playlists
-type PlaylistManager struct {
-	playlist IYTPlaylist
-	data     IPlaylistManagerData
-}
-
-// NewPlaylist creates a new playlist
-func NewPlaylist(yt IYTPlaylist, data IPlaylistManagerData) *PlaylistManager {
-
-	configData, err := data.GetFirstYoutubeClientConfig()
-	if err != nil || configData == nil {
-		panic("Failed to get playlist information")
-	}
-	tokenData, err := data.GetFirstYoutubeToken()
-	if err != nil || tokenData == nil {
-		panic("Failed to get playlist information")
-	}
-
-	config := parsers.ParseYoutubeClient(*configData)
-	token := parsers.ParseYoutubeToken(*tokenData)
-
-	yt.Initialize(config, token)
-
-	return &PlaylistManager{
-		playlist: yt,
-		data:     data,
-	}
-}
-
-// NewFakePlaylist creates a fake playlist service with youtube operations mocked
-func NewFakePlaylist(data IPlaylistManagerData) *PlaylistManager {
-
-	configData := models.YoutubeClientConfig{
-		ClientID:     "11223534584-asdfhasdjfhwieyrwqejhkflasd.apps.googleusercontent.com",
-		ClientSecret: "qwerHSwer_asdhwuerJHFDJqkqw",
-		RedirectURL:  "urn:ietf:wg:oauth:2.0:oob",
-		AuthURL:      "https://accounts.google.com/o/oauth2/auth",
-		TokenURL:     "https://oauth2.googleapis.com/token",
-	}
-	tokenData := models.YoutubeToken{
-		AccessToken:  "sa23.345234524623sdfasdfq-qegehgower9505034jfeworrjwertw_qqwerjfldssgert345sdgdgew-bheiyqeotleqjrljdfluao23423_QwekjfuI023kjasdfwer",
-		TokenType:    "Bearer",
-		RefreshToken: "asdfjqwekj23//2342329asqq-ajfdki22399jjIjiJIWJFfwerw_qwefdasferw_zwaehwejlkWW",
-		Expiry:       "2021-04-13T23:30:06.1139442-05:00",
-	}
-
-	config := parsers.ParseYoutubeClient(configData)
-	token := parsers.ParseYoutubeToken(tokenData)
-
-	yt := &ytservice.YTPlaylistFake{}
-
-	yt.Initialize(config, token)
-
-	return &PlaylistManager{
-		playlist: yt,
-		data:     data,
-	}
-}
-
 // New creates a new playlist
-func (s *PlaylistManager) New(playlist *models.Playlist, user *models.User) (*models.Playlist, error) {
-
+func (s *PlaylistManager) New(playlist models.Playlist, user models.User) (models.Playlist, error) {
 	ytPlaylist, err := s.playlist.Create(playlist.Title, playlist.Description)
 	if err != nil || ytPlaylist == nil {
-		return nil, nil
+		return models.Playlist{}, nil
 	}
 
-	created := *playlist
+	playlist.YoutubeID = ytPlaylist.Id
+	playlist.Thumbnails = parsers.ParseYTThumbnails(ytPlaylist.Snippet.Thumbnails)
 
-	created.YoutubeID = ytPlaylist.Id
-	created.Thumbnails = parsers.ParseYTThumbnails(ytPlaylist.Snippet.Thumbnails)
+	playlist, err = s.data.NewPlaylist(user.ID, playlist)
 
-	s.data.NewPlaylist(user.ID, &created)
-
-	return &created, nil
-
+	return playlist, err
 }
 
 // Get gets a playlist given an id
-func (s *PlaylistManager) Get(user *models.User, playlistID uint64) (*models.Playlist, error) {
+func (s *PlaylistManager) Get(user models.User, playlistID uint64) (models.Playlist, error) {
+	playlist, err := s.data.GetPlaylist(playlistID)
 
-	return s.data.GetPlaylist(user.ID, playlistID)
+	if reflect.DeepEqual(playlist, models.Playlist{}) {
+		return models.Playlist{}, nil
+	}
 
+	if user.ID != playlist.UserID {
+		return models.Playlist{}, nil
+	}
+
+	return playlist, err
 }
 
 // Insert adds a video to a playlist
-func (s *PlaylistManager) Insert(playlist *models.Playlist, video *models.Video) error {
-
+func (s *PlaylistManager) Insert(playlist models.Playlist, video models.Video) error {
 	err := s.playlist.Insert(playlist.YoutubeID, video.YoutubeID)
 	if err != nil {
 		return err
@@ -131,32 +50,16 @@ func (s *PlaylistManager) Insert(playlist *models.Playlist, video *models.Video)
 	}
 
 	return nil
-
-}
-
-// Subscribe subscribes a playlist to a channel, channel uploads will be automatically added to playlist
-func (s *PlaylistManager) Subscribe(playlist *models.Playlist, channel *models.Channel) error {
-
-	return s.data.NewPlaylistChannel(playlist.ID, channel.ID)
-
-}
-
-// Unsubscribe removes a channel subscription from a playlist, new videos on that channel will no longer be added
-func (s *PlaylistManager) Unsubscribe(playlist *models.Playlist, channel *models.Channel) error {
-
-	return s.data.RemovePlaylistChannel(playlist.ID, channel.ID)
-
 }
 
 // ProcessNewVideo processes subscriptions for a new video
-func (s *PlaylistManager) ProcessNewVideo(channel *models.Channel, video *models.Video) error {
-
+func (s *PlaylistManager) ProcessNewVideo(channel models.Channel, video models.Video) error {
 	playlists, err := s.data.GetAllPlaylistsSubscribedTo(channel)
 	if err != nil {
 		return err
 	}
 
-	for _, playlist := range *playlists {
+	for _, playlist := range playlists {
 
 		exists, err := s.data.PlaylistHasVideo(playlist.ID, video.ID)
 		if err != nil {
@@ -167,7 +70,7 @@ func (s *PlaylistManager) ProcessNewVideo(channel *models.Channel, video *models
 			continue
 		}
 
-		err = s.Insert(&playlist, video)
+		err = s.Insert(playlist, video)
 		if err != nil {
 			return err
 		}
@@ -175,12 +78,40 @@ func (s *PlaylistManager) ProcessNewVideo(channel *models.Channel, video *models
 	}
 
 	return nil
-
 }
 
 // GetAllUserPlaylists returns all playlist for a user
-func (s *PlaylistManager) GetAllUserPlaylists(user *models.User) (*[]models.Playlist, error) {
+func (s *PlaylistManager) GetAllUserPlaylists(user models.User) ([]models.Playlist, error) {
+	playlists, err := s.data.GetAllUserPlaylists(user.ID)
 
-	return s.data.GetAllUserPlaylists(user.ID)
+	if playlists == nil {
+		return []models.Playlist{}, nil
+	}
 
+	return playlists, err
+}
+
+// Subscribe subscribes a playlist to a channel, channel uploads will be automatically added to playlist
+func (s *PlaylistManager) Subscribe(playlist models.Playlist, channel models.Channel) error {
+	return s.data.NewPlaylistChannel(playlist.ID, channel.ID)
+}
+
+// Unsubscribe removes a channel subscription from a playlist, new videos on that channel will no longer be added
+func (s *PlaylistManager) Unsubscribe(playlist models.Playlist, channel models.Channel) error {
+	return s.data.RemovePlaylistChannel(playlist.ID, channel.ID)
+}
+
+// GetAllVideos gets an array of all the video id's in a playlist
+func (s *PlaylistManager) GetAllVideos(playlist models.Playlist) ([]uint64, error) {
+	return s.data.GetAllPlaylistVideos(playlist.ID)
+}
+
+// GetAllChannels gets an array of all the channel id's in a playlist
+func (s *PlaylistManager) GetAllChannels(playlist models.Playlist) ([]uint64, error) {
+	return s.data.GetAllPlaylistChannels(playlist.ID)
+}
+
+// GetAllThumbnails gets all thumbnail information
+func (s *PlaylistManager) GetAllThumbnails(playlist models.Playlist) ([]models.Thumbnail, error) {
+	return s.data.GetAllPlaylistThumbnails(playlist.ID)
 }

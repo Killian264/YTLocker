@@ -128,7 +128,7 @@ func (d *Data) GetVideosFromLast24Hours() (*[]models.Video, error) {
 
 	dayAgo := time.Now().AddDate(0, 0, -1)
 
-	result := d.db.Where("updated_at > ?", dayAgo).Find(&videos)
+	result := d.db.Where("updated_at > ?", dayAgo).Order("updated_at asc").Find(&videos)
 
 	if result.Error != nil || notFound(result.Error) {
 		return nil, removeNotFound(result.Error)

@@ -20,37 +20,28 @@ var user = models.User{
 	Password: "sladfk11111111",
 }
 
-var playlist = &models.Playlist{
+var playlist = models.Playlist{
 	Title:       "Hsdlakfjaskd",
 	Description: "sdlfjaklsdf",
 }
 
 func Test_Run(t *testing.T) {
-
 	s, j := createServices()
 
-	user, err := s.User.Register(user)
+	user, _ := s.User.Register(user)
+
+	playlist, _ = s.Playlist.New(playlist, user)
+	channel, _ := s.Youtube.NewChannel("any-id-works")
+
+	s.Youtube.NewVideo(channel, "any-id-works")
+	s.Playlist.Subscribe(playlist, *channel)
+
+	err := j.Run()
 	assert.Nil(t, err)
 
-	channel, err := s.Youtube.NewChannel("any-id-works")
-	assert.Nil(t, err)
+	videos, _ := s.Playlist.GetAllVideos(playlist)
 
-	_, err = s.Youtube.NewVideo(channel, "any-id-works")
-	assert.Nil(t, err)
-
-	playlist, err = s.Playlist.New(playlist, &user)
-	assert.Nil(t, err)
-
-	s.Playlist.Subscribe(playlist, channel)
-
-	err = j.Run()
-	assert.Nil(t, err)
-
-	playlist, err = s.Playlist.Get(&user, playlist.ID)
-	assert.Nil(t, err)
-
-	assert.NotEqual(t, 2, len(playlist.Videos))
-
+	assert.Equal(t, 1, len(videos))
 }
 
 func createServices() (*services.Services, IJob) {

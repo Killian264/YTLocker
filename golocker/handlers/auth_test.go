@@ -3,11 +3,14 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/Killian264/YTLocker/golocker/models"
+	"github.com/Killian264/YTLocker/golocker/services"
 	service "github.com/Killian264/YTLocker/golocker/services"
 	"github.com/gorilla/context"
+	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -76,7 +79,7 @@ func Test_Playlist_Authenticator(t *testing.T) {
 	// user 1
 	savedUser, _ := s.User.Register(user)
 	bearer, _ := s.User.Login(user.Email, user.Password)
-	playlist, _ := s.Playlist.New(&playlist, &savedUser)
+	playlist, _ := s.Playlist.New(playlist, savedUser)
 
 	// user 2
 	s.User.Register(user2)
@@ -94,7 +97,7 @@ func Test_Playlist_Authenticator(t *testing.T) {
 
 }
 
-func Send_Authenticated_Playlist_Request(t *testing.T, s *service.Services, playlist *models.Playlist, bearer string) {
+func Send_Authenticated_Playlist_Request(t *testing.T, s *service.Services, playlist models.Playlist, bearer string) {
 
 	UserAuthenticator := CreateUserAuthenticator(s)
 	PlaylistAuthenticator := CreatePlaylistAuthenticator(s)
@@ -111,4 +114,28 @@ func Send_Authenticated_Playlist_Request(t *testing.T, s *service.Services, play
 
 	SendFakeRequest(fake)
 
+}
+
+type FakeRequest struct {
+	Services *services.Services
+	Request  *http.Request
+	Route    string
+	Handler  ServiceHandler
+}
+
+// SendFakeRequest sends a fake request the request will return 500 status code on error
+func SendFakeRequest(request FakeRequest) *http.Response {
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		res := request.Handler(w, r, request.Services)
+
+		w.WriteHeader(res.Status)
+		fmt.Println("FakeRequest got: ", res.Message)
+	}
+
+	router.HandleFunc(request.Route, handler)
+	router.ServeHTTP(rr, request.Request)
+	return rr.Result()
 }

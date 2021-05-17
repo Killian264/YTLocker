@@ -24,7 +24,7 @@ func PlaylistCreate(w http.ResponseWriter, r *http.Request, s *services.Services
 
 	playlist = parsers.ParsePlaylist(playlist)
 
-	created, err := s.Playlist.New(&playlist, &user)
+	created, err := s.Playlist.New(playlist, user)
 	if err != nil {
 		return BlankResponse(err)
 	}
@@ -33,17 +33,51 @@ func PlaylistCreate(w http.ResponseWriter, r *http.Request, s *services.Services
 
 }
 
+type PlaylistListItem struct {
+	models.Playlist
+	Channels []uint64
+	Videos []uint64
+}
+
 // HandleSubscriptionNoError handles a new subscription request wrap in a middleware that handles errors
 func PlaylistList(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
 
 	user := GetUserFromRequest(r)
 
-	playlists, err := s.Playlist.GetAllUserPlaylists(&user)
+	playlists, err := s.Playlist.GetAllUserPlaylists(user)
 	if err != nil {
 		return BlankResponse(err)
 	}
 
-	return NewResponse(http.StatusOK, playlists, "")
+	items := []PlaylistListItem{}
+
+	for _, playlist := range(playlists) {
+
+		var item PlaylistListItem
+
+		item.Playlist = playlist
+
+		thumbnails, err := s.Playlist.GetAllThumbnails(playlist)
+		if err != nil {
+			return BlankResponse(err)
+		}
+		channels, err := s.Playlist.GetAllChannels(playlist)
+		if err != nil {
+			return BlankResponse(err)
+		}
+		videos, err := s.Playlist.GetAllVideos(playlist)
+		if err != nil {
+			return BlankResponse(err)
+		}
+
+		item.Thumbnails = thumbnails
+		item.Channels = channels
+		item.Videos = videos
+
+		items = append(items, item)
+	}
+
+	return NewResponse(http.StatusOK, items, "")
 
 }
 
@@ -63,7 +97,7 @@ func PlaylistAddSubscription(w http.ResponseWriter, r *http.Request, s *services
 		return BlankResponse(err)
 	}
 
-	err = s.Playlist.Subscribe(&playlist, channel)
+	err = s.Playlist.Subscribe(playlist, *channel)
 	return BlankResponse(err)
 }
 
@@ -78,7 +112,7 @@ func PlaylistRemoveSubscription(w http.ResponseWriter, r *http.Request, s *servi
 		return BlankResponse(err)
 	}
 
-	err = s.Playlist.Unsubscribe(&playlist, channel)
+	err = s.Playlist.Unsubscribe(playlist, *channel)
 	return BlankResponse(err)
 
 }

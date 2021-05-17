@@ -83,7 +83,7 @@ func (j InsertVideosJob) processVideo(workUnit *models.SubscriptionWorkUnit) err
 		return fmt.Errorf("could not find video")
 	}
 
-	return j.s.Playlist.ProcessNewVideo(channel, video)
+	return j.s.Playlist.ProcessNewVideo(*channel, *video)
 
 }
 

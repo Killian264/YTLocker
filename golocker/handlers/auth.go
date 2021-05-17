@@ -2,8 +2,10 @@ package handlers
 
 import (
 	"net/http"
+	"reflect"
 	"strconv"
 
+	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/Killian264/YTLocker/golocker/services"
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
@@ -56,16 +58,16 @@ func CreatePlaylistAuthenticator(s *services.Services) func(next ServiceHandler)
 
 			user := GetUserFromRequest(r)
 
-			playlist, err := s.Playlist.Get(&user, id)
+			playlist, err := s.Playlist.Get(user, id)
 			if err != nil {
 				return BlankResponse(err)
 			}
 
-			if playlist == nil {
+			if reflect.DeepEqual(playlist, models.Playlist{}) {
 				return NewResponse(http.StatusUnauthorized, nil, "playlist does not exist")
 			}
 
-			context.Set(r, "playlist", *playlist)
+			context.Set(r, "playlist", playlist)
 
 			return next(w, r, s)
 
