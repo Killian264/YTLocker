@@ -17,16 +17,7 @@ func Test_New_Channel_Valid_Channel(t *testing.T) {
 	assert.NotNil(t, channel)
 	assert.Nil(t, err)
 
-	saved, err := service.GetChannel(channel.ID)
-	assert.NotNil(t, saved)
-	assert.Nil(t, err)
-
-	saved2, err := service.GetChannelByID(channel.YoutubeID)
-	assert.NotNil(t, saved)
-	assert.Nil(t, err)
-
-	ChannelsAreEqualTest(t, channel, saved)
-	ChannelsAreEqualTest(t, channel, saved2)
+	ChannelsAreEqualTest(t, service, channel)
 }
 
 func Test_New_Channel_InValid_Channel(t *testing.T) {
@@ -41,7 +32,6 @@ func Test_New_Channel_Ignore_Duplicates(t *testing.T) {
 	service := createMockServices(t)
 
 	channel, err := service.NewChannel("valid-id")
-
 	channel2, err := service.NewChannel("valid-id")
 	assert.Nil(t, err)
 
@@ -57,16 +47,7 @@ func Test_New_Video_Valid_Video(t *testing.T) {
 	assert.NotNil(t, video)
 	assert.Nil(t, err)
 
-	saved, err := service.GetVideo(video.ID)
-	assert.NotNil(t, saved)
-	assert.Nil(t, err)
-
-	saved2, err := service.GetVideoByID(video.YoutubeID)
-	assert.NotNil(t, saved)
-	assert.Nil(t, err)
-
-	VideosAreEqualTest(t, video, saved)
-	VideosAreEqualTest(t, video, saved2)
+	VideosAreEqualTest(t, service, video)
 }
 
 func Test_New_Video_InValid_Channel(t *testing.T) {
@@ -85,7 +66,6 @@ func Test_New_Video_Ignore_Duplicates(t *testing.T) {
 	channel, err := service.NewChannel("valid-id")
 
 	video, err := service.NewVideo(channel, "valid-id")
-
 	video2, err := service.NewVideo(channel, "valid-id")
 	assert.Nil(t, err)
 
@@ -126,28 +106,67 @@ func Test_CheckForMissedUploads(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-// New Video Wrong Channel is not tested
+func Test_Channel_Get_Videos(t *testing.T) {
+	service := createMockServices(t)
 
-func VideosAreEqualTest(t *testing.T, video1 models.Video, video2 models.Video) {
-	assert.Equal(t, len(video1.Thumbnails), len(video2.Thumbnails))
+	channel, _ := service.NewChannel("valid-id")
 
-	// Encoding decoding to database loses some information for datetimes
-	video1.CreatedAt = video2.CreatedAt
-	video1.UpdatedAt = video2.UpdatedAt
-	video1.Thumbnails = video2.Thumbnails
+	videos, err := service.GetAllChannelVideos(channel)
+	assert.Equal(t, 0, len(videos))
+	assert.Nil(t, err)
 
-	assert.Equal(t, video1, video2)
+	service.NewVideo(channel, "valid-id")
+
+	videos, err = service.GetAllChannelVideos(channel)
+	assert.Equal(t, 1, len(videos))
+	assert.Nil(t, err)
 }
 
-func ChannelsAreEqualTest(t *testing.T, channel1 models.Channel, channel2 models.Channel) {
-	assert.Equal(t, len(channel1.Thumbnails), len(channel2.Thumbnails))
+// New Video Wrong Channel is not tested
+func VideosAreEqualTest(t *testing.T, s *YoutubeManager, video models.Video) {
+	saved, err := s.GetVideo(video.ID)
+	assert.Nil(t, err)
+
+	saved2, err := s.GetVideoByID(video.YoutubeID)
+	assert.Nil(t, err)
+
+	thumbnails, err := s.GetAllVideoThumbnails(video)
+	assert.Nil(t, err)
+
+	assert.Equal(t, len(video.Thumbnails), len(thumbnails))
 
 	// Encoding decoding to database loses some information for datetimes
-	channel1.CreatedAt = channel2.CreatedAt
-	channel1.UpdatedAt = channel2.UpdatedAt
-	channel1.Thumbnails = channel2.Thumbnails
+	video.CreatedAt = saved.CreatedAt
+	video.UpdatedAt = saved.UpdatedAt
+	video.Thumbnails = saved.Thumbnails
 
-	assert.Equal(t, channel1, channel2)
+	assert.Equal(t, video, saved)
+	assert.Equal(t, saved, saved2)
+}
+
+func ChannelsAreEqualTest(t *testing.T, s *YoutubeManager, channel models.Channel) {
+	saved, err := s.GetChannel(channel.ID)
+	assert.Nil(t, err)
+
+	saved2, err := s.GetChannelByID(channel.YoutubeID)
+	assert.Nil(t, err)
+
+	thumbnails, err := s.GetAllChannelThumbnails(channel)
+	assert.Nil(t, err)
+
+	videos, err := s.GetAllChannelVideos(channel)
+	assert.Nil(t, err)
+
+	assert.Equal(t, len(channel.Thumbnails), len(thumbnails))
+	assert.Equal(t, len(channel.Videos), len(videos))
+
+	// Encoding decoding to database loses some information for datetimes
+	channel.CreatedAt = saved.CreatedAt
+	channel.UpdatedAt = saved.UpdatedAt
+	channel.Thumbnails = saved.Thumbnails
+
+	assert.Equal(t, channel, saved)
+	assert.Equal(t, channel, saved2)
 }
 
 func createMockServices(t *testing.T) *YoutubeManager {

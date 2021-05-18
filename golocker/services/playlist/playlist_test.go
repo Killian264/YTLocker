@@ -47,18 +47,6 @@ func Test_Create_Playlist(t *testing.T) {
 	PlaylistExpectedIsActual(t, s, playlist, user)
 }
 
-func Test_Only_Get_Users_Playlist(t *testing.T) {
-	s := createMockServices(t)
-
-	playlist, err := s.New(playlist, user)
-	assert.Nil(t, err)
-	assert.NotNil(t, playlist)
-
-	searched, err := s.Get(user2, playlist.ID)
-	assert.Nil(t, err)
-	assert.Equal(t, models.Playlist{}, searched)
-}
-
 func Test_Playlist_Insert(t *testing.T) {
 	s := createMockServices(t)
 
@@ -236,7 +224,7 @@ func createMockServices(t *testing.T) *PlaylistManager {
 func PlaylistExpectedIsActual(t *testing.T, s *PlaylistManager, playlist models.Playlist, user models.User) {
 	assert.Equal(t, user.ID, playlist.UserID)
 
-	found, err := s.Get(user, playlist.ID)
+	found, err := s.Get(playlist.ID)
 	assert.NotNil(t, found)
 	assert.Nil(t, err)
 

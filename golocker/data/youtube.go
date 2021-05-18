@@ -37,12 +37,6 @@ func (d *Data) GetChannel(ID uint64) (models.Channel, error) {
 		return models.Channel{}, removeNotFound(result.Error)
 	}
 
-	result = d.db.Where(models.Thumbnail{OwnerID: channel.ID, OwnerType: "channels"}).Find(&channel.Thumbnails)
-
-	if result.Error != nil || notFound(result.Error) {
-		return models.Channel{}, removeNotFound(result.Error)
-	}
-
 	return channel, nil
 }
 
@@ -53,12 +47,6 @@ func (d *Data) GetChannelByID(channelID string) (models.Channel, error) {
 	}
 
 	result := d.db.Where(&channel).First(&channel)
-
-	if result.Error != nil || notFound(result.Error) {
-		return models.Channel{}, removeNotFound(result.Error)
-	}
-
-	result = d.db.Where(models.Thumbnail{OwnerID: channel.ID, OwnerType: "channels"}).Find(&channel.Thumbnails)
 
 	if result.Error != nil || notFound(result.Error) {
 		return models.Channel{}, removeNotFound(result.Error)
@@ -93,12 +81,6 @@ func (d *Data) GetVideo(ID uint64) (models.Video, error) {
 		return models.Video{}, removeNotFound(result.Error)
 	}
 
-	result = d.db.Where(models.Thumbnail{OwnerID: video.ID, OwnerType: "videos"}).Find(&video.Thumbnails)
-
-	if result.Error != nil || notFound(result.Error) {
-		return models.Video{}, removeNotFound(result.Error)
-	}
-
 	return video, nil
 }
 
@@ -114,39 +96,53 @@ func (d *Data) GetVideoByID(videoID string) (models.Video, error) {
 		return models.Video{}, removeNotFound(result.Error)
 	}
 
-	result = d.db.Where(models.Thumbnail{OwnerID: video.ID, OwnerType: "videos"}).Find(&video.Thumbnails)
-
-	if result.Error != nil || notFound(result.Error) {
-		return models.Video{}, removeNotFound(result.Error)
-	}
-
 	return video, nil
 }
 
-func (d *Data) GetVideosFromLast24Hours() ([]models.Video, error) {
-	videos := []models.Video{}
+func (d *Data) GetVideosFromLast24Hours() ([]uint64, error) {
+	videos := []OnlyID{}
 
 	dayAgo := time.Now().AddDate(0, 0, -1)
 
-	result := d.db.Where("updated_at > ?", dayAgo).Order("updated_at asc").Find(&videos)
+	result := d.db.Model(models.Video{}).Where("updated_at > ?", dayAgo).Order("updated_at asc").Find(&videos)
 
 	if result.Error != nil || notFound(result.Error) {
-		return []models.Video{}, removeNotFound(result.Error)
+		return []uint64{}, removeNotFound(result.Error)
 	}
 
-	return videos, nil
+	return parseOnlyIDArray(videos), nil;
 }
 
-func (d *Data) GetAllChannels() ([]models.Channel, error) {
+func (d *Data) GetAllChannels() ([]uint64, error) {
 
-	channels := []models.Channel{}
+	channels := []OnlyID{}
 
-	result := d.db.Find(&channels)
+	result := d.db.Model(models.Channel{}).Find(&channels)
 
 	if result.Error != nil || notFound(result.Error) {
-		return []models.Channel{}, removeNotFound(result.Error)
+		return []uint64{}, removeNotFound(result.Error)
 	}
 
-	return channels, nil
+	return parseOnlyIDArray(channels), nil;
 
+}
+
+func (d *Data) GetAllChannelVideos(ID uint64) ([]uint64, error){
+	videos := []OnlyID{}
+
+	result := d.db.Raw(
+		`SELECT
+			V.id AS id 
+		FROM channels AS C
+		JOIN videos AS V
+			ON C.id = V.channel_id
+		WHERE C.id = ?
+		;`, ID,
+	).Scan(&videos);
+
+	if removeNotFound(result.Error) != nil {
+		return nil, result.Error
+	}
+
+	return parseOnlyIDArray(videos), nil;
 }

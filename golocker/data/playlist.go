@@ -52,18 +52,18 @@ func (d *Data) RemovePlaylistChannel(playlistID uint64, channelID uint64) error 
 	return d.db.Model(playlist).Association("Channels").Delete(channel)
 }
 
-func (d *Data) GetAllPlaylistsSubscribedTo(channel models.Channel) ([]models.Playlist, error) {
-	playlists := []models.Playlist{}
+func (d *Data) GetAllPlaylistsSubscribedTo(channel models.Channel) ([]uint64, error) {
+	playlists := []OnlyID{}
 
 	join := "INNER JOIN playlist_channel ON playlist_channel.channel_id = ? AND playlist_channel.playlist_id = playlists.id"
 
-	result := d.db.Joins(join, channel.ID).Find(&playlists)
+	result := d.db.Model(models.Playlist{}).Joins(join, channel.ID).Find(&playlists)
 
 	if result.Error != nil || notFound(result.Error) {
-		return nil, removeNotFound(result.Error)
+		return []uint64{}, removeNotFound(result.Error)
 	}
 
-	return playlists, nil
+	return parseOnlyIDArray(playlists), nil;
 }
 
 func (d *Data) PlaylistHasVideo(playlistID uint64, videoID uint64) (bool, error) {
@@ -89,11 +89,7 @@ func (d *Data) GetAllUserPlaylists(userID uint64) ([]models.Playlist, error) {
 }
 
 func (d *Data) GetAllPlaylistVideos(ID uint64) ([]uint64, error) {
-	type res struct {
-		ID uint64
-	}
-
-	videos := []res{}
+	videos := []OnlyID{}
 
 	result := d.db.Raw(
 		`SELECT V.video_id AS id FROM playlists P 
@@ -107,22 +103,12 @@ func (d *Data) GetAllPlaylistVideos(ID uint64) ([]uint64, error) {
 		return nil, result.Error
 	}
 
-	ids := []uint64{}
-
-	for _, video := range videos {
-		ids = append(ids, video.ID)
-	}
-
-	return ids, nil;
+	return parseOnlyIDArray(videos), nil;
 }
 
 
 func (d *Data) GetAllPlaylistChannels(ID uint64) ([]uint64, error) {
-	type res struct {
-		ID uint64
-	}
-
-	channels := []res{}
+	channels := []OnlyID{}
 
 	result := d.db.Raw(
 		`SELECT C.channel_id AS id FROM playlists P 
@@ -136,30 +122,5 @@ func (d *Data) GetAllPlaylistChannels(ID uint64) ([]uint64, error) {
 		return nil, result.Error
 	}
 
-	ids := []uint64{}
-
-	for _, video := range channels {
-		ids = append(ids, video.ID)
-	}
-
-	return ids, nil;
-}
-
-func (d *Data) GetAllPlaylistThumbnails(ID uint64) ([]models.Thumbnail, error) {
-	thumbnails := []models.Thumbnail{}
-
-	result := d.db.Raw(
-		`SELECT T.* FROM playlists AS P 
-		JOIN thumbnails AS T
-			ON T.owner_id = P.id
-			AND T.owner_type = "playlists"
-		WHERE P.id = ?;`, 
-		ID,
-	).Scan(&thumbnails);
-
-	if removeNotFound(result.Error) != nil {
-		return nil, result.Error
-	}
-
-	return thumbnails, nil;
+	return parseOnlyIDArray(channels), nil;
 }

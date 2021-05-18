@@ -23,14 +23,10 @@ func (s *PlaylistManager) New(playlist models.Playlist, user models.User) (model
 }
 
 // Get gets a playlist given an id
-func (s *PlaylistManager) Get(user models.User, playlistID uint64) (models.Playlist, error) {
+func (s *PlaylistManager) Get(playlistID uint64) (models.Playlist, error) {
 	playlist, err := s.data.GetPlaylist(playlistID)
 
 	if reflect.DeepEqual(playlist, models.Playlist{}) {
-		return models.Playlist{}, nil
-	}
-
-	if user.ID != playlist.UserID {
 		return models.Playlist{}, nil
 	}
 
@@ -54,12 +50,17 @@ func (s *PlaylistManager) Insert(playlist models.Playlist, video models.Video) e
 
 // ProcessNewVideo processes subscriptions for a new video
 func (s *PlaylistManager) ProcessNewVideo(channel models.Channel, video models.Video) error {
-	playlists, err := s.data.GetAllPlaylistsSubscribedTo(channel)
+	ids, err := s.data.GetAllPlaylistsSubscribedTo(channel)
 	if err != nil {
 		return err
 	}
 
-	for _, playlist := range playlists {
+	for _, id := range ids {
+
+		playlist, err := s.Get(id)
+		if err != nil {
+			return err
+		}
 
 		exists, err := s.data.PlaylistHasVideo(playlist.ID, video.ID)
 		if err != nil {
@@ -113,5 +114,5 @@ func (s *PlaylistManager) GetAllChannels(playlist models.Playlist) ([]uint64, er
 
 // GetAllThumbnails gets all thumbnail information
 func (s *PlaylistManager) GetAllThumbnails(playlist models.Playlist) ([]models.Thumbnail, error) {
-	return s.data.GetAllPlaylistThumbnails(playlist.ID)
+	return s.data.GetThumbnails(playlist.ID, "playlists")
 }

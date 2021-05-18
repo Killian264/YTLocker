@@ -83,19 +83,25 @@ func (s *YoutubeManager) GetChannelByID(youtubeID string) (models.Channel, error
 	return s.data.GetChannelByID(youtubeID)
 }
 
-func (s *YoutubeManager) GetAllVideosFromLast24Hours() ([]models.Video, error) {
+// GetAllVideosFromLast24Hours gets the ids of all videos from the last 24 hours
+func (s *YoutubeManager) GetAllVideosFromLast24Hours() ([]uint64, error) {
 	return s.data.GetVideosFromLast24Hours()
 }
 
 func (s *YoutubeManager) CheckForMissedUploads(l *log.Logger) error {
-	channels, err := s.data.GetAllChannels()
+	ids, err := s.data.GetAllChannels()
 	if err != nil {
 		return err
 	}
 
 	after := time.Now().AddDate(0, 0, -1)
 
-	for _, channel := range channels {
+	for _, id := range ids {
+
+		channel, err := s.GetChannel(id)
+		if err != nil {
+			return err
+		}
 
 		response, err := s.yt.GetLastVideosFromChannel(channel.YoutubeID, "", after)
 		if err != nil {
@@ -116,4 +122,19 @@ func (s *YoutubeManager) CheckForMissedUploads(l *log.Logger) error {
 	}
 
 	return nil
+}
+
+// GetAllVideos gets an array of all the video id's in a playlist
+func (s *YoutubeManager) GetAllChannelVideos(channel models.Channel) ([]uint64, error) {
+	return s.data.GetAllChannelVideos(channel.ID)
+}
+
+// GetAllThumbnails gets all thumbnail information
+func (s *YoutubeManager) GetAllVideoThumbnails(video models.Video) ([]models.Thumbnail, error) {
+	return s.data.GetThumbnails(video.ID, "videos")
+}
+
+// GetAllThumbnails gets all thumbnail information
+func (s *YoutubeManager) GetAllChannelThumbnails(channel models.Channel) ([]models.Thumbnail, error) {
+	return s.data.GetThumbnails(channel.ID, "channels")
 }

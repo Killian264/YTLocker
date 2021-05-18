@@ -19,14 +19,14 @@ type IPlaylistManagerData interface {
 
 	GetAllPlaylistVideos(ID uint64) ([]uint64, error) 
 	GetAllPlaylistChannels(ID uint64) ([]uint64, error)
-	GetAllPlaylistThumbnails(ID uint64) ([]models.Thumbnail, error)
+	GetThumbnails(ID uint64, ownerType string) ([]models.Thumbnail, error)
 
 	NewPlaylistVideo(playlistID uint64, videoID uint64) error
 	NewPlaylistChannel(playlistID uint64, channelID uint64) error
 	RemovePlaylistChannel(playlistID uint64, channelID uint64) error
 
 	PlaylistHasVideo(playlistID uint64, videoID uint64) (bool, error)
-	GetAllPlaylistsSubscribedTo(channel models.Channel) ([]models.Playlist, error)
+	GetAllPlaylistsSubscribedTo(channel models.Channel) ([]uint64, error)
 	GetAllUserPlaylists(userID uint64) ([]models.Playlist, error)
 
 	// Config

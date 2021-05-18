@@ -18,3 +18,17 @@ func removeNotFound(err error) error {
 
 	return err
 }
+
+type OnlyID struct {
+	ID uint64
+}
+
+func parseOnlyIDArray(ids []OnlyID) []uint64 {
+	parsed := []uint64{}
+
+	for _, id := range ids {
+		parsed = append(parsed, id.ID)
+	}
+
+	return parsed;
+}

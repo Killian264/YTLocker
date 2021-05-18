@@ -28,9 +28,13 @@ type IYoutubeManagerData interface {
 	GetVideo(ID uint64) (models.Video, error)
 	GetVideoByID(videoID string) (models.Video, error)
 
-	GetVideosFromLast24Hours() ([]models.Video, error)
+	GetVideosFromLast24Hours() ([]uint64, error)
 
-	GetAllChannels() ([]models.Channel, error)
+	GetAllChannels() ([]uint64, error)
+
+	GetAllChannelVideos(ID uint64) ([]uint64, error)
+
+	GetThumbnails(ID uint64, ownerType string) ([]models.Thumbnail, error)
 }
 
 // NewYoutubeManager creates a new YoutubeManager and does any initilization work

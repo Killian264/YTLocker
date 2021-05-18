@@ -90,12 +90,17 @@ func (j InsertVideosJob) processVideo(workUnit *models.SubscriptionWorkUnit) err
 
 func (j InsertVideosJob) saveWorkUnits() error {
 
-	videos, err := j.s.Youtube.GetAllVideosFromLast24Hours()
+	ids, err := j.s.Youtube.GetAllVideosFromLast24Hours()
 	if err != nil {
 		return err
 	}
 
-	for _, video := range videos {
+	for _, id := range ids {
+
+		video, err := j.s.Youtube.GetVideo(id)
+		if err != nil {
+			return err
+		}
 
 		work, err := j.s.Data.GetSubscriptionWorkUnit(video.ID, video.ChannelID)
 		if err != nil {

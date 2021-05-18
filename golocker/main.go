@@ -173,6 +173,9 @@ func InitializeRoutes(services *services.Services, router *mux.Router, adminBear
 	router.HandleFunc("/playlist/{playlist_id}/subscribe/{channel_id}", Errors(Injector(UserAuth(PlaylistAuth(handlers.PlaylistAddSubscription)))))
 	router.HandleFunc("/playlist/{playlist_id}/unsubscribe/{channel_id}", Errors(Injector(UserAuth(PlaylistAuth(handlers.PlaylistRemoveSubscription)))))
 
+	router.HandleFunc("/video/{video_id}", Errors(Injector(UserAuth(handlers.GetVideo))))
+	router.HandleFunc("/channel/{channel_id}", Errors(Injector(UserAuth(handlers.GetChannel))))
+
 	router.HandleFunc("/admin/check/uploads", AdminAuth(func(rw http.ResponseWriter, r *http.Request) {
 		checkForMissedUploads(services, logger)
 	}))
