@@ -92,12 +92,12 @@ func PlaylistAddSubscription(w http.ResponseWriter, r *http.Request, s *services
 		return BlankResponse(err)
 	}
 
-	_, err = s.Subscribe.Subscribe(channel)
+	_, err = s.Subscribe.Subscribe(&channel)
 	if err != nil {
 		return BlankResponse(err)
 	}
 
-	err = s.Playlist.Subscribe(playlist, *channel)
+	err = s.Playlist.Subscribe(playlist, channel)
 	return BlankResponse(err)
 }
 
@@ -112,7 +112,7 @@ func PlaylistRemoveSubscription(w http.ResponseWriter, r *http.Request, s *servi
 		return BlankResponse(err)
 	}
 
-	err = s.Playlist.Unsubscribe(playlist, *channel)
+	err = s.Playlist.Unsubscribe(playlist, channel)
 	return BlankResponse(err)
 
 }

@@ -8,7 +8,6 @@ import (
 	"github.com/Killian264/YTLocker/golocker/data"
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/Killian264/YTLocker/golocker/services/ytmanager"
-	"github.com/Killian264/YTLocker/golocker/services/ytservice"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -122,10 +121,7 @@ func createMockServices(t *testing.T) *Subscriber {
 
 	db := data.InMemorySQLiteConnect()
 
-	manager := ytmanager.NewYoutubeManager(
-		db,
-		&ytservice.YTSerivceFake{},
-	)
+	manager := ytmanager.FakeNewYoutubeManager(db)
 
 	service := NewSubscriber(
 		db,
@@ -138,8 +134,8 @@ func createMockServices(t *testing.T) *Subscriber {
 	new, _ := manager.NewChannel(channel.YoutubeID)
 	new2, _ := manager.NewChannel(channel2.YoutubeID)
 
-	channel = new
-	channel2 = new2
+	channel = &new
+	channel2 = &new2
 
 	return service
 }

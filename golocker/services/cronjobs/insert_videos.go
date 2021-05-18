@@ -3,6 +3,7 @@ package cronjobs
 import (
 	"fmt"
 	"log"
+	"reflect"
 
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/Killian264/YTLocker/golocker/services"
@@ -71,7 +72,7 @@ func (j InsertVideosJob) processVideo(workUnit *models.SubscriptionWorkUnit) err
 	if err != nil {
 		return err
 	}
-	if channel == nil {
+	if reflect.DeepEqual(channel, models.Channel{}) {
 		return fmt.Errorf("could not find channel")
 	}
 
@@ -79,11 +80,11 @@ func (j InsertVideosJob) processVideo(workUnit *models.SubscriptionWorkUnit) err
 	if err != nil {
 		return err
 	}
-	if video == nil {
+	if reflect.DeepEqual(video, models.Video{}) {
 		return fmt.Errorf("could not find video")
 	}
 
-	return j.s.Playlist.ProcessNewVideo(*channel, *video)
+	return j.s.Playlist.ProcessNewVideo(channel, video)
 
 }
 
@@ -94,7 +95,7 @@ func (j InsertVideosJob) saveWorkUnits() error {
 		return err
 	}
 
-	for _, video := range *videos {
+	for _, video := range videos {
 
 		work, err := j.s.Data.GetSubscriptionWorkUnit(video.ID, video.ChannelID)
 		if err != nil {

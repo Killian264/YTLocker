@@ -34,7 +34,7 @@ func Test_Run(t *testing.T) {
 	channel, _ := s.Youtube.NewChannel("any-id-works")
 
 	s.Youtube.NewVideo(channel, "any-id-works")
-	s.Playlist.Subscribe(playlist, *channel)
+	s.Playlist.Subscribe(playlist, channel)
 
 	err := j.Run()
 	assert.Nil(t, err)

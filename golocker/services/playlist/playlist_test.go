@@ -1,7 +1,6 @@
 package playlist
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/Killian264/YTLocker/golocker/data"
@@ -102,8 +101,6 @@ func Test_ProcessNewVideo(t *testing.T) {
 	s := createMockServices(t)
 
 	expected, _ := s.New(playlist, user)
-
-	fmt.Println(playlist.UserID, user.ID)
 
 	err := s.Subscribe(expected, channel)
 
@@ -222,33 +219,18 @@ func Test_Get_Playlist_Thumbnails(t *testing.T) {
 }
 
 func createMockServices(t *testing.T) *PlaylistManager {
-
 	data := data.InMemorySQLiteConnect()
 
 	data.NewUser(&user)
-
 	data.NewUser(&user2)
 
-	data.NewChannel(&channel)
+	newChannel, _ := data.NewChannel(channel)
+	channel = newChannel
 
-	data.NewVideo(&channel, &video)
+	newVideo, _ := data.NewVideo(channel, video)
+	video = newVideo
 
 	return NewFakePlaylist(data)
-
-}
-
-func PlaylistsAreEqual(t *testing.T, playlist1 models.Playlist, playlist2 models.Playlist) {
-	assert.Equal(t, len(playlist1.Thumbnails), len(playlist2.Thumbnails))
-	assert.Equal(t, len(playlist1.Videos), len(playlist2.Videos))
-
-	// Encoding decoding to database loses some information for datetimes
-	playlist1.CreatedAt = playlist2.CreatedAt
-	playlist1.UpdatedAt = playlist2.UpdatedAt
-	playlist1.Thumbnails = playlist2.Thumbnails
-	playlist1.Videos = playlist2.Videos
-	playlist1.Channels = playlist2.Channels
-
-	assert.Equal(t, playlist1, playlist2)
 }
 
 func PlaylistExpectedIsActual(t *testing.T, s *PlaylistManager, playlist models.Playlist, user models.User) {

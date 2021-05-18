@@ -12,7 +12,7 @@ type Data struct {
 	rand DataRand
 }
 
-func (d *Data) NewChannel(channel *models.Channel) error {
+func (d *Data) NewChannel(channel models.Channel) (models.Channel, error) {
 
 	channel.ID = d.rand.ID()
 
@@ -22,10 +22,10 @@ func (d *Data) NewChannel(channel *models.Channel) error {
 
 	result := d.db.Create(&channel)
 
-	return result.Error
+	return channel, result.Error
 }
 
-func (d *Data) GetChannel(ID uint64) (*models.Channel, error) {
+func (d *Data) GetChannel(ID uint64) (models.Channel, error) {
 
 	channel := models.Channel{
 		ID: ID,
@@ -34,19 +34,19 @@ func (d *Data) GetChannel(ID uint64) (*models.Channel, error) {
 	result := d.db.Where(&channel).First(&channel)
 
 	if result.Error != nil || notFound(result.Error) {
-		return nil, removeNotFound(result.Error)
+		return models.Channel{}, removeNotFound(result.Error)
 	}
 
 	result = d.db.Where(models.Thumbnail{OwnerID: channel.ID, OwnerType: "channels"}).Find(&channel.Thumbnails)
 
 	if result.Error != nil || notFound(result.Error) {
-		return nil, removeNotFound(result.Error)
+		return models.Channel{}, removeNotFound(result.Error)
 	}
 
-	return &channel, nil
+	return channel, nil
 }
 
-func (d *Data) GetChannelByID(channelID string) (*models.Channel, error) {
+func (d *Data) GetChannelByID(channelID string) (models.Channel, error) {
 
 	channel := models.Channel{
 		YoutubeID: channelID,
@@ -55,19 +55,19 @@ func (d *Data) GetChannelByID(channelID string) (*models.Channel, error) {
 	result := d.db.Where(&channel).First(&channel)
 
 	if result.Error != nil || notFound(result.Error) {
-		return nil, removeNotFound(result.Error)
+		return models.Channel{}, removeNotFound(result.Error)
 	}
 
 	result = d.db.Where(models.Thumbnail{OwnerID: channel.ID, OwnerType: "channels"}).Find(&channel.Thumbnails)
 
 	if result.Error != nil || notFound(result.Error) {
-		return nil, removeNotFound(result.Error)
+		return models.Channel{}, removeNotFound(result.Error)
 	}
 
-	return &channel, nil
+	return channel, nil
 }
 
-func (d *Data) NewVideo(channel *models.Channel, video *models.Video) error {
+func (d *Data) NewVideo(channel models.Channel, video models.Video) (models.Video, error) {
 
 	video.ID = d.rand.ID()
 	video.ChannelID = channel.ID
@@ -78,10 +78,10 @@ func (d *Data) NewVideo(channel *models.Channel, video *models.Video) error {
 
 	result := d.db.Create(&video)
 
-	return result.Error
+	return video, result.Error
 }
 
-func (d *Data) GetVideo(ID uint64) (*models.Video, error) {
+func (d *Data) GetVideo(ID uint64) (models.Video, error) {
 
 	video := models.Video{
 		ID: ID,
@@ -90,19 +90,19 @@ func (d *Data) GetVideo(ID uint64) (*models.Video, error) {
 	result := d.db.Where(&video).First(&video)
 
 	if result.Error != nil || notFound(result.Error) {
-		return nil, removeNotFound(result.Error)
+		return models.Video{}, removeNotFound(result.Error)
 	}
 
 	result = d.db.Where(models.Thumbnail{OwnerID: video.ID, OwnerType: "videos"}).Find(&video.Thumbnails)
 
 	if result.Error != nil || notFound(result.Error) {
-		return nil, removeNotFound(result.Error)
+		return models.Video{}, removeNotFound(result.Error)
 	}
 
-	return &video, nil
+	return video, nil
 }
 
-func (d *Data) GetVideoByID(videoID string) (*models.Video, error) {
+func (d *Data) GetVideoByID(videoID string) (models.Video, error) {
 
 	video := models.Video{
 		YoutubeID: videoID,
@@ -111,40 +111,40 @@ func (d *Data) GetVideoByID(videoID string) (*models.Video, error) {
 	result := d.db.Where(&video).First(&video)
 
 	if result.Error != nil || notFound(result.Error) {
-		return nil, removeNotFound(result.Error)
+		return models.Video{}, removeNotFound(result.Error)
 	}
 
 	result = d.db.Where(models.Thumbnail{OwnerID: video.ID, OwnerType: "videos"}).Find(&video.Thumbnails)
 
 	if result.Error != nil || notFound(result.Error) {
-		return nil, removeNotFound(result.Error)
+		return models.Video{}, removeNotFound(result.Error)
 	}
 
-	return &video, nil
+	return video, nil
 }
 
-func (d *Data) GetVideosFromLast24Hours() (*[]models.Video, error) {
-	videos := &[]models.Video{}
+func (d *Data) GetVideosFromLast24Hours() ([]models.Video, error) {
+	videos := []models.Video{}
 
 	dayAgo := time.Now().AddDate(0, 0, -1)
 
 	result := d.db.Where("updated_at > ?", dayAgo).Order("updated_at asc").Find(&videos)
 
 	if result.Error != nil || notFound(result.Error) {
-		return nil, removeNotFound(result.Error)
+		return []models.Video{}, removeNotFound(result.Error)
 	}
 
 	return videos, nil
 }
 
-func (d *Data) GetAllChannels() (*[]models.Channel, error) {
+func (d *Data) GetAllChannels() ([]models.Channel, error) {
 
-	channels := &[]models.Channel{}
+	channels := []models.Channel{}
 
 	result := d.db.Find(&channels)
 
 	if result.Error != nil || notFound(result.Error) {
-		return nil, removeNotFound(result.Error)
+		return []models.Channel{}, removeNotFound(result.Error)
 	}
 
 	return channels, nil

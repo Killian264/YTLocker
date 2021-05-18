@@ -11,7 +11,6 @@ import (
 )
 
 func Test_New_Channel_Valid_Channel(t *testing.T) {
-
 	service := createMockServices(t)
 
 	channel, err := service.NewChannel("valid-id")
@@ -28,41 +27,31 @@ func Test_New_Channel_Valid_Channel(t *testing.T) {
 
 	ChannelsAreEqualTest(t, channel, saved)
 	ChannelsAreEqualTest(t, channel, saved2)
-
 }
 
 func Test_New_Channel_InValid_Channel(t *testing.T) {
-
 	service := createMockServices(t)
 
 	channel, err := service.NewChannel("fake-channel-id")
-	assert.Nil(t, channel)
+	assert.Equal(t, models.Channel{}, channel)
 	assert.NotNil(t, err)
-
 }
 
 func Test_New_Channel_Ignore_Duplicates(t *testing.T) {
-
 	service := createMockServices(t)
 
 	channel, err := service.NewChannel("valid-id")
-	assert.NotNil(t, channel)
-	assert.Nil(t, err)
 
 	channel2, err := service.NewChannel("valid-id")
 	assert.Nil(t, err)
 
 	assert.Equal(t, channel.ID, channel2.ID)
-
 }
 
 func Test_New_Video_Valid_Video(t *testing.T) {
-
 	service := createMockServices(t)
 
 	channel, err := service.NewChannel("valid-id")
-	assert.NotNil(t, channel)
-	assert.Nil(t, err)
 
 	video, err := service.NewVideo(channel, "valid-id")
 	assert.NotNil(t, video)
@@ -81,40 +70,29 @@ func Test_New_Video_Valid_Video(t *testing.T) {
 }
 
 func Test_New_Video_InValid_Channel(t *testing.T) {
-
 	service := createMockServices(t)
 
 	channel, err := service.NewChannel("valid-id")
-	assert.NotNil(t, channel)
-	assert.Nil(t, err)
 
 	video, err := service.NewVideo(channel, "fake-video-id")
-	assert.Nil(t, video)
 	assert.NotNil(t, err)
-
+	assert.Equal(t, models.Video{}, video)
 }
 
 func Test_New_Video_Ignore_Duplicates(t *testing.T) {
-
 	service := createMockServices(t)
 
 	channel, err := service.NewChannel("valid-id")
-	assert.NotNil(t, channel)
-	assert.Nil(t, err)
 
 	video, err := service.NewVideo(channel, "valid-id")
-	assert.NotNil(t, video)
-	assert.Nil(t, err)
 
 	video2, err := service.NewVideo(channel, "valid-id")
 	assert.Nil(t, err)
 
 	assert.Equal(t, video.ID, video2.ID)
-
 }
 
 func Test_Get_All_Videos(t *testing.T) {
-
 	service := createMockServices(t)
 
 	channel, _ := service.NewChannel("valid-id")
@@ -122,20 +100,18 @@ func Test_Get_All_Videos(t *testing.T) {
 	expected := []models.Video{}
 
 	video, _ := service.NewVideo(channel, "valid-id")
-	expected = append(expected, *video)
+	expected = append(expected, video)
 
 	video, _ = service.NewVideo(channel, "valid-id2")
-	expected = append(expected, *video)
+	expected = append(expected, video)
 
 	actual, err := service.GetAllVideosFromLast24Hours()
 	assert.Nil(t, err)
 
-	assert.Equal(t, len(*actual), len(expected))
-
+	assert.Equal(t, len(actual), len(expected))
 }
 
 func Test_CheckForMissedUploads(t *testing.T) {
-
 	service := createMockServices(t)
 	logger := log.New(os.Stdout, "Cron: ", log.Lshortfile)
 
@@ -152,7 +128,7 @@ func Test_CheckForMissedUploads(t *testing.T) {
 
 // New Video Wrong Channel is not tested
 
-func VideosAreEqualTest(t *testing.T, video1 *models.Video, video2 *models.Video) {
+func VideosAreEqualTest(t *testing.T, video1 models.Video, video2 models.Video) {
 	assert.Equal(t, len(video1.Thumbnails), len(video2.Thumbnails))
 
 	// Encoding decoding to database loses some information for datetimes
@@ -163,7 +139,7 @@ func VideosAreEqualTest(t *testing.T, video1 *models.Video, video2 *models.Video
 	assert.Equal(t, video1, video2)
 }
 
-func ChannelsAreEqualTest(t *testing.T, channel1 *models.Channel, channel2 *models.Channel) {
+func ChannelsAreEqualTest(t *testing.T, channel1 models.Channel, channel2 models.Channel) {
 	assert.Equal(t, len(channel1.Thumbnails), len(channel2.Thumbnails))
 
 	// Encoding decoding to database loses some information for datetimes
@@ -175,11 +151,7 @@ func ChannelsAreEqualTest(t *testing.T, channel1 *models.Channel, channel2 *mode
 }
 
 func createMockServices(t *testing.T) *YoutubeManager {
-
 	data := data.InMemorySQLiteConnect()
 
-	return FakeNewYoutubeManager(
-		data,
-	)
-
+	return FakeNewYoutubeManager(data)
 }

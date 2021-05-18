@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"reflect"
 	"strconv"
 	"strings"
 
@@ -29,9 +30,9 @@ type ISubscriptionData interface {
 }
 
 type IYoutubeManager interface {
-	NewVideo(channel *models.Channel, videoID string) (*models.Video, error)
-	GetChannel(ID uint64) (*models.Channel, error)
-	GetChannelByID(youtubeID string) (*models.Channel, error)
+	NewVideo(channel models.Channel, videoID string) (models.Video, error)
+	GetChannel(ID uint64) (models.Channel, error)
+	GetChannelByID(youtubeID string) (models.Channel, error)
 }
 
 // NewSubscriber creates a new subscriber
@@ -145,7 +146,7 @@ func (s *Subscriber) ResubscribeAll() error {
 		if err != nil {
 			return err
 		}
-		if channel == nil {
+		if reflect.DeepEqual(channel, models.Channel{}) {
 			return fmt.Errorf("Failed to find channel with id %s", channel.YoutubeID)
 		}
 
@@ -154,7 +155,7 @@ func (s *Subscriber) ResubscribeAll() error {
 			return err
 		}
 
-		_, err = s.Subscribe(channel)
+		_, err = s.Subscribe(&channel)
 		if err != nil {
 			return err
 		}
@@ -175,11 +176,11 @@ func (s *Subscriber) HandleChallenge(request *models.SubscriptionRequest, channe
 	if err != nil {
 		return false, err
 	}
-	if channel == nil {
+	if reflect.DeepEqual(channel, models.Channel{}) {
 		return false, fmt.Errorf("Failed to get channe with channelID: %s", channelID)
 	}
 
-	err = s.validSubscription(channel, request.Secret)
+	err = s.validSubscription(&channel, request.Secret)
 
 	return err == nil, err
 }
@@ -191,11 +192,11 @@ func (s *Subscriber) HandleVideoPush(push *models.YTHookPush, secret string) err
 	if err != nil {
 		return err
 	}
-	if channel == nil {
+	if reflect.DeepEqual(channel, models.Channel{}) {
 		return fmt.Errorf("Failed to get channe with channelID: %s", push.Video.ChannelID)
 	}
 
-	err = s.validSubscription(channel, secret)
+	err = s.validSubscription(&channel, secret)
 	if err != nil {
 		return err
 	}
