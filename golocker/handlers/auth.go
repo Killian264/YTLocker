@@ -23,11 +23,7 @@ func CreateUserAuthenticator(s *services.Services) func(next ServiceHandler) Ser
 			token := header[0]
 
 			user, err := s.User.GetUserFromBearer(token)
-			if err != nil {
-				return BlankResponse(err)
-			}
-
-			if user == nil {
+			if user == nil || err != nil {
 				return NewResponse(http.StatusUnauthorized, nil, "invalid authorization header")
 			}
 
