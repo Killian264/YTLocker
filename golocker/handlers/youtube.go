@@ -18,7 +18,7 @@ func GetVideo(w http.ResponseWriter, r *http.Request, s *services.Services) Resp
 
 	id, err := strconv.ParseUint(idString, 10, 64)
 	if err != nil {
-		return NewResponse(http.StatusUnauthorized, nil, "invalid video id")
+		return NewResponse(http.StatusBadRequest, nil, "invalid video id")
 	}
 
 	video, err := s.Youtube.GetVideo(id)

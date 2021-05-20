@@ -92,10 +92,13 @@ func (d *Data) GetAllPlaylistVideos(ID uint64) ([]uint64, error) {
 	videos := []OnlyID{}
 
 	result := d.db.Raw(
-		`SELECT V.video_id AS id FROM playlists P 
-		JOIN playlist_video V
-			ON P.id = V.playlist_id
-		WHERE P.id = ?;`, 
+		`SELECT PV.video_id AS id FROM playlists P 
+		JOIN playlist_video PV
+			ON P.id = PV.playlist_id
+		JOIN videos AS V
+			ON PV.video_id = V.id
+		WHERE P.id = ?
+		ORDER BY V.created_at DESC;`, 
 		ID,
 	).Scan(&videos);
 
