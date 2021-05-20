@@ -1,8 +1,8 @@
+import { useHistory } from "react-router";
 import { useLocalStorage } from "./useLocalStorage";
 
-export const useBearer = (
-	initial: string
-): [string, (bearer: string) => void] => {
+export const useBearer = (initial: string): [string, (bearer: string) => void] => {
+	let history = useHistory();
 	const [cookie, setCookie] = useLocalStorage("bearer", {
 		bearer: initial,
 		date: Date.now(),
@@ -17,15 +17,11 @@ export const useBearer = (
 		setCookie(cookie);
 	};
 
-	let bearer = initial;
-
-	const date = new Date(cookie.date);
-
-	if (!isExpired(date)) {
-		bearer = cookie.bearer;
+	if (isExpired(new Date(cookie.date))) {
+		history.push("/login");
 	}
 
-	return [bearer, setBearer];
+	return [cookie.bearer, setBearer];
 };
 
 const isExpired = (date: Date) => {

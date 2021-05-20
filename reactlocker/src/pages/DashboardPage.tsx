@@ -1,71 +1,43 @@
 import React, { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { Card } from "../components/Card";
-import { PlaylistList } from "../components/ListCards";
-import { UserInfoBar } from "../components/UserInfoBar";
 import { VideoListItemController } from "../controllers/VideoListItemController";
 import { ChannelListItemController } from "../controllers/ChannelListItemController";
-import { API } from "../shared/api/api";
-import { useBearer } from "../shared/hooks/useBearer";
-import { Playlist, StatCard, User } from "../shared/types";
+import { UserInfoBarController } from "../controllers/UserInfoBarController";
+import { usePlaylists } from "../shared/api/usePlaylists";
+import { Playlist } from "../shared/types";
+import { PlaylistListItem } from "../components/PlaylistListItem";
+import { PlusButton } from "../components/PlusButton";
+import { BuildPlaylistUrl } from "../shared/urls";
 
 export const DashboardPage: React.FC<RouteComponentProps> = ({ history }) => {
-	const [bearer] = useBearer("");
-	const [playlists, setPlaylists] = useState<Playlist[]>([]);
 	const [channels, setChannels] = useState<number[]>([]);
-	const [stats, setStats] = useState<StatCard[]>([]);
-	const [user, setUser] = useState<User | null>(null);
 
-	if (bearer === "") {
-		history.push("/login");
-	}
+	const [playlistsLoading, playlists] = usePlaylists();
 
 	useEffect(() => {
-		(async () => {
-			let res = await API.UserInformation(bearer);
+		let merged: number[] = [];
 
-			if (!res.success) {
-				history.push("/login");
-			}
+		playlists.forEach((playlist) => {
+			merged = [...merged, ...playlist.channels];
+		});
 
-			setUser(res.user);
-		})();
-	}, [bearer, history]);
-
-	useEffect(() => {
-		(async () => {
-			let res = await API.PlaylistList(bearer);
-
-			if (!res.success) {
-				history.push("/login");
-			}
-
-			let playlists = res.playlists;
-			let channels2: number[] = [];
-
-			playlists.forEach((playlist) => {
-				channels2 = [...channels2, ...playlist.channels];
-			});
-
-			let stats = ParseStats(playlists);
-
-			setPlaylists(playlists);
-			setChannels(channels2);
-			setStats(stats);
-		})();
-	}, [bearer, history]);
+		setChannels(merged);
+	}, [playlists]);
 
 	return (
 		<div>
 			<div className="p-4 mx-auto max-w-7xl">
-				{user !== null && <UserInfoBar className="flex-grow" user={user} stats={stats}></UserInfoBar>}
+				<UserInfoBarController></UserInfoBarController>
 			</div>
 			<div className="px-4 mx-auto max-w-7xl grid grid-cols-12 gap-4">
-				<PlaylistList
-					className="xl:col-span-7 lg:col-span-6 col-span-12"
-					playlists={playlists}
-					limit={5}
-				></PlaylistList>
+				{!playlistsLoading && playlists != null && (
+					<PlaylistList
+						className="xl:col-span-7 lg:col-span-6 col-span-12"
+						playlists={playlists}
+						limit={5}
+					></PlaylistList>
+				)}
 				{playlists.length == 2 && (
 					<VideoList
 						className="xl:col-span-5 lg:col-span-6 col-span-12"
@@ -82,39 +54,6 @@ export const DashboardPage: React.FC<RouteComponentProps> = ({ history }) => {
 			<div className="px-4 mx-auto max-w-7xl m-3"></div>
 		</div>
 	);
-};
-
-const ParseStats = (playlists: Playlist[]): StatCard[] => {
-	let videoCount = 0;
-	let channelCount = 0;
-
-	playlists.forEach((playlist) => {
-		videoCount += playlist.videos.length;
-		channelCount += playlist.channels.length;
-	});
-
-	return [
-		{
-			header: "Playlists",
-			count: playlists.length,
-			measurement: "total",
-		},
-		{
-			header: "Videos",
-			count: videoCount,
-			measurement: "total",
-		},
-		{
-			header: "Subscriptions",
-			count: channelCount,
-			measurement: "total",
-		},
-		{
-			header: "Updated",
-			count: 12,
-			measurement: "hours ago",
-		},
-	];
 };
 
 interface VideoListProps {
@@ -165,6 +104,40 @@ export const ChannelsList: React.FC<ChannelsListProp> = ({ className, channels, 
 				<div className="text-2xl font-semibold">
 					<span className="leading-none -mt-0.5">Channels</span>
 				</div>
+			</div>
+			<div className="grid gap-2">{list}</div>
+		</Card>
+	);
+};
+
+interface PlaylistListProps {
+	className?: string;
+	playlists: Playlist[];
+	limit: number;
+}
+
+export const PlaylistList: React.FC<PlaylistListProps> = ({ className, playlists, limit }) => {
+	let list = playlists.map((playlist, index) => {
+		if (index >= limit) {
+			return "";
+		}
+
+		return (
+			<PlaylistListItem
+				url={BuildPlaylistUrl(playlist.youtubeId)}
+				key={index}
+				playlist={playlist}
+			></PlaylistListItem>
+		);
+	});
+
+	return (
+		<Card className={className}>
+			<div className="flex justify-between -mb-1 -mt-1">
+				<div className="text-2xl font-semibold">
+					<span className="leading-none -mt-0.5">Playlists</span>
+				</div>
+				<PlusButton color="secondary" disabled={false}></PlusButton>
 			</div>
 			<div className="grid gap-2">{list}</div>
 		</Card>

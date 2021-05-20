@@ -1,9 +1,7 @@
 import React from "react";
-import { useQuery } from "react-query";
-import { useBearer } from "../shared/hooks/useBearer";
 import { BuildChannelUrl } from "../shared/urls";
 import { ChannelListItem } from "../components/ChannelListItem";
-import { fetchChannel } from "../shared/api/channel";
+import { useChannel } from "../shared/api/useChannel";
 
 export interface ChannelListItemControllerProps {
 	className?: string;
@@ -14,24 +12,11 @@ export const ChannelListItemController: React.FC<ChannelListItemControllerProps>
 	className,
 	channelId,
 }) => {
-	const [bearer] = useBearer("");
+	const [loading, channel] = useChannel(channelId);
 
-	const { isLoading, isError, data } = useQuery(["channel", channelId], () =>
-		fetchChannel(bearer, channelId)
-	);
-
-	if (isLoading) {
+	if (loading || channel == null) {
 		return <div>Loading...</div>;
 	}
 
-	if (isError || data === undefined || data.channel == null) {
-		return <div>Error...</div>;
-	}
-
-	return (
-		<ChannelListItem
-			channel={data.channel}
-			url={BuildChannelUrl(data.channel.youtubeId)}
-		></ChannelListItem>
-	);
+	return <ChannelListItem channel={channel} url={BuildChannelUrl(channel.youtubeId)}></ChannelListItem>;
 };

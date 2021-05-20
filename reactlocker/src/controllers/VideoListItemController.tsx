@@ -1,8 +1,6 @@
 import React from "react";
-import { useQuery } from "react-query";
 import { VideoListItem } from "../components/VideosListItem";
-import { useBearer } from "../shared/hooks/useBearer";
-import { fetchVideo } from "../shared/api/video";
+import { useVideo } from "../shared/api/useVideo";
 import { BuildVideoUrl } from "../shared/urls";
 
 export interface VideoListItemControllerProps {
@@ -11,17 +9,11 @@ export interface VideoListItemControllerProps {
 }
 
 export const VideoListItemController: React.FC<VideoListItemControllerProps> = ({ className, videoId }) => {
-	const [bearer] = useBearer("");
+	const [loading, video] = useVideo(videoId);
 
-	const { isLoading, isError, data } = useQuery(["video", videoId], () => fetchVideo(bearer, videoId));
-
-	if (isLoading) {
+	if (loading || video == null) {
 		return <div>Loading...</div>;
 	}
 
-	if (isError || data === undefined || data.video == null) {
-		return <div>Error...</div>;
-	}
-
-	return <VideoListItem video={data.video} url={BuildVideoUrl(data.video.youtubeId)}></VideoListItem>;
+	return <VideoListItem video={video} url={BuildVideoUrl(video.youtubeId)}></VideoListItem>;
 };
