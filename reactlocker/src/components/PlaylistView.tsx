@@ -53,7 +53,7 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 				</div>
 				<div className="flex gap-2">
 					<img
-						src={playlist.thumbnail}
+						src={playlist.thumbnailUrl}
 						alt="Logo"
 						className={`col-span-6 rounded-lg object-cover ${imageSize}`}
 					/>

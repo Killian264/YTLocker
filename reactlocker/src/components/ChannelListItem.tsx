@@ -6,9 +6,10 @@ import { RightArrow } from "./Svg";
 export interface ChannelListItemProps {
 	className?: string;
 	channel: Channel;
+	url: string;
 }
 
-export const ChannelListItem: React.FC<ChannelListItemProps> = ({ channel, className }) => {
+export const ChannelListItem: React.FC<ChannelListItemProps> = ({ channel, className, url }) => {
 	const css = `${className} hover:bg-primary-600 rounded-md flex justify-between cursor-pointer`;
 
 	const imageSize = "md:h-20 sm:h-16 h-16";
@@ -16,16 +17,20 @@ export const ChannelListItem: React.FC<ChannelListItemProps> = ({ channel, class
 	const textSize = "sm:text-md text-md";
 
 	const open = () => {
-		window.open(channel.url, "_blank");
+		window.open(url, "_blank");
 	};
 
 	return (
 		<div className={css} onClick={open}>
 			<div className="flex p-1">
-				<img src={channel.thumbnail} alt="Logo" className={`rounded-lg object-cover ${imageSize}`} />
+				<img
+					src={channel.thumbnailUrl}
+					alt="Logo"
+					className={`rounded-lg object-cover ${imageSize}`}
+				/>
 				<div className="pl-3 flex flex-col">
 					<span className={`${textSize} font-semibold`}>{channel.title}</span>
-					<Link className={`${textSize} text-accent ml-0.5`} href={channel.url} target="_blank">
+					<Link className={`${textSize} text-accent ml-0.5`} href={url} target="_blank">
 						Youtube Link
 					</Link>
 				</div>

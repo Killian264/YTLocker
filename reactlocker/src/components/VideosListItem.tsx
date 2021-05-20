@@ -6,9 +6,10 @@ import { RightArrow } from "./Svg";
 export interface VideoListItemProps {
 	className?: string;
 	video: Video;
+	url: string;
 }
 
-export const VideoListItem: React.FC<VideoListItemProps> = ({ video, className }) => {
+export const VideoListItem: React.FC<VideoListItemProps> = ({ video, className, url }) => {
 	const css = `${className} hover:bg-primary-600 rounded-md flex justify-between cursor-pointer`;
 
 	const imageSize = "md:h-20 sm:h-16 h-16";
@@ -16,16 +17,16 @@ export const VideoListItem: React.FC<VideoListItemProps> = ({ video, className }
 	const textSize = "sm:text-md text-md";
 
 	const open = () => {
-		window.open(video.url, "_blank");
+		window.open(url, "_blank");
 	};
 
 	return (
 		<div className={css} onClick={open}>
 			<div className="flex p-1">
-				<img src={video.thumbnail} alt="Logo" className={`rounded-lg object-cover ${imageSize}`} />
+				<img src={video.thumbnailUrl} alt="Logo" className={`rounded-lg object-cover ${imageSize}`} />
 				<div className="pl-3 flex flex-col">
 					<span className={`${textSize} font-semibold`}>{video.title}</span>
-					<Link className={`${textSize} text-accent ml-0.5`} href={video.url} target="_blank">
+					<Link className={`${textSize} text-accent ml-0.5`} href={url} target="_blank">
 						Youtube Link
 					</Link>
 				</div>

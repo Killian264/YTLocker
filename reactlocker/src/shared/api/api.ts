@@ -1,12 +1,12 @@
-import { Channel, Playlist, User, UserLogin, UserRegister, Video } from "./types";
-import { DROPLET_BASE } from "./env";
+import { Channel, Playlist, User, UserLogin, UserRegister, Video } from "../types";
+import { DROPLET_BASE } from "../env";
 
-interface ApiResponse {
+export interface ApiResponse {
 	success: boolean;
 	message: string;
 }
 
-interface InternalResponse extends ApiResponse {
+export interface InternalResponse extends ApiResponse {
 	data: any;
 }
 
@@ -104,21 +104,17 @@ const ParsePlaylistListResponse = (res: InternalResponse): PlaylistListResponse 
 
 		let playlist: Playlist = {
 			id: playlistJSON.ID,
-			youtube: playlistJSON.YoutubeID,
-			thumbnail: thumbnail.URL,
+			youtubeId: playlistJSON.YoutubeID,
+			thumbnailUrl: thumbnail.URL,
 			title: playlistJSON.Title,
 			description: playlistJSON.Description,
-			url: "https://www.youtube.com/playlist?list=" + playlistJSON.YoutubeID,
+			// url: "https://www.youtube.com/playlist?list=" + playlistJSON.YoutubeID,
 			created: new Date(Date.parse(playlistJSON.CreatedAt)),
-			Videos: [],
-			Channels: [],
+			videos: playlistJSON.Videos,
+			channels: playlistJSON.Channels,
 		};
 
-		return {
-			...playlist,
-			Videos: ParseVideos(playlistJSON, playlist),
-			Channels: ParseChannels(playlistJSON, playlist),
-		};
+		return playlist;
 	});
 
 	return {
@@ -165,51 +161,51 @@ const ParseUserInformationResponse = (data: InternalResponse): UserInformationRe
 	};
 };
 
-const ParseChannels = (json: any, playlist: Playlist): Channel[] => {
-	let channels: Channel[] = json.Channels.map((channel: any) => {
-		// let thumbnail =
-		// 	channelJSON.Thumbnails[
-		// 		channelJSON.Thumbnails.length - 1
-		// 	];
+// const ParseChannels = (json: any, playlist: Playlist): Channel[] => {
+// 	let channels: Channel[] = json.Channels.map((channel: any) => {
+// 		// let thumbnail =
+// 		// 	channelJSON.Thumbnails[
+// 		// 		channelJSON.Thumbnails.length - 1
+// 		// 	];
 
-		let parsed: Channel = {
-			id: channel.ID,
-			youtube: channel.YoutubeID,
-			thumbnail:
-				"https://i.ytimg.com/vi/1PBNAoKd-70/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLCFnLzV-VCKC28TFfjTi5cQL7zXiA",
-			title: channel.Title,
-			description: channel.Description,
-			url: `https://www.youtube.com/channel/${channel.YoutubeID}`,
-			created: new Date(Date.parse(channel.CreatedAt)),
-		};
+// 		let parsed: Channel = {
+// 			id: channel.ID,
+// 			youtube: channel.YoutubeID,
+// 			thumbnail:
+// 				"https://i.ytimg.com/vi/1PBNAoKd-70/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLCFnLzV-VCKC28TFfjTi5cQL7zXiA",
+// 			title: channel.Title,
+// 			description: channel.Description,
+// 			url: `https://www.youtube.com/channel/${channel.YoutubeID}`,
+// 			created: new Date(Date.parse(channel.CreatedAt)),
+// 		};
 
-		return parsed;
-	});
+// 		return parsed;
+// 	});
 
-	return channels;
-};
+// 	return channels;
+// };
 
-const ParseVideos = (json: any, playlist: Playlist): Video[] => {
-	const videos = json.Videos.map((video: any) => {
-		// let thumbnail =
-		// 	videoJSON.Thumbnails[videoJSON.Thumbnails.length - 1];
+// const ParseVideos = (json: any, playlist: Playlist): Video[] => {
+// 	const videos = json.Videos.map((video: any) => {
+// 		// let thumbnail =
+// 		// 	videoJSON.Thumbnails[videoJSON.Thumbnails.length - 1];
 
-		let parsed = {
-			id: video.ID,
-			youtube: video.YoutubeID,
-			thumbnail:
-				"https://i.ytimg.com/vi/1PBNAoKd-70/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLCFnLzV-VCKC28TFfjTi5cQL7zXiA",
-			title: video.Title,
-			description: video.Description,
-			created: new Date(Date.parse(video.CreatedAt)),
-			url: `https://www.youtube.com/watch?v=${video.YoutubeID}&list=${playlist.youtube}`,
-		};
+// 		let parsed = {
+// 			id: video.ID,
+// 			youtube: video.YoutubeID,
+// 			thumbnail:
+// 				"https://i.ytimg.com/vi/1PBNAoKd-70/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLCFnLzV-VCKC28TFfjTi5cQL7zXiA",
+// 			title: video.Title,
+// 			description: video.Description,
+// 			created: new Date(Date.parse(video.CreatedAt)),
+// 			url: `https://www.youtube.com/watch?v=${video.YoutubeID}&list=${playlist.youtube}`,
+// 		};
 
-		return parsed;
-	});
+// 		return parsed;
+// 	});
 
-	return videos;
-};
+// 	return videos;
+// };
 
 const ParseApiResponse = (data: any): InternalResponse => {
 	return {

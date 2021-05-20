@@ -1,4 +1,5 @@
 import { Channel, Playlist, Video } from "../shared/types";
+import { BuildPlaylistUrl, BuildVideoUrl } from "../shared/urls";
 import { Card } from "./Card";
 import { ChannelListItem } from "./ChannelListItem";
 import { PlaylistListItem } from "./PlaylistListItem";
@@ -17,7 +18,13 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({ className, playlists
 			return "";
 		}
 
-		return <PlaylistListItem key={index} playlist={playlist}></PlaylistListItem>;
+		return (
+			<PlaylistListItem
+				url={BuildPlaylistUrl(playlist.youtubeId)}
+				key={index}
+				playlist={playlist}
+			></PlaylistListItem>
+		);
 	});
 
 	return (
@@ -45,7 +52,7 @@ export const VideoList: React.FC<VideoListProps> = ({ className, videos, limit }
 			return "";
 		}
 
-		return <VideoListItem key={index} video={video}></VideoListItem>;
+		return <VideoListItem url={BuildVideoUrl(video.youtubeId)} key={index} video={video}></VideoListItem>;
 	});
 
 	return (
@@ -62,18 +69,18 @@ export const VideoList: React.FC<VideoListProps> = ({ className, videos, limit }
 
 interface ChannelsListProp {
 	className?: string;
-	channels: Channel[];
+	channels: number[];
 	limit: number;
 }
 
 export const ChannelsList: React.FC<ChannelsListProp> = ({ className, channels, limit }) => {
-	let list = channels.map((channel, index) => {
-		if (index >= limit) {
-			return "";
-		}
+	// let list = channels.map((channel, index) => {
+	// 	if (index >= limit) {
+	// 		return "";
+	// 	}
 
-		return <ChannelListItem key={index} channel={channel}></ChannelListItem>;
-	});
+	// 	return <ChannelListItem key={index} channel={channel}></ChannelListItem>;
+	// });
 
 	return (
 		<Card className={className}>
@@ -82,7 +89,8 @@ export const ChannelsList: React.FC<ChannelsListProp> = ({ className, channels, 
 					<span className="leading-none -mt-0.5">Channels</span>
 				</div>
 			</div>
-			<div className="grid gap-2">{list}</div>
+			{/* <div className="grid gap-2">{list}</div> */}
+			<div></div>
 		</Card>
 	);
 };

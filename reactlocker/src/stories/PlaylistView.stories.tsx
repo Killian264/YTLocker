@@ -10,15 +10,14 @@ export default {
 
 const playlist: Playlist = {
 	id: 932423423,
-	youtube: "PLamdXAekZPYiqLDNQXQTbm4N_cPBmLPyr",
-	thumbnail:
+	youtubeId: "PLamdXAekZPYiqLDNQXQTbm4N_cPBmLPyr",
+	thumbnailUrl:
 		"https://i.ytimg.com/vi/1PBNAoKd-70/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLCFnLzV-VCKC28TFfjTi5cQL7zXiA",
 	title: "DogeLog",
 	description: "Videos showing Ben Awad as he builds dogehouse.",
-	url: "https://www.youtube.com/playlist?list=PLN3n1USn4xlkZgqq9SdgUXPmgpoxUM9QK",
 	created: new Date(),
-	Videos: [],
-	Channels: [],
+	videos: [],
+	channels: [],
 };
 
 const Mocked: Story<PlaylistViewProps> = ({ ...props }) => {

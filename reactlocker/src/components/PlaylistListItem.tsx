@@ -6,9 +6,10 @@ import { RightArrow } from "./Svg";
 export interface PlaylistItemProps {
 	className?: string;
 	playlist: Playlist;
+	url: string;
 }
 
-export const PlaylistListItem: React.FC<PlaylistItemProps> = ({ playlist, className }) => {
+export const PlaylistListItem: React.FC<PlaylistItemProps> = ({ playlist, className, url }) => {
 	const css = `${className} hover:bg-primary-600 rounded-md flex justify-between cursor-pointer`;
 
 	const imageSize = "md:h-20 sm:h-16 h-16";
@@ -16,16 +17,20 @@ export const PlaylistListItem: React.FC<PlaylistItemProps> = ({ playlist, classN
 	const textSize = "sm:text-md text-md";
 
 	const open = () => {
-		window.open(playlist.url, "_blank");
+		window.open(url, "_blank");
 	};
 
 	return (
 		<div className={css} onClick={open}>
 			<div className="flex p-1">
-				<img src={playlist.thumbnail} alt="Logo" className={`rounded-lg object-cover ${imageSize}`} />
+				<img
+					src={playlist.thumbnailUrl}
+					alt="Logo"
+					className={`rounded-lg object-cover ${imageSize}`}
+				/>
 				<div className="pl-3 flex flex-col">
 					<span className={`${textSize} font-semibold`}>{playlist.title}</span>
-					<Link className={`${textSize} text-accent ml-0.5`} href={playlist.url} target="_blank">
+					<Link className={`${textSize} text-accent ml-0.5`} href={url} target="_blank">
 						Youtube Link
 					</Link>
 				</div>

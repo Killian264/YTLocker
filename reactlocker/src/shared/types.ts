@@ -24,32 +24,30 @@ export interface StatCard {
 
 export interface Playlist {
 	id: number;
-	youtube: string;
-	thumbnail: string;
+	youtubeId: string;
+	thumbnailUrl: string;
 	title: string;
 	description: string;
-	url: string;
-	Channels: Channel[];
-	Videos: Video[];
+	channels: number[];
+	videos: number[];
 	created: Date;
 }
 
 export interface Video {
 	id: number;
-	youtube: string;
-	thumbnail: string;
+	youtubeId: string;
+	thumbnailUrl: string;
 	title: string;
 	description: string;
-	url: string;
 	created: Date;
 }
 
 export interface Channel {
 	id: number;
-	youtube: string;
-	thumbnail: string;
+	youtubeId: string;
+	thumbnailUrl: string;
 	title: string;
 	description: string;
-	url: string;
+	videos: number[];
 	created: Date;
 }

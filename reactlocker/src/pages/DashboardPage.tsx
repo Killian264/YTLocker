@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
-import { ChannelsList, PlaylistList, VideoList } from "../components/ListCards";
+import { Card } from "../components/Card";
+import { PlaylistList } from "../components/ListCards";
 import { UserInfoBar } from "../components/UserInfoBar";
-import { API, PlaylistListResponse } from "../shared/api";
+import { VideoListItemController } from "../controllers/VideoListItemController";
+import { ChannelListItemController } from "../controllers/ChannelListItemController";
+import { API } from "../shared/api/api";
 import { useBearer } from "../shared/hooks/useBearer";
-import { Channel, Playlist, StatCard, User, Video } from "../shared/types";
+import { Playlist, StatCard, User } from "../shared/types";
 
 export const DashboardPage: React.FC<RouteComponentProps> = ({ history }) => {
 	const [bearer] = useBearer("");
 	const [playlists, setPlaylists] = useState<Playlist[]>([]);
-	const [channels, setChannels] = useState<Channel[]>([]);
-	const [videos, setVideos] = useState<Video[]>([]);
+	const [channels, setChannels] = useState<number[]>([]);
 	const [stats, setStats] = useState<StatCard[]>([]);
 	const [user, setUser] = useState<User | null>(null);
 
@@ -38,12 +40,17 @@ export const DashboardPage: React.FC<RouteComponentProps> = ({ history }) => {
 				history.push("/login");
 			}
 
-			let [playlistsList, channelsList, videosList] = ParsePlaylistListIntoLists(res);
-			let stats = ParseStats(playlistsList, channelsList, videosList);
+			let playlists = res.playlists;
+			let channels2: number[] = [];
 
-			setPlaylists(playlistsList);
-			setChannels(channelsList);
-			setVideos(videosList);
+			playlists.forEach((playlist) => {
+				channels2 = [...channels2, ...playlist.channels];
+			});
+
+			let stats = ParseStats(playlists);
+
+			setPlaylists(playlists);
+			setChannels(channels2);
 			setStats(stats);
 		})();
 	}, [bearer, history]);
@@ -59,11 +66,13 @@ export const DashboardPage: React.FC<RouteComponentProps> = ({ history }) => {
 					playlists={playlists}
 					limit={5}
 				></PlaylistList>
-				<VideoList
-					className="xl:col-span-5 lg:col-span-6 col-span-12"
-					videos={videos}
-					limit={5}
-				></VideoList>
+				{playlists.length == 2 && (
+					<VideoList
+						className="xl:col-span-5 lg:col-span-6 col-span-12"
+						videos={playlists[1].videos}
+						limit={5}
+					></VideoList>
+				)}
 				<ChannelsList
 					className="col-span-12"
 					channels={channels}
@@ -75,34 +84,14 @@ export const DashboardPage: React.FC<RouteComponentProps> = ({ history }) => {
 	);
 };
 
-const ParsePlaylistListIntoLists = (res: PlaylistListResponse): [Playlist[], Channel[], Video[]] => {
-	let playlists = res.playlists;
-	let channels: Channel[] = [];
-	let videos: Video[] = [];
+const ParseStats = (playlists: Playlist[]): StatCard[] => {
+	let videoCount = 0;
+	let channelCount = 0;
 
 	playlists.forEach((playlist) => {
-		channels.push(...playlist.Channels);
+		videoCount += playlist.videos.length;
+		channelCount += playlist.channels.length;
 	});
-
-	playlists.forEach((playlist) => {
-		videos.push(...playlist.Videos);
-	});
-
-	channels = channels.sort((a: Channel, b: Channel) => {
-		return b.created.getTime() - a.created.getTime();
-	});
-
-	videos = videos.sort((a: Video, b: Video) => {
-		return b.created.getTime() - a.created.getTime();
-	});
-
-	return [playlists, channels, videos];
-};
-
-const ParseStats = (playlists: Playlist[], channels: Channel[], videos: Video[]): StatCard[] => {
-	let today = new Date();
-
-	let date = videos.length > 0 ? videos[0].created : today;
 
 	return [
 		{
@@ -112,18 +101,72 @@ const ParseStats = (playlists: Playlist[], channels: Channel[], videos: Video[])
 		},
 		{
 			header: "Videos",
-			count: videos.length,
+			count: videoCount,
 			measurement: "total",
 		},
 		{
 			header: "Subscriptions",
-			count: channels.length,
+			count: channelCount,
 			measurement: "total",
 		},
 		{
 			header: "Updated",
-			count: today.getHours() - date.getHours(),
+			count: 12,
 			measurement: "hours ago",
 		},
 	];
+};
+
+interface VideoListProps {
+	className?: string;
+	videos: number[];
+	limit: number;
+}
+
+export const VideoList: React.FC<VideoListProps> = ({ className, videos, limit }) => {
+	let list = videos.map((id, index) => {
+		if (index >= limit) {
+			return "";
+		}
+
+		return <VideoListItemController key={id} videoId={id}></VideoListItemController>;
+	});
+
+	return (
+		<Card className={className}>
+			<div className="flex justify-between -mb-1 -mt-1">
+				<div className="text-2xl font-semibold">
+					<span className="leading-none -mt-0.5">Videos</span>
+				</div>
+			</div>
+			<div className="grid gap-2">{list}</div>
+		</Card>
+	);
+};
+
+interface ChannelsListProp {
+	className?: string;
+	channels: number[];
+	limit: number;
+}
+
+export const ChannelsList: React.FC<ChannelsListProp> = ({ className, channels, limit }) => {
+	let list = channels.map((id, index) => {
+		if (index >= limit) {
+			return "";
+		}
+
+		return <ChannelListItemController key={id} channelId={id}></ChannelListItemController>;
+	});
+
+	return (
+		<Card className={className}>
+			<div className="flex justify-between -mb-1 -mt-1">
+				<div className="text-2xl font-semibold">
+					<span className="leading-none -mt-0.5">Channels</span>
+				</div>
+			</div>
+			<div className="grid gap-2">{list}</div>
+		</Card>
+	);
 };

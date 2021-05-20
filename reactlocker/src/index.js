@@ -3,10 +3,15 @@ import ReactDOM from "react-dom";
 import "./styles/tailwind.css";
 import { IndexPage } from "./pages/IndexPage";
 import reportWebVitals from "./reportWebVitals";
+import { QueryClient, QueryClientProvider } from "react-query";
+
+const queryClient = new QueryClient();
 
 ReactDOM.render(
 	<React.StrictMode>
-		<IndexPage />
+		<QueryClientProvider client={queryClient}>
+			<IndexPage />
+		</QueryClientProvider>
 	</React.StrictMode>,
 	document.getElementById("root")
 );

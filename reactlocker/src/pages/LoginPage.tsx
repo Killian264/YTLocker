@@ -5,7 +5,7 @@ import { Register } from "../components/Register";
 import { LogoBar } from "../components/LogoBar";
 import { UserLogin, UserRegister } from "../shared/types";
 import { RouteComponentProps } from "react-router-dom";
-import { API } from "../shared/api";
+import { API } from "../shared/api/api";
 import { useBearer } from "../shared/hooks/useBearer";
 import { useAlert } from "../shared/hooks/useAlert";
 
