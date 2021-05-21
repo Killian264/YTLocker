@@ -1,5 +1,6 @@
 import React from "react";
 import { Playlist } from "../shared/types";
+import { ColorBadge } from "./ColorBadge";
 import { Link } from "./Link";
 import { RightArrow } from "./Svg";
 
@@ -30,9 +31,12 @@ export const PlaylistListItem: React.FC<PlaylistItemProps> = ({ playlist, classN
 				/>
 				<div className="pl-3 flex flex-col">
 					<span className={`${textSize} font-semibold`}>{playlist.title}</span>
-					<Link className={`${textSize} text-accent ml-0.5`} href={url} target="_blank">
+					<Link className={`${textSize} text-accent`} href={url} target="_blank">
 						Youtube Link
 					</Link>
+					<div>
+						<ColorBadge className="mt-2" color={playlist.color}></ColorBadge>
+					</div>
 				</div>
 			</div>
 			<div className="mr-2 my-auto select-none">

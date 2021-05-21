@@ -1,4 +1,4 @@
-import { Channel, Playlist, User, UserLogin, UserRegister, Video } from "../types";
+import { UserLogin, UserRegister } from "../types";
 import { DROPLET_BASE } from "../env";
 
 export interface ApiResponse {

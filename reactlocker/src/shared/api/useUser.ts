@@ -15,12 +15,16 @@ export const useUser = (): [boolean, User | null] => {
 
 	const { isLoading, isError, data } = useQuery(["user"], () => UserInformation(bearer));
 
-	if (isLoading || isError || data === undefined || data.user == null) {
+	if (isLoading || isError || data === undefined) {
 		return [true, null];
 	}
 
 	if (data.status === 401) {
 		history.push("/login");
+	}
+
+	if (data.user === null) {
+		return [true, null];
 	}
 
 	return [false, data.user];
@@ -44,7 +48,7 @@ const UserInformation = async (bearer: string) => {
 		user: null,
 	};
 
-	if (user.status == 200) {
+	if (user.status === 200) {
 		user.user = {
 			username: res.Data.Username,
 			email: res.Data.Email,

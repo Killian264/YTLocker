@@ -1,3 +1,5 @@
+import { ColorToColorCSS } from "./colors";
+
 export interface User {
 	username: string;
 	email: string;
@@ -31,6 +33,7 @@ export interface Playlist {
 	channels: number[];
 	videos: number[];
 	created: Date;
+	color: keyof typeof ColorToColorCSS;
 }
 
 export interface Video {
@@ -51,3 +54,5 @@ export interface Channel {
 	videos: number[];
 	created: Date;
 }
+
+export type Color = keyof typeof ColorToColorCSS;

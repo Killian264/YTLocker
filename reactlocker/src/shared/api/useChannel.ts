@@ -15,12 +15,16 @@ export const useChannel = (id: number): [boolean, Channel | null] => {
 
 	const { isLoading, isError, data } = useQuery(["channel", id], () => fetchChannel(bearer, id));
 
-	if (isLoading || isError || data === undefined || data.channel == null) {
+	if (isLoading || isError || data === undefined) {
 		return [true, null];
 	}
 
 	if (data.status === 401) {
 		history.push("/login");
+	}
+
+	if (data.channel === null) {
+		return [true, null];
 	}
 
 	return [false, data.channel];
@@ -44,7 +48,7 @@ const fetchChannel = async (bearer: string, id: number): Promise<ChannelFetchRes
 		channel: null,
 	};
 
-	if (channel.status == 200) {
+	if (channel.status === 200) {
 		channel.channel = parseChannel(res.Data);
 	}
 

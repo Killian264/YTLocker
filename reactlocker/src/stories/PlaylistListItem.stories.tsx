@@ -21,6 +21,7 @@ const playlists: Playlist[] = [
 		created: new Date(),
 		channels: [],
 		videos: [],
+		color: "red-1",
 	},
 ];
 

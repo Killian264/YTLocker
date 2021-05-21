@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { Card } from "../components/Card";
-import { VideoListItemController } from "../controllers/VideoListItemController";
 import { ChannelListItemController } from "../controllers/ChannelListItemController";
 import { UserInfoBarController } from "../controllers/UserInfoBarController";
 import { usePlaylists } from "../shared/api/usePlaylists";
@@ -9,11 +8,11 @@ import { Playlist } from "../shared/types";
 import { PlaylistListItem } from "../components/PlaylistListItem";
 import { PlusButton } from "../components/PlusButton";
 import { BuildPlaylistUrl } from "../shared/urls";
+import { VideoListLatestController } from "../controllers/VideosListLatestController";
 
 export const DashboardPage: React.FC<RouteComponentProps> = ({ history }) => {
-	const [channels, setChannels] = useState<number[]>([]);
-
 	const [playlistsLoading, playlists] = usePlaylists();
+	const [channels, setChannels] = useState<number[]>([]);
 
 	useEffect(() => {
 		let merged: number[] = [];
@@ -25,61 +24,41 @@ export const DashboardPage: React.FC<RouteComponentProps> = ({ history }) => {
 		setChannels(merged);
 	}, [playlists]);
 
+	let videoLimit = 5;
+
+	if (!playlistsLoading && playlists !== null) {
+		videoLimit = playlists.length + channels.length + 2;
+	}
+
 	return (
-		<div>
+		<div className="mx-5">
 			<div className="p-4 mx-auto max-w-7xl">
 				<UserInfoBarController></UserInfoBarController>
 			</div>
-			<div className="px-4 mx-auto max-w-7xl grid grid-cols-12 gap-4">
-				{!playlistsLoading && playlists != null && (
-					<PlaylistList
-						className="xl:col-span-7 lg:col-span-6 col-span-12"
-						playlists={playlists}
-						limit={5}
-					></PlaylistList>
-				)}
-				{playlists.length == 2 && (
-					<VideoList
-						className="xl:col-span-5 lg:col-span-6 col-span-12"
-						videos={playlists[1].videos}
-						limit={5}
-					></VideoList>
-				)}
-				<ChannelsList
-					className="col-span-12"
-					channels={channels}
-					limit={Number.MAX_VALUE}
-				></ChannelsList>
-			</div>
-			<div className="px-4 mx-auto max-w-7xl m-3"></div>
-		</div>
-	);
-};
-
-interface VideoListProps {
-	className?: string;
-	videos: number[];
-	limit: number;
-}
-
-export const VideoList: React.FC<VideoListProps> = ({ className, videos, limit }) => {
-	let list = videos.map((id, index) => {
-		if (index >= limit) {
-			return "";
-		}
-
-		return <VideoListItemController key={id} videoId={id}></VideoListItemController>;
-	});
-
-	return (
-		<Card className={className}>
-			<div className="flex justify-between -mb-1 -mt-1">
-				<div className="text-2xl font-semibold">
-					<span className="leading-none -mt-0.5">Videos</span>
+			<div className="grid gap-4 px-4 mx-auto max-w-7xl grid-cols-12">
+				<div className="grid gap-4 xl:col-span-7 col-span-12">
+					{!playlistsLoading && playlists !== null && (
+						<PlaylistList playlists={playlists} limit={5}></PlaylistList>
+					)}
+					<ChannelsList
+						className="xl:block hidden"
+						channels={channels}
+						limit={Number.MAX_VALUE}
+					></ChannelsList>
+				</div>
+				<div className="xl:col-span-5 col-span-12">
+					{playlists.length === 2 && (
+						<VideoListLatestController
+							className="xl:col-span-5 lg:col-span-6 col-span-12"
+							limit={videoLimit}
+						></VideoListLatestController>
+					)}
+				</div>
+				<div className="col-span-12 xl:hidden block">
+					<ChannelsList channels={channels} limit={Number.MAX_VALUE}></ChannelsList>
 				</div>
 			</div>
-			<div className="grid gap-2">{list}</div>
-		</Card>
+		</div>
 	);
 };
 
@@ -95,7 +74,7 @@ export const ChannelsList: React.FC<ChannelsListProp> = ({ className, channels, 
 			return "";
 		}
 
-		return <ChannelListItemController key={id} channelId={id}></ChannelListItemController>;
+		return <ChannelListItemController key={index} channelId={id}></ChannelListItemController>;
 	});
 
 	return (

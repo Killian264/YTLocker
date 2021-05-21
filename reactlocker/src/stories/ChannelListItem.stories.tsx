@@ -28,9 +28,23 @@ const Mocked: Story<{}> = ({ ...props }) => {
 		<Card>
 			<div></div>
 			<div>
-				<ChannelListItem url={url} channel={channels[0]}></ChannelListItem>
-				<ChannelListItem url={url} channel={channels[0]} className="mt-3"></ChannelListItem>
-				<ChannelListItem url={url} channel={channels[0]} className="mt-3"></ChannelListItem>
+				<ChannelListItem
+					url={url}
+					channel={channels[0]}
+					playlistColors={["red-1", "yellow-1"]}
+				></ChannelListItem>
+				<ChannelListItem
+					url={url}
+					channel={channels[0]}
+					playlistColors={["red-1"]}
+					className="mt-3"
+				></ChannelListItem>
+				<ChannelListItem
+					url={url}
+					channel={channels[0]}
+					playlistColors={["yellow-1"]}
+					className="mt-3"
+				></ChannelListItem>
 			</div>
 		</Card>
 	);

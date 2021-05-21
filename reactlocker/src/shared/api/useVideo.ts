@@ -15,12 +15,16 @@ export const useVideo = (id: number): [boolean, Video | null] => {
 
 	const { isLoading, isError, data } = useQuery(["channel", id], () => fetchVideo(bearer, id));
 
-	if (isLoading || isError || data === undefined || data.video == null) {
+	if (isLoading || isError || data === undefined) {
 		return [true, null];
 	}
 
 	if (data.status === 401) {
 		history.push("/login");
+	}
+
+	if (data.video === null) {
+		return [true, null];
 	}
 
 	return [false, data.video];
@@ -44,7 +48,7 @@ const fetchVideo = async (bearer: string, id: number): Promise<VideoFetchRespons
 		video: null,
 	};
 
-	if (video.status == 200) {
+	if (video.status === 200) {
 		video.video = parseVideo(res.Data);
 	}
 

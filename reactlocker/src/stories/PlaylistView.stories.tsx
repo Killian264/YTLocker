@@ -18,6 +18,7 @@ const playlist: Playlist = {
 	created: new Date(),
 	videos: [],
 	channels: [],
+	color: "red-1",
 };
 
 const Mocked: Story<PlaylistViewProps> = ({ ...props }) => {

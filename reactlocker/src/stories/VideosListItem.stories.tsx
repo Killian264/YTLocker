@@ -28,9 +28,19 @@ const Mocked: Story<{}> = ({ ...props }) => {
 		<Card>
 			<div></div>
 			<div>
-				<VideoListItem url={url} video={videos[0]}></VideoListItem>
-				<VideoListItem url={url} video={videos[0]} className="mt-3"></VideoListItem>
-				<VideoListItem url={url} video={videos[0]} className="mt-3"></VideoListItem>
+				<VideoListItem url={url} video={videos[0]} playlistColor="red-1"></VideoListItem>
+				<VideoListItem
+					url={url}
+					video={videos[0]}
+					playlistColor="red-1"
+					className="mt-3"
+				></VideoListItem>
+				<VideoListItem
+					url={url}
+					video={videos[0]}
+					playlistColor="red-1"
+					className="mt-3"
+				></VideoListItem>
 			</div>
 		</Card>
 	);

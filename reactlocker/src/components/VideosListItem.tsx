@@ -1,15 +1,17 @@
 import React from "react";
+import { ColorToColorCSS } from "../shared/colors";
 import { Video } from "../shared/types";
-import { Link } from "./Link";
+import { ColorBadge } from "./ColorBadge";
 import { RightArrow } from "./Svg";
 
 export interface VideoListItemProps {
 	className?: string;
 	video: Video;
 	url: string;
+	playlistColor: keyof typeof ColorToColorCSS;
 }
 
-export const VideoListItem: React.FC<VideoListItemProps> = ({ video, className, url }) => {
+export const VideoListItem: React.FC<VideoListItemProps> = ({ video, className, url, playlistColor }) => {
 	const css = `${className} hover:bg-primary-600 rounded-md flex justify-between cursor-pointer`;
 
 	const imageSize = "md:h-20 sm:h-16 h-16";
@@ -20,15 +22,18 @@ export const VideoListItem: React.FC<VideoListItemProps> = ({ video, className, 
 		window.open(url, "_blank");
 	};
 
+	let trimmedTitle = video.title.length > 30 ? video.title.substring(0, 33) + "..." : video.title;
+
 	return (
 		<div className={css} onClick={open}>
 			<div className="flex p-1">
 				<img src={video.thumbnailUrl} alt="Logo" className={`rounded-lg object-cover ${imageSize}`} />
 				<div className="pl-3 flex flex-col">
-					<span className={`${textSize} font-semibold`}>{video.title}</span>
-					<Link className={`${textSize} text-accent ml-0.5`} href={url} target="_blank">
-						Youtube Link
-					</Link>
+					<span className={`${textSize} font-semibold`}>{trimmedTitle}</span>
+					<span className="text-sm text-primary-text-200">{video.created.toDateString()}</span>
+					<div>
+						<ColorBadge className="mt-2" color={playlistColor}></ColorBadge>
+					</div>
 				</div>
 			</div>
 			<div className="mr-2 my-auto select-none">

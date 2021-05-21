@@ -1,5 +1,6 @@
 import { useQuery } from "react-query";
 import { useHistory } from "react-router-dom";
+import { ColorArray } from "../colors";
 import { DROPLET_BASE } from "../env";
 import { useBearer } from "../hooks/useBearer";
 import { Playlist } from "../types";
@@ -43,7 +44,7 @@ export const fetchPlaylist = async (bearer: string): Promise<PlaylistListRespons
 		playlists: [],
 	};
 
-	if (video.status == 200) {
+	if (video.status === 200) {
 		video.playlists = parsePlaylistList(res.Data);
 	}
 
@@ -51,7 +52,7 @@ export const fetchPlaylist = async (bearer: string): Promise<PlaylistListRespons
 };
 
 const parsePlaylistList = (data: any): Playlist[] => {
-	let playlists: Playlist[] = data.map((item: any) => {
+	let playlists: Playlist[] = data.map((item: any, index: number) => {
 		let thumbnail = item.Thumbnails[item.Thumbnails.length - 1];
 
 		let playlist: Playlist = {
@@ -63,6 +64,7 @@ const parsePlaylistList = (data: any): Playlist[] => {
 			created: new Date(Date.parse(item.CreatedAt)),
 			videos: item.Videos,
 			channels: item.Channels,
+			color: ColorArray[index],
 		};
 
 		return playlist;
@@ -70,6 +72,3 @@ const parsePlaylistList = (data: any): Playlist[] => {
 
 	return playlists;
 };
-function fetchVideo(bearer: string, id: number): any {
-	throw new Error("Function not implemented.");
-}
