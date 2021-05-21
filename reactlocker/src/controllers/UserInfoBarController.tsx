@@ -29,7 +29,7 @@ const ParseStats = (playlists: Playlist[], latestVideo: Video): StatCard[] => {
 	let videoCount = 0;
 	let channelCount = 0;
 
-	var hours = Math.abs(new Date().getDate() - latestVideo.created.getDate()) / 36e5;
+	var hours = Math.floor(Math.abs(new Date().getDate() - latestVideo.created.getDate()) / 36e5);
 
 	playlists.forEach((playlist) => {
 		videoCount += playlist.videos.length;

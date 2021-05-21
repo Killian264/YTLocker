@@ -132,15 +132,19 @@ func (d *Data) GetLastestPlaylistVideos(userID uint64) ([]uint64, error) {
 	videos := []OnlyID{}
 
 	result := d.db.Raw(
-		`SELECT PV.video_id AS id FROM playlists P 
-		JOIN playlist_video PV
-			ON P.id = PV.playlist_id
-		JOIN videos AS V
-			ON PV.video_id = V.id
-		WHERE P.user_id = ?
-		ORDER BY V.created_at DESC
-		LIMIT 30;`, 
-		userID,
+		`SELECT DISTINCT id FROM (
+			SELECT 
+				PV.video_id AS id 
+			FROM playlists P 
+			JOIN playlist_video PV
+				ON P.id = PV.playlist_id
+			JOIN videos AS V
+				ON PV.video_id = V.id
+			WHERE P.user_id = ?
+			ORDER BY V.created_at DESC
+		) AS playlist_videos
+		LIMIT 30
+		;`, userID,
 	).Scan(&videos);
 
 	if removeNotFound(result.Error) != nil {
