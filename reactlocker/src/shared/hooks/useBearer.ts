@@ -25,7 +25,7 @@ export const useBearer = (initial: string): [string, (bearer: string) => void] =
 };
 
 const isExpired = (date: Date) => {
-	const twentyHours = 20 * 1000 * 60 * 60;
-	const expires = new Date().getDate() - twentyHours;
+	const twentyHours = 20 * 60 * 60 * 1000;
+	const expires = new Date().valueOf() - twentyHours;
 	return date < new Date(expires);
 };

@@ -9,11 +9,14 @@ export interface VideoFetchResponse extends ApiResponse2 {
 	video: Video | null;
 }
 
-export const useVideo = (id: number): [boolean, Video | null] => {
+export const useVideo = (id: number, enabled = true): [boolean, Video | null] => {
 	const [bearer] = useBearer("");
 	let history = useHistory();
 
-	const { isLoading, isError, data } = useQuery(["channel", id], () => fetchVideo(bearer, id));
+	const { isLoading, isError, data } = useQuery(["channel", id], () => fetchVideo(bearer, id), {
+		refetchInterval: false,
+		enabled: enabled,
+	});
 
 	if (isLoading || isError || data === undefined) {
 		return [true, null];

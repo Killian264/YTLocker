@@ -13,7 +13,9 @@ export const useChannel = (id: number): [boolean, Channel | null] => {
 	const [bearer] = useBearer("");
 	let history = useHistory();
 
-	const { isLoading, isError, data } = useQuery(["channel", id], () => fetchChannel(bearer, id));
+	const { isLoading, isError, data } = useQuery(["channel", id], () => fetchChannel(bearer, id), {
+		refetchInterval: false,
+	});
 
 	if (isLoading || isError || data === undefined) {
 		return [true, null];

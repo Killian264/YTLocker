@@ -15,7 +15,7 @@ export const UserInfoBarController: React.FC<UserInfoBarControllerProps> = ({ cl
 	const [loadingU, user] = useUser();
 	const [loadingP, playlists] = usePlaylists();
 	const [loadingLV, videos] = useLatestVideos();
-	const [, video] = useVideo(loadingLV ? 0 : videos[0]);
+	const [, video] = useVideo(videos[0], false);
 
 	let loading = loadingU || loadingP || loadingLV;
 

@@ -10,11 +10,7 @@ export interface LoginProps {
 	onClickRegister: () => void;
 }
 
-export const Login: React.FC<LoginProps> = ({
-	className,
-	onSubmit,
-	onClickRegister,
-}) => {
+export const Login: React.FC<LoginProps> = ({ className, onSubmit, onClickRegister }) => {
 	const [user, setUser] = React.useState<UserLogin>({
 		email: "",
 		password: "",
@@ -30,6 +26,11 @@ export const Login: React.FC<LoginProps> = ({
 				onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 					setUser({ ...user, email: e.target.value });
 				}}
+				onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+					if (e.key === "Enter") {
+						onSubmit(user);
+					}
+				}}
 			/>
 			<Input
 				className="mt-2"
@@ -38,6 +39,11 @@ export const Login: React.FC<LoginProps> = ({
 				value={user.password}
 				onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 					setUser({ ...user, password: e.target.value });
+				}}
+				onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+					if (e.key === "Enter") {
+						onSubmit(user);
+					}
 				}}
 			/>
 			<div className="flex justify-between mt-4">
