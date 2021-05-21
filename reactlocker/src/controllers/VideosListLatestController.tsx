@@ -35,7 +35,7 @@ export const VideoListLatestController: React.FC<VideoListLatestControllerProps>
 				<VideoListItemController
 					key={count}
 					videoId={videoId}
-					playlistYoutubeId={playlist.youtubeId}
+					playlist={playlist}
 				></VideoListItemController>
 			);
 		});
