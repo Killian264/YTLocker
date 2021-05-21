@@ -21,7 +21,11 @@ export const DashboardPage: React.FC<RouteComponentProps> = ({ history }) => {
 			merged = [...merged, ...playlist.channels];
 		});
 
-		setChannels(merged);
+		let filtered = merged.filter((channel, index) => {
+			return merged.indexOf(channel) === index;
+		});
+
+		setChannels(filtered);
 	}, [playlists]);
 
 	let videoLimit = 5;
@@ -47,12 +51,10 @@ export const DashboardPage: React.FC<RouteComponentProps> = ({ history }) => {
 					></ChannelsList>
 				</div>
 				<div className="xl:col-span-5 col-span-12">
-					{playlists.length === 2 && (
-						<VideoListLatestController
-							className="xl:col-span-5 lg:col-span-6 col-span-12"
-							limit={videoLimit}
-						></VideoListLatestController>
-					)}
+					<VideoListLatestController
+						className="xl:col-span-5 lg:col-span-6 col-span-12"
+						limit={videoLimit}
+					></VideoListLatestController>
 				</div>
 				<div className="col-span-12 xl:hidden block">
 					<ChannelsList channels={channels} limit={Number.MAX_VALUE}></ChannelsList>
