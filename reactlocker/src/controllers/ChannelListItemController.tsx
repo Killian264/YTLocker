@@ -4,6 +4,7 @@ import { ChannelListItem } from "../components/ChannelListItem";
 import { useChannel } from "../shared/api/useChannel";
 import { usePlaylists } from "../shared/api/usePlaylists";
 import { Color } from "../shared/types";
+import { LoadingListItem } from "../components/LoadingListItem";
 
 export interface ChannelListItemControllerProps {
 	className?: string;
@@ -18,11 +19,11 @@ export const ChannelListItemController: React.FC<ChannelListItemControllerProps>
 	const [loadingP, playlists] = usePlaylists();
 
 	if (loadingC || channel == null) {
-		return <div>Loading...</div>;
+		return <LoadingListItem></LoadingListItem>;
 	}
 
 	if (loadingP || playlists == null) {
-		return <div>Loading...</div>;
+		return <LoadingListItem></LoadingListItem>;
 	}
 
 	let colors: Color[] = [];
@@ -34,9 +35,10 @@ export const ChannelListItemController: React.FC<ChannelListItemControllerProps>
 
 	return (
 		<ChannelListItem
+			className={className}
 			channel={channel}
 			url={BuildChannelUrl(channel.youtubeId)}
-			playlistColors={colors}
+			colors={colors}
 		></ChannelListItem>
 	);
 };

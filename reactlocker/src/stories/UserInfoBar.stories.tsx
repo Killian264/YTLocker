@@ -1,4 +1,5 @@
 import { Story } from "@storybook/react";
+import { LoadingUserInfoBar } from "../components/LoadingUserInfoBar";
 import { UserInfoBar, UserInfoBarProps } from "../components/UserInfoBar";
 
 export default {
@@ -36,7 +37,12 @@ const statsCards = [
 ];
 
 const Mocked: Story<UserInfoBarProps> = ({ ...props }) => {
-	return <UserInfoBar user={user} stats={statsCards}></UserInfoBar>;
+	return (
+		<>
+			<UserInfoBar user={user} stats={statsCards}></UserInfoBar>
+			<LoadingUserInfoBar></LoadingUserInfoBar>
+		</>
+	);
 };
 
 export const Primary = Mocked.bind({});

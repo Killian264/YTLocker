@@ -31,18 +31,18 @@ const Mocked: Story<{}> = ({ ...props }) => {
 				<ChannelListItem
 					url={url}
 					channel={channels[0]}
-					playlistColors={["red-1", "yellow-1"]}
+					colors={["red-1", "yellow-1"]}
 				></ChannelListItem>
 				<ChannelListItem
 					url={url}
 					channel={channels[0]}
-					playlistColors={["red-1"]}
+					colors={["red-1"]}
 					className="mt-3"
 				></ChannelListItem>
 				<ChannelListItem
 					url={url}
 					channel={channels[0]}
-					playlistColors={["yellow-1"]}
+					colors={["yellow-1"]}
 					className="mt-3"
 				></ChannelListItem>
 			</div>

@@ -33,7 +33,7 @@ export interface Playlist {
 	channels: number[];
 	videos: number[];
 	created: Date;
-	color: keyof typeof ColorToColorCSS;
+	color: Color;
 }
 
 export interface Video {

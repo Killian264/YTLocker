@@ -1,6 +1,5 @@
 import React from "react";
-import { ColorToColorCSS } from "../shared/colors";
-import { Video } from "../shared/types";
+import { Color, Video } from "../shared/types";
 import { ColorBadge } from "./ColorBadge";
 import { RightArrow } from "./Svg";
 
@@ -8,14 +7,12 @@ export interface VideoListItemProps {
 	className?: string;
 	video: Video;
 	url: string;
-	playlistColor: keyof typeof ColorToColorCSS;
+	color: Color;
 }
 
-export const VideoListItem: React.FC<VideoListItemProps> = ({ video, className, url, playlistColor }) => {
+export const VideoListItem: React.FC<VideoListItemProps> = ({ video, className, url, color }) => {
 	const css = `${className} hover:bg-primary-600 rounded-md flex justify-between cursor-pointer`;
-
 	const imageSize = "md:h-20 sm:h-16 h-16";
-
 	const textSize = "sm:text-md text-md";
 
 	const open = () => {
@@ -27,12 +24,16 @@ export const VideoListItem: React.FC<VideoListItemProps> = ({ video, className, 
 	return (
 		<div className={css} onClick={open}>
 			<div className="flex p-1">
-				<img src={video.thumbnailUrl} alt="Logo" className={`rounded-lg object-cover ${imageSize}`} />
+				<img
+					src={video.thumbnailUrl}
+					alt="thumbnail"
+					className={`${imageSize} rounded-lg object-cover`}
+				/>
 				<div className="pl-3 flex flex-col">
 					<span className={`${textSize} font-semibold`}>{trimmedTitle}</span>
 					<span className="text-sm text-primary-text-200">{video.created.toDateString()}</span>
 					<div>
-						<ColorBadge className="mt-2" color={playlistColor}></ColorBadge>
+						<ColorBadge className="mt-2" color={color}></ColorBadge>
 					</div>
 				</div>
 			</div>

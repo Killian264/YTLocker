@@ -3,6 +3,7 @@ import { usePlaylists } from "../shared/api/usePlaylists";
 import { VideoListItemController } from "./VideoListItemController";
 import { Card } from "../components/Card";
 import { useLatestVideos } from "../shared/api/useLatestVideos";
+import { LoadingList } from "../components/LoadingList";
 
 export interface VideoListLatestControllerProps {
 	className?: string;
@@ -13,8 +14,8 @@ export const VideoListLatestController: React.FC<VideoListLatestControllerProps>
 	const [loadingP, playlists] = usePlaylists();
 	const [loadingV, vidoes] = useLatestVideos();
 
-	if (loadingP || playlists == null || loadingV) {
-		return <div>Loading...</div>;
+	if (loadingP || loadingV || playlists == null) {
+		return <LoadingList limit={10}></LoadingList>;
 	}
 
 	let count = 0;

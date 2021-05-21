@@ -1,4 +1,5 @@
 import React from "react";
+import { LoadingUserInfoBar } from "../components/LoadingUserInfoBar";
 import { UserInfoBar } from "../components/UserInfoBar";
 import { useLatestVideos } from "../shared/api/useLatestVideos";
 import { usePlaylists } from "../shared/api/usePlaylists";
@@ -14,27 +15,31 @@ export const UserInfoBarController: React.FC<UserInfoBarControllerProps> = ({ cl
 	const [loadingU, user] = useUser();
 	const [loadingP, playlists] = usePlaylists();
 	const [loadingLV, videos] = useLatestVideos();
-	const [loadingV, video] = useVideo(loadingLV ? 0 : videos[0]);
+	const [, video] = useVideo(loadingLV ? 0 : videos[0]);
 
-	let loading = loadingU || loadingP || loadingLV || loadingV;
+	let loading = loadingU || loadingP || loadingLV;
 
-	if (loading || user === null || playlists === null || videos === null || video === null) {
-		return <div>Loading...</div>;
+	if (loading || user === null || playlists === null) {
+		return <LoadingUserInfoBar></LoadingUserInfoBar>;
 	}
 
-	return <UserInfoBar className="flex-grow" user={user} stats={ParseStats(playlists, video)}></UserInfoBar>;
+	return <UserInfoBar className={className} user={user} stats={ParseStats(playlists, video)}></UserInfoBar>;
 };
 
-const ParseStats = (playlists: Playlist[], latestVideo: Video): StatCard[] => {
+const ParseStats = (playlists: Playlist[], latestVideo: Video | null): StatCard[] => {
 	let videoCount = 0;
 	let channelCount = 0;
-
-	var hours = Math.floor(Math.abs(new Date().getDate() - latestVideo.created.getDate()) / 36e5);
 
 	playlists.forEach((playlist) => {
 		videoCount += playlist.videos.length;
 		channelCount += playlist.channels.length;
 	});
+
+	let [count, measurement] = [0, "hours ago"];
+
+	if (latestVideo !== null) {
+		[count, measurement] = UpdatedStats(latestVideo);
+	}
 
 	return [
 		{
@@ -54,8 +59,25 @@ const ParseStats = (playlists: Playlist[], latestVideo: Video): StatCard[] => {
 		},
 		{
 			header: "Updated",
-			count: hours,
-			measurement: "hours ago",
+			count: count,
+			measurement: measurement,
 		},
 	];
+};
+
+const UpdatedStats = (video: Video): [number, string] => {
+	const diff = Math.abs(new Date().valueOf() - video.created.valueOf());
+	const hours = Math.floor(diff / 36e5);
+	const minutes = Math.floor(diff / 6e4);
+	const seconds = Math.floor(diff / 1e3);
+
+	if (hours === 0 && minutes === 0) {
+		return [seconds, "seconds ago"];
+	}
+
+	if (hours === 0) {
+		return [minutes, "minutes ago"];
+	}
+
+	return [hours, "hours ago"];
 };

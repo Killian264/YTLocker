@@ -1,8 +1,8 @@
 import { Story } from "@storybook/react";
 import { Card } from "../components/Card";
 import { VideoListItem } from "../components/VideosListItem";
-import { PlusButton } from "../components/PlusButton";
 import { Video } from "../shared/types";
+import { LoadingListItem } from "../components/LoadingListItem";
 
 export default {
 	title: "VideoListItem",
@@ -28,19 +28,10 @@ const Mocked: Story<{}> = ({ ...props }) => {
 		<Card>
 			<div></div>
 			<div>
-				<VideoListItem url={url} video={videos[0]} playlistColor="red-1"></VideoListItem>
-				<VideoListItem
-					url={url}
-					video={videos[0]}
-					playlistColor="red-1"
-					className="mt-3"
-				></VideoListItem>
-				<VideoListItem
-					url={url}
-					video={videos[0]}
-					playlistColor="red-1"
-					className="mt-3"
-				></VideoListItem>
+				<VideoListItem url={url} video={videos[0]} color="red-1"></VideoListItem>
+				<VideoListItem url={url} video={videos[0]} color="red-1" className="mt-3"></VideoListItem>
+				<VideoListItem url={url} video={videos[0]} color="red-1" className="mt-3"></VideoListItem>
+				<LoadingListItem></LoadingListItem>
 			</div>
 		</Card>
 	);
