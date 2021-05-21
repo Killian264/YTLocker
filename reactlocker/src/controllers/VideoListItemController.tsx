@@ -1,6 +1,5 @@
 import React from "react";
 import { VideoListItem } from "../components/VideosListItem";
-import { usePlaylists } from "../shared/api/usePlaylists";
 import { useVideo } from "../shared/api/useVideo";
 import { Playlist } from "../shared/types";
 import { BuildVideoPlaylistUrl } from "../shared/urls";
