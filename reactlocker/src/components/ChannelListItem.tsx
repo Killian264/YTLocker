@@ -28,8 +28,8 @@ export const ChannelListItem: React.FC<ChannelListItemProps> = ({
 		window.open(url, "_blank");
 	};
 
-	const colors = playlistColors.map((color) => {
-		return <ColorBadge className="mt-2 mr-1" color={color}></ColorBadge>;
+	const colors = playlistColors.map((color, index) => {
+		return <ColorBadge key={index} className="mt-2 mr-1" color={color}></ColorBadge>;
 	});
 
 	return (

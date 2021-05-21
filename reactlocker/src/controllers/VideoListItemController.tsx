@@ -26,13 +26,14 @@ export const VideoListItemController: React.FC<VideoListItemControllerProps> = (
 		return <div>Loading...</div>;
 	}
 
-	const videos = playlists.map((playlist) => {
+	const videos = playlists.map((playlist, index) => {
 		if (!playlist.videos.includes(videoId)) {
 			return "";
 		}
 
 		return (
 			<VideoListItem
+				key={index}
 				video={video}
 				url={BuildVideoPlaylistUrl(video.youtubeId, playlistYoutubeId)}
 				playlistColor={playlist.color}
