@@ -15,7 +15,7 @@ export interface LoginPageProps extends RouteComponentProps {
 
 export const LoginPage: React.FC<LoginPageProps> = ({ className, history }) => {
 	const [page, setPage] = React.useState("login");
-	const [, setBearer] = useBearer("success");
+	const [, setBearer] = useBearer("");
 	const [alert, setAlert] = useAlert({
 		message: "",
 		type: "success",
