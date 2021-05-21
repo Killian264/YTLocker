@@ -7,7 +7,7 @@ export interface LoadingStatsCardProps {
 const border = "border-t-8 border-accent border-solid";
 
 export const LoadingStatsCard: React.FC<LoadingStatsCardProps> = ({ className = "" }) => {
-	const color = "bg-primary-700 text-primary-700 rounded leading-5";
+	const color = "bg-primary-500 text-primary-500 rounded leading-5";
 
 	return (
 		<div className={`bg-primary-600 px-4 pb-2 pt-2 rounded-md ${border} ${className}`}>
