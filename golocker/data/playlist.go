@@ -132,17 +132,16 @@ func (d *Data) GetLastestPlaylistVideos(userID uint64) ([]uint64, error) {
 	videos := []OnlyID{}
 
 	result := d.db.Raw(
-		`SELECT DISTINCT id FROM (
-			SELECT 
-				PV.video_id AS id 
-			FROM playlists P 
-			JOIN playlist_video PV
-				ON P.id = PV.playlist_id
-			JOIN videos AS V
-				ON PV.video_id = V.id
-			WHERE P.user_id = ?
-			ORDER BY V.created_at DESC
-		) AS playlist_videos
+		`SELECT DISTINCT 
+			PV.video_id AS id,
+			V.created_at
+		FROM playlists P 
+		JOIN playlist_video PV
+			ON P.id = PV.playlist_id
+		JOIN videos AS V
+			ON PV.video_id = V.id
+		WHERE P.user_id = ?
+		ORDER BY V.created_at DESC
 		LIMIT 30
 		;`, userID,
 	).Scan(&videos);
