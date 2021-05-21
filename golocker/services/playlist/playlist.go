@@ -116,3 +116,8 @@ func (s *PlaylistManager) GetAllChannels(playlist models.Playlist) ([]uint64, er
 func (s *PlaylistManager) GetAllThumbnails(playlist models.Playlist) ([]models.Thumbnail, error) {
 	return s.data.GetThumbnails(playlist.ID, "playlists")
 }
+
+// GetLastestPlaylistVideos gets the last 30 videos for a user
+func (s *PlaylistManager) GetLastestPlaylistVideos(user models.User) ([]uint64, error) {
+	return s.data.GetLastestPlaylistVideos(user.ID)
+}

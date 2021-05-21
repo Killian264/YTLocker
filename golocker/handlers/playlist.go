@@ -116,3 +116,16 @@ func PlaylistRemoveSubscription(w http.ResponseWriter, r *http.Request, s *servi
 	return BlankResponse(err)
 
 }
+
+func PlaylistLatestVideos(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
+
+	user := GetUserFromRequest(r)
+
+	videos, err := s.Playlist.GetLastestPlaylistVideos(user)
+	if( err != nil ){
+		return BlankResponse(err)
+	}
+
+	return NewResponse(http.StatusOK, videos, "")
+
+}

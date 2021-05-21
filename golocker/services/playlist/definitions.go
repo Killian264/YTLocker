@@ -32,6 +32,8 @@ type IPlaylistManagerData interface {
 	// Config
 	GetFirstYoutubeClientConfig() (models.YoutubeClientConfig, error)
 	GetFirstYoutubeToken() (models.YoutubeToken, error)
+
+	GetLastestPlaylistVideos(userID uint64) ([]uint64, error)
 }
 
 // PlaylistManager manages playlists

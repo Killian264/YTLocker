@@ -170,6 +170,7 @@ func InitializeRoutes(services *services.Services, router *mux.Router, adminBear
 
 	router.HandleFunc("/playlist/create", Errors(Injector(UserAuth(handlers.PlaylistCreate))))
 	router.HandleFunc("/playlist/list", Errors(Injector(UserAuth(handlers.PlaylistList))))
+	router.HandleFunc("/playlist/videos/latest", Errors(Injector(UserAuth(handlers.PlaylistLatestVideos))))
 	router.HandleFunc("/playlist/{playlist_id}/subscribe/{channel_id}", Errors(Injector(UserAuth(PlaylistAuth(handlers.PlaylistAddSubscription)))))
 	router.HandleFunc("/playlist/{playlist_id}/unsubscribe/{channel_id}", Errors(Injector(UserAuth(PlaylistAuth(handlers.PlaylistRemoveSubscription)))))
 
