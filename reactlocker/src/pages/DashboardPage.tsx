@@ -23,13 +23,13 @@ export const DashboardPage: React.FC<{}> = () => {
 			<div className="grid gap-4 px-4 mx-auto max-w-7xl grid-cols-12">
 				<div className="grid gap-4 xl:col-span-7 col-span-12">
 					<PlaylistsListController></PlaylistsListController>
-					<ChannelListController limit={Number.MAX_VALUE}></ChannelListController>
+					<ChannelListController
+						className="xl:block hidden"
+						limit={Number.MAX_VALUE}
+					></ChannelListController>
 				</div>
 				<div className="xl:col-span-5 col-span-12">
-					<VideoListLatestController
-						className="xl:col-span-5 lg:col-span-6 col-span-12"
-						limit={limit}
-					></VideoListLatestController>
+					<VideoListLatestController limit={limit}></VideoListLatestController>
 				</div>
 				<div className="col-span-12 xl:hidden block">
 					<ChannelListController limit={Number.MAX_VALUE}></ChannelListController>

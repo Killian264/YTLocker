@@ -11,8 +11,8 @@ export const useLocalStorage = (key: string, initial: any) => {
 	});
 
 	const setValue = (value: string) => {
-		setStoredValue(value);
 		window.localStorage.setItem(key, JSON.stringify(value));
+		setStoredValue(value);
 	};
 
 	return [storedValue, setValue];
