@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Playlist } from "../shared/types";
 import { Card } from "./Card";
 import { Modal } from "./Modal";
-import { Cog, LeftArrow, SvgBox, Trash } from "./Svg";
+import { LeftArrow, SvgBox, Trash } from "./Svg";
 
 export interface PlaylistViewProps {
 	className?: string;
@@ -18,10 +18,6 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 	playlist,
 }) => {
 	let [isOpen, setIsOpen] = useState(false);
-
-	const imageSize = "md:h-44 sm:h-32 h-24";
-
-	const edit = () => {};
 
 	const remove = () => {
 		setIsOpen(true);
@@ -51,29 +47,23 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 					</div>
 					<span className="text-sm leading-none pt-1">{`Created ${playlist.created.toDateString()}`}</span>
 				</div>
-				<div className="flex gap-2">
-					<img
-						src={playlist.thumbnailUrl}
-						alt="Logo"
-						className={`col-span-6 rounded-lg object-cover ${imageSize}`}
-					/>
-					{/* TODO: Implement properly with grid */}
+				<img
+					src={playlist.thumbnailUrl}
+					alt="Thumbnail"
+					className={`col-span-6 rounded-lg object-cover w-full bg-red-500 h-40`}
+				/>
+				<div className="flex gap-2 mt-3">
 					<div className="flex-grow">
 						<div className="md:flex-row flex-col flex gap-2 justify-between">
 							<span className="md:text-3xl text-2xl font-semibold">{playlist.title}</span>
 							<div className="flex gap-2">
-								<SvgBox className="text-primary-200 border-primary-200" onClick={edit}>
-									<Cog size={28}></Cog>
-								</SvgBox>
 								<SvgBox className="text-red-500 border-red-500" onClick={remove}>
 									<Trash className="text-red-500" size={28}></Trash>
 								</SvgBox>
 							</div>
 						</div>
-						<div className="md:block hidden mt-2 ml-1">{playlist.description}</div>
 					</div>
 				</div>
-				<div className="md:hidden sm:block mt-2 ml-1">{playlist.description}</div>
 			</Card>
 		</>
 	);

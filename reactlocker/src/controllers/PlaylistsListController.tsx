@@ -8,9 +8,13 @@ import { LoadingList } from "../components/LoadingList";
 
 export interface PlaylistsListControllerProps {
 	className?: string;
+	onPlaylistClick: (id: number) => void;
 }
 
-export const PlaylistsListController: React.FC<PlaylistsListControllerProps> = ({ className }) => {
+export const PlaylistsListController: React.FC<PlaylistsListControllerProps> = ({
+	className,
+	onPlaylistClick,
+}) => {
 	const [loading, playlists] = usePlaylists();
 
 	if (loading) {
@@ -23,6 +27,9 @@ export const PlaylistsListController: React.FC<PlaylistsListControllerProps> = (
 				url={BuildPlaylistUrl(playlist.youtubeId)}
 				key={index}
 				playlist={playlist}
+				onClick={() => {
+					onPlaylistClick(playlist.id);
+				}}
 			></PlaylistListItem>
 		);
 	});

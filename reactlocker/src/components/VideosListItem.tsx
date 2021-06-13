@@ -26,7 +26,7 @@ export const VideoListItem: React.FC<VideoListItemProps> = ({ video, className, 
 			<div className="flex p-1">
 				<img
 					src={video.thumbnailUrl}
-					alt="thumbnail"
+					alt="Thumbnail"
 					className={`${imageSize} rounded-lg object-cover`}
 				/>
 				<div className="pl-3 flex flex-col">

@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/Killian264/YTLocker/golocker/models"
@@ -32,7 +33,6 @@ func NewUser(data IUserData) *User {
 // RegisterUser adds a new user given the user information
 // TODO: move existance checks on a model to seperate layer called by api
 func (u *User) Register(user models.User) (models.User, error) {
-
 	hashed, err := hashPassword(user.Password)
 	if err != nil {
 		return models.User{}, err
@@ -72,7 +72,6 @@ func (u *User) ValidEmail(email string) (bool, error) {
 // GetUserFromBearer gets the user from the bearer
 // Redirects to login for bad bearers should be handled by a middleware
 func (u *User) GetUserFromBearer(bearer string) (*models.User, error) {
-
 	session, err := u.data.GetSession(bearer)
 	if err != nil {
 		return nil, err
@@ -83,11 +82,11 @@ func (u *User) GetUserFromBearer(bearer string) (*models.User, error) {
 	}
 
 	return u.data.GetUser(session.UserID)
-
 }
 
 // Login returns the bearer if the user information is correct
 func (u *User) Login(email string, password string) (string, error) {
+	email = strings.ToLower(email)
 
 	user, err := u.data.GetUserByEmail(email)
 	if err != nil {
@@ -112,12 +111,10 @@ func (u *User) Login(email string, password string) (string, error) {
 	}
 
 	return session.Bearer, nil
-
 }
 
 // Refreshes the current user session and returns the new session
 func (u *User) RefreshSession(user models.User) (models.Session, error) {
-
 	bearer, err := generateSecret()
 	if err != nil {
 		return models.Session{}, err
@@ -133,13 +130,10 @@ func (u *User) RefreshSession(user models.User) (models.Session, error) {
 	}
 
 	return session, nil
-
 }
 
 func comparePassword(hash string, password string) error {
-
 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-
 }
 
 func hashPassword(password string) (string, error) {
@@ -166,9 +160,7 @@ func generateSecret() (string, error) {
 }
 
 func validSession(session models.Session) bool {
-
 	oneDayAgo := time.Now().AddDate(0, 0, -1)
 
 	return oneDayAgo.Before(session.CreatedAt)
-
 }

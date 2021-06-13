@@ -247,7 +247,7 @@ func InitializeDatabase(username string, password string, ip string, port string
 
 func Run(s *services.Services, host string, port string) {
 
-	headersOk := muxhandler.AllowedHeaders([]string{"Authorization"})
+	headersOk := muxhandler.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
 	originsOk := muxhandler.AllowedOrigins([]string{"*"})
 	methodsOk := muxhandler.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 

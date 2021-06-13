@@ -28,13 +28,25 @@ const playlists: Playlist[] = [
 const Mocked: Story<{}> = ({ ...props }) => {
 	let url = "https://www.youtube.com/playlist?list=PLN3n1USn4xlkZgqq9SdgUXPmgpoxUM9QK";
 
+	let onClick = () => {};
+
 	return (
 		<Card>
 			<div></div>
 			<div>
-				<PlaylistListItem url={url} playlist={playlists[0]}></PlaylistListItem>
-				<PlaylistListItem url={url} playlist={playlists[0]} className="mt-3"></PlaylistListItem>
-				<PlaylistListItem url={url} playlist={playlists[0]} className="mt-3"></PlaylistListItem>
+				<PlaylistListItem url={url} playlist={playlists[0]} onClick={onClick}></PlaylistListItem>
+				<PlaylistListItem
+					url={url}
+					playlist={playlists[0]}
+					onClick={onClick}
+					className="mt-3"
+				></PlaylistListItem>
+				<PlaylistListItem
+					url={url}
+					playlist={playlists[0]}
+					onClick={onClick}
+					className="mt-3"
+				></PlaylistListItem>
 			</div>
 		</Card>
 	);

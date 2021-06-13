@@ -1,13 +1,13 @@
 import React from "react";
-import { Alert, AlertProps } from "../components/Alert";
+import { Alert } from "../components/Alert";
 import { Login } from "../components/Login";
 import { Register } from "../components/Register";
 import { LogoBar } from "../components/LogoBar";
 import { UserLogin, UserRegister } from "../shared/types";
 import { RouteComponentProps } from "react-router-dom";
-import { API } from "../shared/api/api";
 import { useBearer } from "../shared/hooks/useBearer";
 import { useAlert } from "../shared/hooks/useAlert";
+import axios from "axios";
 
 export interface LoginPageProps extends RouteComponentProps {
 	className?: string;
@@ -21,38 +21,38 @@ export const LoginPage: React.FC<LoginPageProps> = ({ className, history }) => {
 		type: "success",
 	});
 
-	const login = async (user: UserLogin) => {
-		let res = await API.UserLogin(user);
-
-		if (res.success) {
-			setBearer(res.bearer);
-			history.push("/");
-			return;
-		}
-
-		const alert: AlertProps = {
-			message: "The provided email and password were incorrect. User may not exist.",
-			type: "failure",
-		};
-
-		setAlert(alert);
+	const login = (user: UserLogin) => {
+		axios
+			.post("/user/login", user)
+			.then((response) => {
+				let { Bearer } = response.data.Data;
+				setBearer(Bearer);
+				history.push("/");
+			})
+			.catch(() => {
+				setAlert({
+					message: "The provided email and password were incorrect. User may not exist.",
+					type: "failure",
+				});
+			});
 	};
 
 	const register = async (user: UserRegister) => {
-		let res = await API.UserRegister(user);
-
-		if (res.success) {
-			setPage("login");
-		}
-
-		const type = res.success ? "success" : "failure";
-
-		const message = res.success ? "Successfully created user account." : res.message;
-
-		setAlert({
-			message: message,
-			type: type,
-		});
+		axios
+			.post("/user/register", user)
+			.then(() => {
+				setPage("login");
+				setAlert({
+					message: "Successfully created user account.",
+					type: "success",
+				});
+			})
+			.catch(() => {
+				setAlert({
+					message: "Failed to create account",
+					type: "failure",
+				});
+			});
 	};
 
 	return (

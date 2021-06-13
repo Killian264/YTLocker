@@ -40,7 +40,6 @@ func CreateResponseWriter(l *log.Logger) func(next ErrorHandler) Handler {
 			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 			w.WriteHeader(res.Status)
 			w.Write(marshaled)
-
 			l.Printf("%s - - %s %s %s %d %d", r.RemoteAddr, r.Method, r.URL, r.Proto, res.Status, len(marshaled))
 		}
 	}

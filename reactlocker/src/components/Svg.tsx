@@ -64,16 +64,16 @@ export const LeftArrow: React.FC<SvgProps> = ({ size, strokeWidth = 1.5 }) => {
 		<svg width={size} height={size} fill="none" viewBox="0 0 24 24">
 			<path
 				stroke="currentColor"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				stroke-width={strokeWidth}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeWidth={strokeWidth}
 				d="M10.25 6.75L4.75 12L10.25 17.25"
 			/>
 			<path
 				stroke="currentColor"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				stroke-width={strokeWidth}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeWidth={strokeWidth}
 				d="M19.25 12H5"
 			/>
 		</svg>

@@ -15,10 +15,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({
 	...props
 }) => {
 	return (
-		<div
-			className={`bg-primary-600 px-4 pb-2 pt-2 rounded-md ${border} ${className}`}
-			{...props}
-		>
+		<div className={`bg-primary-600 px-4 pb-2 pt-2 rounded-md ${border} ${className}`} {...props}>
 			<span className="text-lg font-semibold">{header}</span>
 			<div>
 				<span className="text-xl text-accent">{count}</span>

@@ -15,7 +15,6 @@ var validUser = models.User{
 }
 
 func Test_Register_User(t *testing.T) {
-
 	service := createMockServices()
 
 	user, err := service.Register(validUser)
@@ -49,7 +48,6 @@ func Test_Password_Is_Hashed(t *testing.T) {
 }
 
 func TestValidEmail(t *testing.T) {
-
 	service := createMockServices()
 
 	valid, err := service.ValidEmail(validUser.Email)
@@ -61,11 +59,9 @@ func TestValidEmail(t *testing.T) {
 	valid, err = service.ValidEmail(validUser.Email)
 	assert.False(t, valid)
 	assert.Nil(t, err)
-
 }
 
 func Test_Login(t *testing.T) {
-
 	service := createMockServices()
 
 	service.Register(validUser)
@@ -73,11 +69,27 @@ func Test_Login(t *testing.T) {
 	bearer, err := service.Login(validUser.Email, validUser.Password)
 	assert.Nil(t, err)
 	assert.NotEmpty(t, bearer)
+}
 
+func Test_Login_Email_Is_Not_Case_Sensitive(t *testing.T) {
+	service := createMockServices()
+
+	validUser = models.User{
+		Username: "Killian",
+		Email:    "killiandebacker@gmail.com",
+		Password: "superpassword1234567",
+	}
+
+	service.Register(validUser)
+
+	validUser.Email = "KiLLiANDEBacker@gmail.com"
+
+	bearer, err := service.Login(validUser.Email, validUser.Password)
+	assert.Nil(t, err)
+	assert.NotEmpty(t, bearer)
 }
 
 func Test_RefreshSession(t *testing.T) {
-
 	service := createMockServices()
 
 	user, _ := service.Register(validUser)
@@ -91,11 +103,9 @@ func Test_RefreshSession(t *testing.T) {
 	assert.NotEmpty(t, session2.Bearer)
 
 	assert.NotEqual(t, session.Bearer, session2.Bearer)
-
 }
 
 func Test_GetUserFromBearer(t *testing.T) {
-
 	service := createMockServices()
 
 	expected, _ := service.Register(validUser)
@@ -109,11 +119,9 @@ func Test_GetUserFromBearer(t *testing.T) {
 	actual, err = service.GetUserFromBearer(expected.Session.Bearer)
 	assert.NotNil(t, err)
 	assert.Nil(t, actual)
-
 }
 
 func createMockServices() *User {
-
 	db := data.InMemorySQLiteConnect()
 
 	service := NewUser(

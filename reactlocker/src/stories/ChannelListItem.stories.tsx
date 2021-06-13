@@ -32,18 +32,24 @@ const Mocked: Story<{}> = ({ ...props }) => {
 					url={url}
 					channel={channels[0]}
 					colors={["red-1", "yellow-1"]}
+					mode="normal"
+					remove={() => console.log("hello")}
 				></ChannelListItem>
 				<ChannelListItem
 					url={url}
 					channel={channels[0]}
 					colors={["red-1"]}
 					className="mt-3"
+					mode="normal"
+					remove={() => console.log("hello")}
 				></ChannelListItem>
 				<ChannelListItem
 					url={url}
 					channel={channels[0]}
 					colors={["yellow-1"]}
 					className="mt-3"
+					mode="delete"
+					remove={() => console.log("hello")}
 				></ChannelListItem>
 			</div>
 		</Card>

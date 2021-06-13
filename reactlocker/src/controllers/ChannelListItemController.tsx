@@ -9,11 +9,15 @@ import { LoadingListItem } from "../components/LoadingListItem";
 export interface ChannelListItemControllerProps {
 	className?: string;
 	channelId: number;
+	mode: "normal" | "delete";
+	remove: (id: number) => void;
 }
 
 export const ChannelListItemController: React.FC<ChannelListItemControllerProps> = ({
 	className,
 	channelId,
+	mode = "normal",
+	remove,
 }) => {
 	const [loadingC, channel] = useChannel(channelId);
 	const [loadingP, playlists] = usePlaylists();
@@ -39,6 +43,8 @@ export const ChannelListItemController: React.FC<ChannelListItemControllerProps>
 			channel={channel}
 			url={BuildChannelUrl(channel.youtubeId)}
 			colors={colors}
+			mode={mode}
+			remove={remove}
 		></ChannelListItem>
 	);
 };

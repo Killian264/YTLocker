@@ -1,60 +1,25 @@
+import axios from "axios";
 import { useQuery } from "react-query";
-import { useHistory } from "react-router-dom";
-import { DROPLET_BASE } from "../env";
-import { useBearer } from "../hooks/useBearer";
 import { User } from "../types";
-import { ApiResponse2 } from "./api";
-
-export interface UserInformationResponse extends ApiResponse2 {
-	user: User | null;
-}
 
 export const useUser = (): [boolean, User | null] => {
-	const [bearer] = useBearer("");
-	let history = useHistory();
+	const { isSuccess, data } = useQuery(["user"], UserInformation);
 
-	const { isLoading, isError, data } = useQuery(["user"], () => UserInformation(bearer));
-
-	if (isLoading || isError || data === undefined) {
+	if (!isSuccess || data === undefined) {
 		return [true, null];
 	}
 
-	if (data.status === 401) {
-		history.push("/login");
-	}
-
-	if (data.user === null) {
-		return [true, null];
-	}
-
-	return [false, data.user];
+	return [false, data];
 };
 
-const UserInformation = async (bearer: string) => {
-	const url = DROPLET_BASE + "/user/information";
+const UserInformation = (): Promise<User> => {
+	return axios.get("/user/information").then((response) => {
+		let { Username, Email, CreatedAt } = response.data.Data;
 
-	const options = {
-		method: "GET",
-		headers: {
-			Authorization: bearer,
-		},
-	};
-
-	const res = await (await fetch(url, options)).json();
-
-	let user: UserInformationResponse = {
-		status: res.Status,
-		message: res.Message,
-		user: null,
-	};
-
-	if (user.status === 200) {
-		user.user = {
-			username: res.Data.Username,
-			email: res.Data.Email,
-			joined: new Date(Date.parse(res.Data.CreatedAt)),
+		return {
+			username: Username,
+			email: Email,
+			joined: new Date(Date.parse(CreatedAt)),
 		};
-	}
-
-	return user;
+	});
 };

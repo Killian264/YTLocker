@@ -1,31 +1,27 @@
-import { useHistory } from "react-router";
+import axios from "axios";
 import { useLocalStorage } from "./useLocalStorage";
 
 export const useBearer = (initial: string): [string, (bearer: string) => void] => {
-	let history = useHistory();
-	const [cookie, setCookie] = useLocalStorage("bearer", {
-		bearer: initial,
-		date: Date.now(),
-	});
+	const [cookie, setCookie] = useLocalStorage("bearer", newBearer(initial));
 
 	const setBearer = (bearer: string) => {
-		let cookie = {
-			bearer: bearer,
-			date: Date.now(),
-		};
-
-		setCookie(cookie);
+		setCookie(newBearer(bearer));
 	};
 
-	if (isExpired(new Date(cookie.date))) {
-		history.push("/login");
+	if (isExpired(new Date(cookie.timestamp))) {
+		return [initial, setBearer];
 	}
 
-	return [cookie.bearer, setBearer];
+	axios.defaults.headers.common["Authorization"] = cookie.value;
+	return [cookie.value, setBearer];
+};
+
+const newBearer = (value: string) => {
+	return { value: value, timestamp: Date.now() };
 };
 
 const isExpired = (date: Date) => {
 	const twentyHours = 20 * 60 * 60 * 1000;
 	const expires = new Date().valueOf() - twentyHours;
-	return date < new Date(expires);
+	return date.valueOf() < expires;
 };

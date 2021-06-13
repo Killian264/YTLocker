@@ -20,7 +20,14 @@ export const ChannelListController: React.FC<ChannelListControllerProps> = ({ cl
 		if (index >= limit) {
 			return "";
 		}
-		return <ChannelListItemController key={index} channelId={id}></ChannelListItemController>;
+		return (
+			<ChannelListItemController
+				mode="normal"
+				remove={() => {}}
+				key={index}
+				channelId={id}
+			></ChannelListItemController>
+		);
 	});
 
 	return (

@@ -12,9 +12,7 @@ export const LogoBar: React.FC<LogoBarProps> = ({ className, children }) => {
 	return (
 		<div className={css}>
 			<img src={logo} alt="Logo" width="32" height="32" />
-			<span className="text-xl font-bold ml-1 text-accent tracking-wide">
-				YTLocker
-			</span>
+			<span className="text-xl font-bold ml-1 text-accent tracking-wide">YTLocker</span>
 		</div>
 	);
 };

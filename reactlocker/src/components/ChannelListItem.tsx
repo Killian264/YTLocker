@@ -1,50 +1,85 @@
-import React from "react";
+import React, { useState } from "react";
 import { Channel, Color } from "../shared/types";
 import { ColorBadge } from "./ColorBadge";
-import { Link } from "./Link";
-import { RightArrow } from "./Svg";
+import { Modal } from "./Modal";
+import { RightArrow, Trash } from "./Svg";
 
 export interface ChannelListItemProps {
 	className?: string;
 	channel: Channel;
 	url: string;
 	colors: Color[];
+	mode: "normal" | "delete";
+	remove: (id: number) => void;
 }
 
-export const ChannelListItem: React.FC<ChannelListItemProps> = ({ channel, className, url, colors }) => {
-	const css = `${className} hover:bg-primary-600 rounded-md flex justify-between cursor-pointer`;
+const css = "rounded-md flex justify-between cursor-pointer";
+const imageSize = "md:h-20 sm:h-16 h-16";
+const textSize = "sm:text-md text-md";
 
-	const imageSize = "md:h-20 sm:h-16 h-16";
+export const ChannelListItem: React.FC<ChannelListItemProps> = ({
+	channel,
+	className,
+	url,
+	colors,
+	mode,
+	remove,
+}) => {
+	let [isOpen, setIsOpen] = useState(false);
 
-	const textSize = "sm:text-md text-md";
+	const hover = mode === "normal" ? "hover:bg-primary-600" : "hover:bg-red-700";
 
-	const open = () => {
-		window.open(url, "_blank");
+	const handleClick = () => {
+		if (mode === "normal") {
+			window.open(url, "_blank");
+		}
+		if (mode === "delete") {
+			setIsOpen(true);
+		}
+	};
+
+	const deleteClick = () => {
+		remove(channel.id);
+		setIsOpen(false);
 	};
 
 	const badges = colors.map((color, index) => {
 		return <ColorBadge key={index} className="mt-2 mr-1" color={color}></ColorBadge>;
 	});
 
+	let trimmed =
+		channel.description.length > 54 ? channel.description.substring(0, 54) + "..." : channel.description;
+
 	return (
-		<div className={css} onClick={open}>
-			<div className="flex p-1">
-				<img
-					src={channel.thumbnailUrl}
-					alt="thumbnail"
-					className={`rounded-lg object-cover ${imageSize}`}
+		<>
+			{isOpen && (
+				<Modal
+					header={"Are you sure?"}
+					body={"The channel will be removed form the playlist and new videos not added."}
+					AcceptClick={deleteClick}
+					RejectClick={() => {
+						setIsOpen(false);
+					}}
 				/>
-				<div className="pl-3 flex flex-col">
-					<span className={`${textSize} font-semibold`}>{channel.title}</span>
-					<Link className={`${textSize} text-accent ml-0.5`} href={url} target="_blank">
-						Youtube Link
-					</Link>
-					<div>{badges}</div>
+			)}
+			<div className={`${className} ${css} ${hover}`} onClick={handleClick}>
+				<div className="flex p-1">
+					<img
+						src={channel.thumbnailUrl}
+						alt="Thumbnail"
+						className={`rounded-lg object-cover ${imageSize}`}
+					/>
+					<div className="pl-3 flex flex-col">
+						<span className={`${textSize} font-semibold`}>{channel.title}</span>
+						<span>{trimmed}</span>
+						<div>{badges}</div>
+					</div>
+				</div>
+				<div className="mr-2 my-auto select-none">
+					{mode === "normal" && <RightArrow size={24}></RightArrow>}
+					{mode === "delete" && <Trash size={24}></Trash>}
 				</div>
 			</div>
-			<div className="mr-2 my-auto select-none">
-				<RightArrow size={24}></RightArrow>
-			</div>
-		</div>
+		</>
 	);
 };
