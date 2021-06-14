@@ -1,10 +1,10 @@
 import React from "react";
 import { LoadingUserInfoBar } from "../components/LoadingUserInfoBar";
 import { UserInfoBar } from "../components/UserInfoBar";
-import { useLatestVideos } from "../shared/api/useLatestVideos";
-import { usePlaylists } from "../shared/api/usePlaylists";
-import { useUser } from "../shared/api/useUser";
-import { useVideo } from "../shared/api/useVideo";
+import { useLatestVideos } from "../hooks/api/useLatestVideos";
+import { usePlaylists } from "../hooks/api/usePlaylists";
+import { useUser } from "../hooks/api/useUser";
+import { useVideo } from "../hooks/api/useVideo";
 import { Playlist, StatCard, Video } from "../shared/types";
 
 export interface UserInfoBarControllerProps {

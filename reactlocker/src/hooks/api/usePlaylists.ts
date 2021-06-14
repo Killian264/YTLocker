@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useQuery } from "react-query";
-import { ColorArray } from "../colors";
-import { Playlist } from "../types";
+import { ColorArray } from "../../shared/colors";
+import { Playlist } from "../../shared/types";
 
 export const usePlaylists = (): [boolean, Playlist[]] => {
 	const { isSuccess, data } = useQuery(["playlists"], () => fetchPlaylist());

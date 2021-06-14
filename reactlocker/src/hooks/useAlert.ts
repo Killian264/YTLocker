@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { AlertProps } from "../../components/Alert";
+import { AlertProps } from "../components/Alert";
 
-export const useAlert = (
-	initial: AlertProps
-): [AlertProps, (props: AlertProps) => void] => {
+export const useAlert = (initial: AlertProps): [AlertProps, (props: AlertProps) => void] => {
 	const [alert, _setAlert] = useState(initial);
 
 	const setAlert = (props: AlertProps) => {

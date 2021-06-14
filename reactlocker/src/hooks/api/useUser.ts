@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useQuery } from "react-query";
-import { User } from "../types";
+import { User } from "../../shared/types";
 
 export const useUser = (): [boolean, User | null] => {
 	const { isSuccess, data } = useQuery(["user"], UserInformation);

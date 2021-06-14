@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { UserInfoBarController } from "../controllers/UserInfoBarController";
-import { usePlaylists } from "../shared/api/usePlaylists";
+import { usePlaylists } from "../hooks/api/usePlaylists";
 import { VideoListLatestController } from "../controllers/VideosListLatestController";
 import { ChannelListController } from "../controllers/ChannelListController";
-import { usePlaylistChannels } from "../shared/api/usePlaylistChannels";
+import { usePlaylistChannels } from "../hooks/api/usePlaylistChannels";
 import { PlaylistsListController } from "../controllers/PlaylistsListController";
-import { usePlaylist } from "../shared/api/usePlaylist";
+import { usePlaylist } from "../hooks/api/usePlaylist";
 import { PlaylistView } from "../components/PlaylistView";
 import { PlaylistVideoListController } from "../controllers/PlaylistVideoListController";
 import { PlaylistChannelListController } from "../controllers/PlaylistChannelsListController";

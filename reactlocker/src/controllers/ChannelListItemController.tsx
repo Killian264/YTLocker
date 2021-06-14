@@ -1,8 +1,8 @@
 import React from "react";
 import { BuildChannelUrl } from "../shared/urls";
 import { ChannelListItem } from "../components/ChannelListItem";
-import { useChannel } from "../shared/api/useChannel";
-import { usePlaylists } from "../shared/api/usePlaylists";
+import { useChannel } from "../hooks/api/useChannel";
+import { usePlaylists } from "../hooks/api/usePlaylists";
 import { Color } from "../shared/types";
 import { LoadingListItem } from "../components/LoadingListItem";
 

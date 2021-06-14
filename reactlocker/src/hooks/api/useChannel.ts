@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useQuery } from "react-query";
-import { Channel } from "../types";
+import { Channel } from "../../shared/types";
 
 export const useChannel = (id: number): [boolean, Channel | null] => {
 	const { isLoading, isError, data } = useQuery(["channel", id], () => fetchChannel(id), {

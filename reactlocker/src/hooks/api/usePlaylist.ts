@@ -1,4 +1,4 @@
-import { Playlist } from "../types";
+import { Playlist } from "../../shared/types";
 import { usePlaylists } from "./usePlaylists";
 
 export const usePlaylist = (id: number): [boolean, Playlist | null] => {

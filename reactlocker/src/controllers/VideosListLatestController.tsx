@@ -1,8 +1,8 @@
 import React from "react";
-import { usePlaylists } from "../shared/api/usePlaylists";
+import { usePlaylists } from "../hooks/api/usePlaylists";
 import { VideoListItemController } from "./VideoListItemController";
 import { Card } from "../components/Card";
-import { useLatestVideos } from "../shared/api/useLatestVideos";
+import { useLatestVideos } from "../hooks/api/useLatestVideos";
 import { LoadingList } from "../components/LoadingList";
 
 export interface VideoListLatestControllerProps {

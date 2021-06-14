@@ -1,7 +1,7 @@
 import React from "react";
 import { Card } from "../components/Card";
 import { ChannelListItemController } from "./ChannelListItemController";
-import { usePlaylistChannels } from "../shared/api/usePlaylistChannels";
+import { usePlaylistChannels } from "../hooks/api/usePlaylistChannels";
 import { LoadingList } from "../components/LoadingList";
 
 export interface ChannelListControllerProps {

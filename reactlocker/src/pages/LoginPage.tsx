@@ -5,8 +5,8 @@ import { Register } from "../components/Register";
 import { LogoBar } from "../components/LogoBar";
 import { UserLogin, UserRegister } from "../shared/types";
 import { RouteComponentProps } from "react-router-dom";
-import { useBearer } from "../shared/hooks/useBearer";
-import { useAlert } from "../shared/hooks/useAlert";
+import { useBearer } from "../hooks/useBearer";
+import { useAlert } from "../hooks/useAlert";
 import axios from "axios";
 
 export interface LoginPageProps extends RouteComponentProps {

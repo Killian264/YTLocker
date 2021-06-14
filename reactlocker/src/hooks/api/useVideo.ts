@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useQuery } from "react-query";
-import { Video } from "../types";
+import { Video } from "../../shared/types";
 
 export const useVideo = (id: number, enabled = true): [boolean, Video | null] => {
 	const { isSuccess, data } = useQuery(["channel", id], () => fetchVideo(id), {

@@ -3,7 +3,7 @@ import { Card } from "../components/Card";
 import { PlaylistListItem } from "../components/PlaylistListItem";
 import { BuildPlaylistUrl } from "../shared/urls";
 import { PlusButton } from "../components/PlusButton";
-import { usePlaylists } from "../shared/api/usePlaylists";
+import { usePlaylists } from "../hooks/api/usePlaylists";
 import { LoadingList } from "../components/LoadingList";
 
 export interface PlaylistsListControllerProps {

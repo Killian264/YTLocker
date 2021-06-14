@@ -1,14 +1,15 @@
 import axios from "axios";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Redirect, Route, RouteProps, Switch, useHistory } from "react-router-dom";
 import { DROPLET_BASE } from "../shared/env";
-import { useBearer } from "../shared/hooks/useBearer";
+import { useBearer } from "../hooks/useBearer";
 import { DashboardPage } from "./DashboardPage";
 import { LoginPage } from "./LoginPage";
 
 axios.defaults.baseURL = DROPLET_BASE;
 
 const AuthenticatedRoute: React.FC<RouteProps> = ({ ...props }) => {
+	const [loading, setLoading] = useState(true);
 	const [bearer] = useBearer("");
 	const history = useHistory();
 
@@ -24,13 +25,20 @@ const AuthenticatedRoute: React.FC<RouteProps> = ({ ...props }) => {
 				return error;
 			}
 		);
+
+		setLoading(false);
+
 		return () => {
 			axios.interceptors.request.eject(id);
 		};
-	});
+	}, [bearer, history]);
 
 	if (bearer === "") {
 		return <Redirect to="/login" />;
+	}
+
+	if (loading) {
+		return <div></div>;
 	}
 
 	return <Route {...props}></Route>;
