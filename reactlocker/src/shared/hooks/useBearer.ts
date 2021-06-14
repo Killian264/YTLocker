@@ -12,7 +12,6 @@ export const useBearer = (initial: string): [string, (bearer: string) => void] =
 		return [initial, setBearer];
 	}
 
-	axios.defaults.headers.common["Authorization"] = cookie.value;
 	return [cookie.value, setBearer];
 };
 
