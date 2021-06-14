@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useLocalStorage } from "./useLocalStorage";
 
 export const useBearer = (initial: string): [string, (bearer: string) => void] => {

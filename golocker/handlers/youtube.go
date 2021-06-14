@@ -52,7 +52,7 @@ func GetChannel(w http.ResponseWriter, r *http.Request, s *services.Services) Re
 
 	id, err := strconv.ParseUint(idString, 10, 64)
 	if err != nil {
-		return NewResponse(http.StatusUnauthorized, nil, "invalid channel id")
+		return NewResponse(http.StatusBadRequest, nil, "invalid channel id")
 	}
 
 	channel, err := s.Youtube.GetChannel(id)

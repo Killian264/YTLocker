@@ -3,7 +3,9 @@ import { useQuery } from "react-query";
 import { Channel } from "../types";
 
 export const useChannel = (id: number): [boolean, Channel | null] => {
-	const { isLoading, isError, data } = useQuery(["channel", id], () => fetchChannel(id));
+	const { isLoading, isError, data } = useQuery(["channel", id], () => fetchChannel(id), {
+		staleTime: Infinity,
+	});
 
 	if (isLoading || isError || data === undefined) {
 		return [true, null];

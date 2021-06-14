@@ -4,7 +4,7 @@ import { Video } from "../types";
 
 export const useVideo = (id: number, enabled = true): [boolean, Video | null] => {
 	const { isSuccess, data } = useQuery(["channel", id], () => fetchVideo(id), {
-		refetchInterval: false,
+		staleTime: Infinity,
 		enabled: enabled,
 	});
 

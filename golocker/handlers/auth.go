@@ -42,12 +42,12 @@ func CreatePlaylistAuthenticator(s *services.Services) func(next ServiceHandler)
 
 			idStr := mux.Vars(r)["playlist_id"]
 			if idStr == "" {
-				return NewResponse(http.StatusUnauthorized, nil, "no playlist id provided")
+				return NewResponse(http.StatusForbidden, nil, "no playlist id provided")
 			}
 
 			id, err := strconv.ParseUint(idStr, 10, 64)
 			if err != nil {
-				return NewResponse(http.StatusUnauthorized, nil, "invalid playlist id")
+				return NewResponse(http.StatusForbidden, nil, "invalid playlist id")
 			}
 
 			user := GetUserFromRequest(r)
@@ -58,7 +58,7 @@ func CreatePlaylistAuthenticator(s *services.Services) func(next ServiceHandler)
 			}
 
 			if user.ID != playlist.UserID {
-				return NewResponse(http.StatusUnauthorized, nil, "playlist does not exist")
+				return NewResponse(http.StatusForbidden, nil, "playlist does not exist")
 			}
 
 			context.Set(r, "playlist", playlist)
