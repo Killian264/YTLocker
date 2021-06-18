@@ -1,13 +1,12 @@
-import React from "react";
-import { Alert } from "../components/Alert";
+import React, { useContext } from "react";
 import { Login } from "../components/Login";
 import { Register } from "../components/Register";
 import { LogoBar } from "../components/LogoBar";
 import { UserLogin, UserRegister } from "../shared/types";
 import { RouteComponentProps } from "react-router-dom";
 import { useBearer } from "../hooks/useBearer";
-import { useAlert } from "../hooks/useAlert";
 import axios from "axios";
+import { AlertContext } from "../hooks/AlertContext";
 
 export interface LoginPageProps extends RouteComponentProps {
 	className?: string;
@@ -16,10 +15,7 @@ export interface LoginPageProps extends RouteComponentProps {
 export const LoginPage: React.FC<LoginPageProps> = ({ className, history }) => {
 	const [page, setPage] = React.useState("login");
 	const [, setBearer] = useBearer("");
-	const [alert, setAlert] = useAlert({
-		message: "",
-		type: "success",
-	});
+	const { pushAlert } = useContext(AlertContext);
 
 	const login = (user: UserLogin) => {
 		axios
@@ -30,7 +26,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ className, history }) => {
 				history.push("/");
 			})
 			.catch(() => {
-				setAlert({
+				pushAlert({
 					message: "The provided email and password were incorrect. User may not exist.",
 					type: "failure",
 				});
@@ -42,13 +38,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ className, history }) => {
 			.post("/user/register", user)
 			.then(() => {
 				setPage("login");
-				setAlert({
+				pushAlert({
 					message: "Successfully created user account.",
 					type: "success",
 				});
 			})
 			.catch(() => {
-				setAlert({
+				pushAlert({
 					message: "Failed to create account",
 					type: "failure",
 				});
@@ -59,7 +55,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ className, history }) => {
 		<>
 			<LogoBar className="absolute top-1 left-5"></LogoBar>
 			<div className="flex h-screen">
-				{alert.message !== "" && <Alert className="mt-20" {...alert} />}
 				<div className="m-auto">
 					{page === "login" && (
 						<Login

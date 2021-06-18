@@ -11,14 +11,14 @@ import { PlaylistVideoListController } from "../controllers/PlaylistVideoListCon
 import { PlaylistChannelListController } from "../controllers/PlaylistChannelsListController";
 
 export const DashboardPage: React.FC<{}> = () => {
-	const [id, setId] = useState(0);
+	const [playlistId, setPlaylistId] = useState(0);
 
 	const playlistClick = (id: number) => {
-		setId(id);
+		setPlaylistId(id);
 	};
 
 	const playlistBack = () => {
-		setId(0);
+		setPlaylistId(0);
 	};
 
 	return (
@@ -27,10 +27,15 @@ export const DashboardPage: React.FC<{}> = () => {
 				<UserInfoBarController></UserInfoBarController>
 			</div>
 			<div className="grid gap-4 px-4 mx-auto max-w-7xl grid-cols-12">
-				{id === 0 && (
+				{playlistId === 0 && (
 					<DashboardPlaylistsView onPlaylistClick={playlistClick}></DashboardPlaylistsView>
 				)}
-				{id !== 0 && <DashboardPlaylistView onBack={playlistBack} id={id}></DashboardPlaylistView>}
+				{playlistId !== 0 && (
+					<DashboardPlaylistView
+						onBack={playlistBack}
+						playlistId={playlistId}
+					></DashboardPlaylistView>
+				)}
 			</div>
 		</div>
 	);
@@ -71,21 +76,30 @@ export const DashboardPlaylistsView: React.FC<DashboardPlaylistsViewProps> = ({ 
 
 export interface DashboardPlaylistViewProps {
 	className?: string;
-	id: number;
+	playlistId: number;
 	onBack: () => void;
 }
-export const DashboardPlaylistView: React.FC<DashboardPlaylistViewProps> = ({ id, onBack }) => {
-	const [loadingP, playlist] = usePlaylist(id);
+export const DashboardPlaylistView: React.FC<DashboardPlaylistViewProps> = ({ playlistId, onBack }) => {
+	const [loadingP, playlist] = usePlaylist(playlistId);
 	const [loadingC, channels] = usePlaylistChannels();
 
 	if (loadingP || loadingC || playlist === null) {
 		return <div>Loading...</div>;
 	}
 
+	let deletePlaylist = () => {
+		console.log("delete playlist click", playlistId);
+		onBack();
+	};
+
 	return (
 		<>
 			<div className="grid gap-4 xl:col-span-7 col-span-12">
-				<PlaylistView playlist={playlist} DeleteClick={() => {}} BackClick={onBack}></PlaylistView>
+				<PlaylistView
+					playlist={playlist}
+					DeleteClick={deletePlaylist}
+					BackClick={onBack}
+				></PlaylistView>
 				<PlaylistChannelListController
 					className="xl:block hidden"
 					limit={Number.MAX_VALUE}

@@ -13,14 +13,12 @@ const colors = {
 
 export const Alert: React.FC<AlertProps> = ({ className, type, message }) => {
 	let size = "md:w-9/12 sm:w-full";
-	let pos = "z-10 fixed inset-x-0 mx-auto mt-3";
+	let pos = "z-10 inset-x-0 mx-auto mt-3";
 
 	let css = `${className} ${size} ${pos} ${colors[type]}`;
 
 	return (
-		<div
-			className={`flex justify-center py-2 px-6 rounded-lg text-sm font-bold ${css}`}
-		>
+		<div className={`flex justify-center py-2 px-6 rounded-lg text-sm font-bold ${css}`}>
 			<span>{message}</span>
 		</div>
 	);

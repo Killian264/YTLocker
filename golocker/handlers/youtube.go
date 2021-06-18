@@ -17,6 +17,7 @@ func GetVideo(w http.ResponseWriter, r *http.Request, s *services.Services) Resp
 	idString := mux.Vars(r)["video_id"]
 
 	id, err := strconv.ParseUint(idString, 10, 64)
+
 	if err != nil {
 		return NewResponse(http.StatusBadRequest, nil, "invalid video id")
 	}
