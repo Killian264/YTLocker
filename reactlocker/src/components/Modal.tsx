@@ -1,17 +1,26 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
 import { Button } from "./Button";
+import { Checkbox } from "./Checkbox";
 
 export interface ModalProps {
 	className?: string;
 	header: string;
 	body: string;
+	confirmMessage?: string;
 	AcceptClick: () => void;
 	RejectClick: () => void;
 }
 
-export const Modal: React.FC<ModalProps> = ({ header, body, AcceptClick, RejectClick }) => {
+export const Modal: React.FC<ModalProps> = ({
+	header,
+	body,
+	AcceptClick,
+	RejectClick,
+	confirmMessage = "",
+}) => {
 	let [isOpen, setIsOpen] = useState(true);
+	let [checked, setChecked] = useState(confirmMessage === "");
 
 	const reject = () => {
 		setIsOpen(false);
@@ -32,9 +41,16 @@ export const Modal: React.FC<ModalProps> = ({ header, body, AcceptClick, RejectC
 			>
 				<span className="text-lg font-medium leading-6">{header}</span>
 				<p className="mt-2 text-sm">{body}</p>
-
+				{confirmMessage === "" || (
+					<Checkbox
+						className="mt-2"
+						message={confirmMessage}
+						checked={checked}
+						setChecked={setChecked}
+					></Checkbox>
+				)}
 				<div className="mt-4 flex justify-between">
-					<Button onClick={accept} size={"medium"} color={"primary"}>
+					<Button onClick={accept} size={"medium"} color={"primary"} disabled={!checked}>
 						Confirm
 					</Button>
 					<Button onClick={reject} className={"ml-2"} size={"medium"} color={"secondary"}>

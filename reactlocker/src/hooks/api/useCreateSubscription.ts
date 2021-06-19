@@ -7,7 +7,7 @@ export const useCreateSubscription = (): ((playlistId: number, channelId: string
 	const { pushAlert } = useContext(AlertContext);
 	const queryClient = useQueryClient();
 
-	return (playlistId: number, channelId: string) => {
+	return async (playlistId: number, channelId: string) => {
 		return axios
 			.post(`/playlist/${playlistId}/subscribe/${channelId}`)
 			.then(() => {

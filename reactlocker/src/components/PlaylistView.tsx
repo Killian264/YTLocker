@@ -27,6 +27,7 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 		<>
 			{isOpen && (
 				<Modal
+					confirmMessage={"Yes, I am sure"}
 					header={"Are you sure?"}
 					body={
 						"Playlist information will be deleted, but the playlist will remain accessible on youtube."

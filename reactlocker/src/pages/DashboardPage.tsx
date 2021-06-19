@@ -9,15 +9,17 @@ import { usePlaylist } from "../hooks/api/usePlaylist";
 import { PlaylistView } from "../components/PlaylistView";
 import { PlaylistVideoListController } from "../controllers/PlaylistVideoListController";
 import { PlaylistChannelListController } from "../controllers/PlaylistChannelsListController";
+import { PlaylistCreateCard } from "../components/PlaylistCreateCard";
+import { useCreatePlaylist } from "../hooks/api/useCreatePlaylist";
 
 export const DashboardPage: React.FC<{}> = () => {
 	const [playlistId, setPlaylistId] = useState(0);
 
-	const playlistClick = (id: number) => {
+	const PlaylistClick = (id: number) => {
 		setPlaylistId(id);
 	};
 
-	const playlistBack = () => {
+	const PlaylistBack = () => {
 		setPlaylistId(0);
 	};
 
@@ -28,11 +30,11 @@ export const DashboardPage: React.FC<{}> = () => {
 			</div>
 			<div className="grid gap-4 px-4 mx-auto max-w-7xl grid-cols-12">
 				{playlistId === 0 && (
-					<DashboardPlaylistsView onPlaylistClick={playlistClick}></DashboardPlaylistsView>
+					<DashboardPlaylistsView PlaylistClick={PlaylistClick}></DashboardPlaylistsView>
 				)}
 				{playlistId !== 0 && (
 					<DashboardPlaylistView
-						onBack={playlistBack}
+						BackClick={PlaylistBack}
 						playlistId={playlistId}
 					></DashboardPlaylistView>
 				)}
@@ -43,22 +45,44 @@ export const DashboardPage: React.FC<{}> = () => {
 
 export interface DashboardPlaylistsViewProps {
 	className?: string;
-	onPlaylistClick: (id: number) => void;
+	PlaylistClick: (id: number) => void;
 }
 
-export const DashboardPlaylistsView: React.FC<DashboardPlaylistsViewProps> = ({ onPlaylistClick }) => {
+export const DashboardPlaylistsView: React.FC<DashboardPlaylistsViewProps> = ({ PlaylistClick }) => {
 	const [loadingP, playlists] = usePlaylists();
 	const [loadingC, channels] = usePlaylistChannels();
+	const [isCreate, setCreate] = useState(false);
+	const createPlaylist = useCreatePlaylist();
 
 	let limit = 5;
 	if (!(loadingP && loadingC)) {
 		limit = playlists.length + channels.length + 2;
 	}
 
+	let view = (
+		<PlaylistCreateCard
+			CreateClick={createPlaylist}
+			BackClick={() => {
+				setCreate(false);
+			}}
+		></PlaylistCreateCard>
+	);
+
+	if (!isCreate) {
+		view = (
+			<PlaylistsListController
+				CreatePlaylistClick={() => {
+					setCreate(true);
+				}}
+				PlaylistClick={PlaylistClick}
+			></PlaylistsListController>
+		);
+	}
+
 	return (
 		<>
 			<div className="grid gap-4 xl:col-span-7 col-span-12">
-				<PlaylistsListController onPlaylistClick={onPlaylistClick}></PlaylistsListController>
+				{view}
 				<ChannelListController
 					className="xl:block hidden"
 					limit={Number.MAX_VALUE}
@@ -77,9 +101,9 @@ export const DashboardPlaylistsView: React.FC<DashboardPlaylistsViewProps> = ({ 
 export interface DashboardPlaylistViewProps {
 	className?: string;
 	playlistId: number;
-	onBack: () => void;
+	BackClick: () => void;
 }
-export const DashboardPlaylistView: React.FC<DashboardPlaylistViewProps> = ({ playlistId, onBack }) => {
+export const DashboardPlaylistView: React.FC<DashboardPlaylistViewProps> = ({ playlistId, BackClick }) => {
 	const [loadingP, playlist] = usePlaylist(playlistId);
 	const [loadingC, channels] = usePlaylistChannels();
 
@@ -89,7 +113,7 @@ export const DashboardPlaylistView: React.FC<DashboardPlaylistViewProps> = ({ pl
 
 	let deletePlaylist = () => {
 		console.log("delete playlist click", playlistId);
-		onBack();
+		BackClick();
 	};
 
 	return (
@@ -98,7 +122,7 @@ export const DashboardPlaylistView: React.FC<DashboardPlaylistViewProps> = ({ pl
 				<PlaylistView
 					playlist={playlist}
 					DeleteClick={deletePlaylist}
-					BackClick={onBack}
+					BackClick={BackClick}
 				></PlaylistView>
 				<PlaylistChannelListController
 					className="xl:block hidden"

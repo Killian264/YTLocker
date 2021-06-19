@@ -8,12 +8,14 @@ import { LoadingList } from "../components/LoadingList";
 
 export interface PlaylistsListControllerProps {
 	className?: string;
-	onPlaylistClick: (id: number) => void;
+	PlaylistClick: (id: number) => void;
+	CreatePlaylistClick: () => void;
 }
 
 export const PlaylistsListController: React.FC<PlaylistsListControllerProps> = ({
 	className,
-	onPlaylistClick,
+	CreatePlaylistClick,
+	PlaylistClick,
 }) => {
 	const [loading, playlists] = usePlaylists();
 
@@ -28,7 +30,7 @@ export const PlaylistsListController: React.FC<PlaylistsListControllerProps> = (
 				key={index}
 				playlist={playlist}
 				onClick={() => {
-					onPlaylistClick(playlist.id);
+					PlaylistClick(playlist.id);
 				}}
 			></PlaylistListItem>
 		);
@@ -40,7 +42,7 @@ export const PlaylistsListController: React.FC<PlaylistsListControllerProps> = (
 				<div className="text-2xl font-semibold">
 					<span className="leading-none -mt-0.5">Playlists</span>
 				</div>
-				<PlusButton color="secondary" disabled={false}></PlusButton>
+				<PlusButton color="secondary" onClick={CreatePlaylistClick}></PlusButton>
 			</div>
 			<div className="grid gap-2">{list}</div>
 		</Card>
