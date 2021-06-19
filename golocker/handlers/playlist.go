@@ -41,7 +41,6 @@ type PlaylistListItem struct {
 
 // HandleSubscriptionNoError handles a new subscription request wrap in a middleware that handles errors
 func PlaylistList(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
-
 	user := GetUserFromRequest(r)
 
 	playlists, err := s.Playlist.GetAllUserPlaylists(user)
@@ -78,11 +77,9 @@ func PlaylistList(w http.ResponseWriter, r *http.Request, s *services.Services) 
 	}
 
 	return NewResponse(http.StatusOK, items, "")
-
 }
 
 func PlaylistAddSubscription(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
-
 	playlist := GetPlaylistFromRequest(r)
 
 	channelID := mux.Vars(r)["channel_id"]
@@ -102,7 +99,6 @@ func PlaylistAddSubscription(w http.ResponseWriter, r *http.Request, s *services
 }
 
 func PlaylistRemoveSubscription(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
-
 	playlist := GetPlaylistFromRequest(r)
 
 	channelID := mux.Vars(r)["channel_id"]
@@ -114,11 +110,9 @@ func PlaylistRemoveSubscription(w http.ResponseWriter, r *http.Request, s *servi
 
 	err = s.Playlist.Unsubscribe(playlist, channel)
 	return BlankResponse(err)
-
 }
 
 func PlaylistLatestVideos(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
-
 	user := GetUserFromRequest(r)
 
 	videos, err := s.Playlist.GetLastestPlaylistVideos(user)
@@ -127,5 +121,12 @@ func PlaylistLatestVideos(w http.ResponseWriter, r *http.Request, s *services.Se
 	}
 
 	return NewResponse(http.StatusOK, videos, "")
+}
 
+func PlaylistDelete(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
+	playlist := GetPlaylistFromRequest(r)
+
+	err := s.Playlist.Delete(playlist)
+
+	return BlankResponse(err)
 }

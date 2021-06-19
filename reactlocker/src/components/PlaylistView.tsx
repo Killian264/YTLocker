@@ -7,7 +7,7 @@ import { LeftArrow, SvgBox, Trash } from "./Svg";
 export interface PlaylistViewProps {
 	className?: string;
 	playlist: Playlist;
-	DeleteClick: () => void;
+	DeleteClick: (id: number) => void;
 	BackClick: () => void;
 }
 
@@ -32,7 +32,10 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 					body={
 						"Playlist information will be deleted, but the playlist will remain accessible on youtube."
 					}
-					AcceptClick={DeleteClick}
+					AcceptClick={() => {
+						DeleteClick(playlist.id);
+						BackClick();
+					}}
 					RejectClick={() => {
 						setIsOpen(false);
 					}}

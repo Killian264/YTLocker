@@ -1,6 +1,8 @@
 package data
 
 import (
+	"log"
+
 	"github.com/Killian264/YTLocker/golocker/models"
 )
 
@@ -20,15 +22,23 @@ func (d *Data) NewPlaylist(userID uint64, playlist models.Playlist) (models.Play
 }
 
 func (d *Data) GetPlaylist(playlistID uint64) (models.Playlist, error) {
-	playlist := models.Playlist{ID: playlistID}
+	playlist := models.Playlist{}
 
-	result := d.db.Where(playlist).First(&playlist)
+	result := d.db.First(&playlist, playlistID)
 
 	if result.Error != nil || notFound(result.Error) {
 		return models.Playlist{}, removeNotFound(result.Error)
 	}
 
 	return playlist, nil
+}
+
+func (d *Data) DeletePlaylist(ID uint64) (error) {
+	result := d.db.Delete(&models.Playlist{}, ID)
+
+	log.Print(result.Error)
+
+	return result.Error
 }
 
 func (d *Data) NewPlaylistVideo(playlistID uint64, videoID uint64) error {
@@ -67,11 +77,11 @@ func (d *Data) GetAllPlaylistsSubscribedTo(channel models.Channel) ([]uint64, er
 }
 
 func (d *Data) PlaylistHasVideo(playlistID uint64, videoID uint64) (bool, error) {
-	playlist := &models.Playlist{ID: playlistID}
+	playlist := &models.Playlist{}
 
 	join := "INNER JOIN playlist_video ON playlist_video.video_id = ? AND playlist_video.playlist_id = playlists.id"
 
-	result := d.db.Model(playlist).Joins(join, videoID).First(playlist)
+	result := d.db.Model(playlist).Joins(join, videoID).First(playlist, playlistID)
 
 	return !notFound(result.Error), removeNotFound(result.Error)
 }
@@ -141,6 +151,7 @@ func (d *Data) GetLastestPlaylistVideos(userID uint64) ([]uint64, error) {
 		JOIN videos AS V
 			ON PV.video_id = V.id
 		WHERE P.user_id = ?
+		AND P.deleted_at IS NULL
 		ORDER BY V.created_at DESC
 		LIMIT 30
 		;`, userID,

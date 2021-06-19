@@ -11,6 +11,7 @@ import { PlaylistVideoListController } from "../controllers/PlaylistVideoListCon
 import { PlaylistChannelListController } from "../controllers/PlaylistChannelsListController";
 import { PlaylistCreateCard } from "../components/PlaylistCreateCard";
 import { useCreatePlaylist } from "../hooks/api/useCreatePlaylist";
+import { useDeletePlaylist } from "../hooks/api/useDeletePlaylist";
 
 export const DashboardPage: React.FC<{}> = () => {
 	const [playlistId, setPlaylistId] = useState(0);
@@ -106,15 +107,11 @@ export interface DashboardPlaylistViewProps {
 export const DashboardPlaylistView: React.FC<DashboardPlaylistViewProps> = ({ playlistId, BackClick }) => {
 	const [loadingP, playlist] = usePlaylist(playlistId);
 	const [loadingC, channels] = usePlaylistChannels();
+	const deletePlaylist = useDeletePlaylist();
 
 	if (loadingP || loadingC || playlist === null) {
 		return <div>Loading...</div>;
 	}
-
-	let deletePlaylist = () => {
-		console.log("delete playlist click", playlistId);
-		BackClick();
-	};
 
 	return (
 		<>

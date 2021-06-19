@@ -159,10 +159,6 @@ func InitializeRoutes(services *services.Services, router *mux.Router, adminBear
 	Errors := handlers.CreateResponseWriter(logger)
 	UserAuth := handlers.CreateUserAuthenticator(services)
 	PlaylistAuth := handlers.CreatePlaylistAuthenticator(services)
-	SubscribeErrors := handlers.CreateSubscribeHandler(logger)
-	AdminAuth := handlers.CreateAdminAuthenticator(services, adminBearer)
-
-	router.HandleFunc("/subscribe/{secret}/", SubscribeErrors(Injector(handlers.HandleYoutubePush)))
 
 	router.HandleFunc("/user/login", Errors(Injector(handlers.UserLogin)))
 	router.HandleFunc("/user/register", Errors(Injector(handlers.UserRegister)))
@@ -173,10 +169,17 @@ func InitializeRoutes(services *services.Services, router *mux.Router, adminBear
 	router.HandleFunc("/playlist/videos/latest", Errors(Injector(UserAuth(handlers.PlaylistLatestVideos))))
 	router.HandleFunc("/playlist/{playlist_id}/subscribe/{channel_id}", Errors(Injector(UserAuth(PlaylistAuth(handlers.PlaylistAddSubscription)))))
 	router.HandleFunc("/playlist/{playlist_id}/unsubscribe/{channel_id}", Errors(Injector(UserAuth(PlaylistAuth(handlers.PlaylistRemoveSubscription)))))
+	router.HandleFunc("/playlist/{playlist_id}/delete", Errors(Injector(UserAuth(PlaylistAuth(handlers.PlaylistDelete)))))
 
 	router.HandleFunc("/video/{video_id}", Errors(Injector(UserAuth(handlers.GetVideo))))
 	router.HandleFunc("/channel/search", Errors(Injector(UserAuth(handlers.SearchChannel))))
 	router.HandleFunc("/channel/get/{channel_id}", Errors(Injector(UserAuth(handlers.GetChannel))))
+
+
+	SubscribeErrors := handlers.CreateSubscribeHandler(logger)
+	AdminAuth := handlers.CreateAdminAuthenticator(services, adminBearer)
+
+	router.HandleFunc("/subscribe/{secret}/", SubscribeErrors(Injector(handlers.HandleYoutubePush)))
 
 	router.HandleFunc("/admin/check/uploads", AdminAuth(func(rw http.ResponseWriter, r *http.Request) {
 		checkForMissedUploads(services, logger)
@@ -250,7 +253,7 @@ func Run(s *services.Services, host string, port string) {
 
 	headersOk := muxhandler.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
 	originsOk := muxhandler.AllowedOrigins([]string{"*"})
-	methodsOk := muxhandler.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
+	methodsOk := muxhandler.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS", "DELETE"})
 
 	router := muxhandler.CORS(originsOk, headersOk, methodsOk)(s.Router)
 

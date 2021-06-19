@@ -60,6 +60,20 @@ func Test_Playlist_Insert(t *testing.T) {
 	PlaylistExpectedIsActual(t, s, playlist, user)
 }
 
+func Test_Delete_Playlist(t *testing.T) {
+	s := createMockServices(t)
+
+	s.New(playlist, user)
+
+	err := s.Delete(playlist)
+	assert.Nil(t, err)
+
+	playlist, err := s.Get(playlist.ID)
+	assert.Nil(t, err)
+	assert.Equal(t, models.Playlist{}, playlist)
+
+}
+
 func Test_Playlist_Subscribe(t *testing.T) {
 	s := createMockServices(t)
 

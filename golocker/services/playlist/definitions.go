@@ -16,6 +16,7 @@ type IYTPlaylist interface {
 type IPlaylistManagerData interface {
 	NewPlaylist(userID uint64, playlist models.Playlist) (models.Playlist, error)
 	GetPlaylist(playlistID uint64) (models.Playlist, error)
+	DeletePlaylist(ID uint64) (error)
 
 	GetAllPlaylistVideos(ID uint64) ([]uint64, error) 
 	GetAllPlaylistChannels(ID uint64) ([]uint64, error)

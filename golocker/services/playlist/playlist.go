@@ -48,6 +48,16 @@ func (s *PlaylistManager) Insert(playlist models.Playlist, video models.Video) e
 	return nil
 }
 
+// Insert adds a video to a playlist
+func (s *PlaylistManager) Delete(playlist models.Playlist) error {
+	err := s.data.DeletePlaylist(playlist.ID)
+	if err == nil {
+		return err
+	}
+
+	return nil
+}
+
 // ProcessNewVideo processes subscriptions for a new video
 func (s *PlaylistManager) ProcessNewVideo(channel models.Channel, video models.Video) error {
 	ids, err := s.data.GetAllPlaylistsSubscribedTo(channel)
