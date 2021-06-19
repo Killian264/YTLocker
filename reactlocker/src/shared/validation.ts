@@ -1,4 +1,4 @@
-import { UserRegister } from "./types";
+import { UserRegister } from "../hooks/api/useRegister";
 
 export const validName = (name: string): boolean => {
 	return name.length > 2;

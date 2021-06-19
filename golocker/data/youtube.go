@@ -27,11 +27,9 @@ func (d *Data) NewChannel(channel models.Channel) (models.Channel, error) {
 
 func (d *Data) GetChannel(ID uint64) (models.Channel, error) {
 
-	channel := models.Channel{
-		ID: ID,
-	}
+	channel := models.Channel{}
 
-	result := d.db.Where(&channel).First(&channel)
+	result := d.db.First(&channel, ID)
 
 	if result.Error != nil || notFound(result.Error) {
 		return models.Channel{}, removeNotFound(result.Error)
@@ -42,11 +40,9 @@ func (d *Data) GetChannel(ID uint64) (models.Channel, error) {
 
 func (d *Data) GetChannelByID(channelID string) (models.Channel, error) {
 
-	channel := models.Channel{
-		YoutubeID: channelID,
-	}
+	channel := models.Channel{}
 
-	result := d.db.Where(&channel).First(&channel)
+	result := d.db.Where("channels.youtube_id = ?", channelID).First(&channel)
 
 	if result.Error != nil || notFound(result.Error) {
 		return models.Channel{}, removeNotFound(result.Error)
@@ -71,11 +67,9 @@ func (d *Data) NewVideo(channel models.Channel, video models.Video) (models.Vide
 
 func (d *Data) GetVideo(ID uint64) (models.Video, error) {
 
-	video := models.Video{
-		ID: ID,
-	}
+	video := models.Video{}
 
-	result := d.db.Where(&video).First(&video)
+	result := d.db.First(&video, ID)
 
 	if result.Error != nil || notFound(result.Error) {
 		return models.Video{}, removeNotFound(result.Error)
@@ -86,11 +80,9 @@ func (d *Data) GetVideo(ID uint64) (models.Video, error) {
 
 func (d *Data) GetVideoByID(videoID string) (models.Video, error) {
 
-	video := models.Video{
-		YoutubeID: videoID,
-	}
+	video := models.Video{}
 
-	result := d.db.Where(&video).First(&video)
+	result := d.db.Where("videos.youtube_id = ?", videoID).First(&video)
 
 	if result.Error != nil || notFound(result.Error) {
 		return models.Video{}, removeNotFound(result.Error)

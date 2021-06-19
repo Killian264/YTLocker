@@ -2,16 +2,15 @@ import React from "react";
 import { Button } from "./Button";
 import { Input } from "./Input";
 import { Link } from "./Link";
-import { UserLogin } from "../shared/types";
 
 export interface LoginProps {
 	className?: string;
-	onSubmit: (user: UserLogin) => void;
+	onSubmit: (email: string, password: string) => void;
 	onClickRegister: () => void;
 }
 
 export const Login: React.FC<LoginProps> = ({ className, onSubmit, onClickRegister }) => {
-	const [user, setUser] = React.useState<UserLogin>({
+	const [user, setUser] = React.useState({
 		email: "",
 		password: "",
 	});
@@ -28,7 +27,7 @@ export const Login: React.FC<LoginProps> = ({ className, onSubmit, onClickRegist
 				}}
 				onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
 					if (e.key === "Enter") {
-						onSubmit(user);
+						onSubmit(user.email, user.password);
 					}
 				}}
 			/>
@@ -42,7 +41,7 @@ export const Login: React.FC<LoginProps> = ({ className, onSubmit, onClickRegist
 				}}
 				onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
 					if (e.key === "Enter") {
-						onSubmit(user);
+						onSubmit(user.email, user.password);
 					}
 				}}
 			/>
@@ -53,7 +52,7 @@ export const Login: React.FC<LoginProps> = ({ className, onSubmit, onClickRegist
 					disabled={false}
 					loading={false}
 					onClick={() => {
-						onSubmit(user);
+						onSubmit(user.email, user.password);
 					}}
 				>
 					Login

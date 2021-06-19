@@ -13,7 +13,6 @@ import (
 // UserInformation not including playlists
 // returns user information
 func GetVideo(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
-
 	idString := mux.Vars(r)["video_id"]
 
 	id, err := strconv.ParseUint(idString, 10, 64)
@@ -39,7 +38,6 @@ func GetVideo(w http.ResponseWriter, r *http.Request, s *services.Services) Resp
 	video.Thumbnails = thumbnails
 
 	return NewResponse(http.StatusOK, video, "")
-
 }
 
 type ChannelItem struct {
@@ -48,7 +46,6 @@ type ChannelItem struct {
 }
 
 func GetChannel(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
-
 	idString := mux.Vars(r)["channel_id"]
 
 	id, err := strconv.ParseUint(idString, 10, 64)
@@ -81,5 +78,37 @@ func GetChannel(w http.ResponseWriter, r *http.Request, s *services.Services) Re
 	item.Videos = videos
 
 	return NewResponse(http.StatusOK, item, "")
+}
 
+func SearchChannel(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
+	kind := r.URL.Query().Get("kind") // username or id
+	query := r.URL.Query().Get("query") // the actual search param
+
+	channelID := query
+
+	if( kind == "username"){
+		searchedID, err := s.Youtube.GetChannelIdFromUsername(query)
+		if(err != nil){
+			s.Logger.Print(err)
+			return NewResponse(http.StatusBadRequest, nil, "channel does not exist")
+		}
+
+		channelID = searchedID
+	}
+
+	channel, err := s.Youtube.NewChannel(channelID)
+	if(err != nil){
+		return BlankResponse(err)
+	}
+
+	thumbnails, err := s.Youtube.GetAllChannelThumbnails(channel)
+	if err != nil {
+		return BlankResponse(err)
+	}
+
+	item := ChannelItem{}
+	item.Channel = channel
+	item.Thumbnails = thumbnails
+
+	return NewResponse(http.StatusOK, item, "")
 }

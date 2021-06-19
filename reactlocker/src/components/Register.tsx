@@ -2,8 +2,8 @@ import React, { useEffect } from "react";
 import { Button } from "./Button";
 import { Input } from "./Input";
 import { Link } from "./Link";
-import { UserRegister } from "../shared/types";
 import { validateFields } from "../shared/validation";
+import { UserRegister } from "../hooks/api/useRegister";
 
 export interface RegisterProps {
 	className?: string;

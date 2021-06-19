@@ -10,7 +10,7 @@ export interface ChannelListItemControllerProps {
 	className?: string;
 	channelId: number;
 	mode: "normal" | "delete";
-	remove: (id: number) => void;
+	remove: (channelId: string) => void;
 }
 
 export const ChannelListItemController: React.FC<ChannelListItemControllerProps> = ({

@@ -38,6 +38,15 @@ func (s *YoutubeManager) NewVideo(channel models.Channel, videoID string) (model
 	return video, nil
 }
 
+func (s *YoutubeManager) GetChannelIdFromUsername(username string) (string, error) {
+	channelID, err := s.yt.GetChannelIDByUsername(username)
+	if channelID == "" {
+		return "", fmt.Errorf("Video does not exist")
+	}
+
+	return channelID, err
+}
+
 // GetVideo gets a video from the db
 func (s *YoutubeManager) GetVideo(ID uint64) (models.Video, error) {
 	return s.data.GetVideo(ID)
@@ -51,6 +60,7 @@ func (s *YoutubeManager) GetVideoByID(youtubeID string) (models.Video, error) {
 // NewChannel gets and saves to the db a new channel
 func (s *YoutubeManager) NewChannel(channelID string) (models.Channel, error) {
 	saved, _ := s.GetChannelByID(channelID)
+	log.Print(saved)
 	if !reflect.DeepEqual(saved, models.Channel{}) {
 		return saved, nil
 	}

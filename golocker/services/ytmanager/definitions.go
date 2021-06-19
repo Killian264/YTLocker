@@ -16,6 +16,7 @@ type YoutubeManager struct {
 type IYTService interface {
 	GetVideo(channelID string, videoID string) (*youtube.Video, error)
 	GetChannel(channelID string) (*youtube.Channel, error)
+	GetChannelIDByUsername(channelID string) (string, error)
 	GetLastVideosFromChannel(channelID string, pageToken string, after time.Time) (*youtube.SearchListResponse, error)
 }
 

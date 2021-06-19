@@ -10,7 +10,7 @@ export interface ChannelListItemProps {
 	url: string;
 	colors: Color[];
 	mode: "normal" | "delete";
-	remove: (id: number) => void;
+	remove: (channelId: string) => void;
 }
 
 const css = "rounded-md flex justify-between cursor-pointer";
@@ -39,7 +39,7 @@ export const ChannelListItem: React.FC<ChannelListItemProps> = ({
 	};
 
 	const deleteClick = () => {
-		remove(channel.id);
+		remove(channel.youtubeId);
 		setIsOpen(false);
 	};
 

@@ -38,6 +38,22 @@ func Test_New_Channel_Ignore_Duplicates(t *testing.T) {
 	assert.Equal(t, channel.ID, channel2.ID)
 }
 
+func Test_GetChannelIdFromUsername(t *testing.T) {
+	service := createMockServices(t)
+
+	id, err := service.GetChannelIdFromUsername("any-id-works-here")
+	assert.Nil(t, err)
+	assert.NotEmpty(t, id)
+}
+
+func Test_GetChannelIdFromUsername_Invalid_Id(t *testing.T) {
+	service := createMockServices(t)
+
+	id, err := service.GetChannelIdFromUsername("fake-channel-username")
+	assert.NotNil(t, err)
+	assert.Empty(t, id)
+}
+
 func Test_New_Video_Valid_Video(t *testing.T) {
 	service := createMockServices(t)
 
@@ -121,6 +137,7 @@ func Test_Channel_Get_Videos(t *testing.T) {
 	assert.Equal(t, 1, len(videos))
 	assert.Nil(t, err)
 }
+
 
 // New Video Wrong Channel is not tested
 func VideosAreEqualTest(t *testing.T, s *YoutubeManager, video models.Video) {

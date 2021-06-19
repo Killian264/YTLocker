@@ -14,7 +14,6 @@ type YTSerivceFake struct{}
 // videoID: "fake-video-id" returns nil, nil
 // videoID: "error-video-id" returns nil, error
 func (s *YTSerivceFake) GetVideo(channelID string, videoID string) (*youtube.Video, error) {
-
 	if videoID == "fake-video-id" {
 		return nil, nil
 	}
@@ -34,14 +33,12 @@ func (s *YTSerivceFake) GetVideo(channelID string, videoID string) (*youtube.Vid
 			Thumbnails:  &thumbnails,
 		},
 	}, nil
-
 }
 
 // GetChannel gets a channel with predetermined data |
 // videoID: "fake-channel-id" returns nil, nil
 // videoID: "error-channel-id" returns nil, error
 func (s *YTSerivceFake) GetChannel(channelID string) (*youtube.Channel, error) {
-
 	if channelID == "fake-channel-id" {
 		return nil, nil
 	}
@@ -60,13 +57,23 @@ func (s *YTSerivceFake) GetChannel(channelID string) (*youtube.Channel, error) {
 			Thumbnails:  &thumbnails,
 		},
 	}, nil
+}
 
+func (s *YTSerivceFake) GetChannelIDByUsername(username string) (string, error) {
+	if username == "fake-channel-username" {
+		return "", nil
+	}
+
+	if username == "error-channel-username" {
+		return "", fmt.Errorf("error")
+	}
+
+	return "jasdfkjasdklflkasdfk", nil
 }
 
 // GetLastVideosFromChannel fake impl, gets the last 25 videos from a channel AFTER some time
 // pageToken is blank or a pagetoken given by response
 func (s *YTSerivceFake) GetLastVideosFromChannel(channelID string, pageToken string, after time.Time) (*youtube.SearchListResponse, error) {
-
 	thumbnails := getThumbnails()
 
 	return &youtube.SearchListResponse{
@@ -97,7 +104,6 @@ func (s *YTSerivceFake) GetLastVideosFromChannel(channelID string, pageToken str
 			},
 		},
 	}, nil
-
 }
 
 type YTPlaylistFake struct {

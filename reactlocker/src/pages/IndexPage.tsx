@@ -55,7 +55,7 @@ const AlertsDisplay: React.FC<{}> = ({ children }) => {
 		_setAlert(alert);
 		setTimeout(() => {
 			_setAlert(null);
-		}, 2000);
+		}, 4000);
 	};
 
 	return (

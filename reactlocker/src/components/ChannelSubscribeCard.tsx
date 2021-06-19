@@ -6,7 +6,7 @@ import { Input } from "../components/Input";
 import { LoadingListItem } from "../components/LoadingListItem";
 import { LeftArrow } from "../components/Svg";
 import { Channel } from "../shared/types";
-import { BuildChannelUrl } from "../shared/urls";
+import { BuildChannelUrl, IsValidYTChannelUrl } from "../shared/urls";
 
 export interface ChannelSubscribeCardProps {
 	className?: string;
@@ -27,7 +27,9 @@ export const ChannelSubscribeCard: React.FC<ChannelSubscribeCardProps> = ({
 
 	useEffect(() => {
 		const timeout = setTimeout(() => {
-			SearchChannel(state);
+			if (IsValidYTChannelUrl(state)) {
+				SearchChannel(state);
+			}
 		}, 500);
 		return () => {
 			clearTimeout(timeout);
