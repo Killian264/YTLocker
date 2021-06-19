@@ -22,7 +22,7 @@ export const ParseYTChannelUrl = (url: string): [string, string] => {
 	let parts = url.trim().replace("https://www.youtube.com/", "").split("/");
 
 	let id = parts[1];
-	let kind = parts[0] == "channel" ? "id" : "username";
+	let kind = parts[0] === "channel" ? "id" : "username";
 
 	return [kind, id];
 };

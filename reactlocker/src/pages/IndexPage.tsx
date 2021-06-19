@@ -8,7 +8,6 @@ import { LoginPage } from "./LoginPage";
 import { AlertProps } from "../components/Alert";
 import { AlertContext } from "../hooks/AlertContext";
 import { Alert } from "../components/Alert";
-import { LogoBar } from "../components/LogoBar";
 
 axios.defaults.baseURL = DROPLET_BASE;
 

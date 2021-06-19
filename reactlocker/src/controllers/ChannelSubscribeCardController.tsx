@@ -3,14 +3,13 @@ import { ChannelSubscribeCard } from "../components/ChannelSubscribeCard";
 import { useChannelSearch } from "../hooks/api/useChannelSearch";
 import { useCreateSubscription } from "../hooks/api/useCreateSubscription";
 
-export interface ChannelSubscribeCardController {
+export interface ChannelSubscribeCardControllerProps {
 	className?: string;
 	playlistId: number;
 	BackClick: () => void;
 }
 
-export const ChannelSubscribeCardController: React.FC<ChannelSubscribeCardController> = ({
-	className,
+export const ChannelSubscribeCardController: React.FC<ChannelSubscribeCardControllerProps> = ({
 	playlistId,
 	BackClick,
 }) => {

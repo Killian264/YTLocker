@@ -1,6 +1,5 @@
 import React from "react";
 import logo from "../static/logo.png";
-import { Link } from "./Link";
 
 export interface LogoBarProps {
 	className?: string;

@@ -34,7 +34,7 @@ export const ChannelSubscribeCard: React.FC<ChannelSubscribeCardProps> = ({
 		return () => {
 			clearTimeout(timeout);
 		};
-	}, [state]);
+	}, [state, SearchChannel]);
 
 	return (
 		<Card className={className}>

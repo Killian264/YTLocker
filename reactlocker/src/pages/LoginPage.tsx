@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Login } from "../components/Login";
 import { Register } from "../components/Register";
 import { LogoBar } from "../components/LogoBar";

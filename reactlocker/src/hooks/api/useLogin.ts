@@ -1,7 +1,6 @@
 import axios from "axios";
 import { useContext } from "react";
 import { useHistory } from "react-router-dom";
-import { Channel } from "../../shared/types";
 import { AlertContext } from "../AlertContext";
 import { useBearer } from "../useBearer";
 
