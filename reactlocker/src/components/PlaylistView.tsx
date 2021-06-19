@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Playlist } from "../shared/types";
+import { BuildPlaylistUrl } from "../shared/urls";
 import { Card } from "./Card";
 import { Modal } from "./Modal";
 import { LeftArrow, SvgBox, Trash } from "./Svg";
@@ -51,11 +52,13 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 					</div>
 					<span className="text-sm leading-none pt-1">{`Created ${playlist.created.toDateString()}`}</span>
 				</div>
-				<img
-					src={playlist.thumbnailUrl}
-					alt="Thumbnail"
-					className={`col-span-6 rounded-lg object-cover w-full bg-red-500 h-40`}
-				/>
+				<a href={BuildPlaylistUrl(playlist.youtubeId)} target="_blank" rel="noreferrer">
+					<img
+						src={playlist.thumbnailUrl}
+						alt="Thumbnail"
+						className={`col-span-6 rounded-lg object-cover w-full bg-red-500 h-40`}
+					/>
+				</a>
 				<div className="flex gap-2 mt-3">
 					<div className="flex-grow">
 						<div className="md:flex-row flex-col flex gap-2 justify-between">
@@ -66,6 +69,7 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 								</SvgBox>
 							</div>
 						</div>
+						<div>{playlist.description}</div>
 					</div>
 				</div>
 			</Card>
