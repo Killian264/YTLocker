@@ -25,6 +25,7 @@ export const PlaylistListItem: React.FC<PlaylistItemProps> = ({ playlist, classN
 				/>
 				<div className="pl-3 flex flex-col">
 					<span className={`${textSize} font-semibold`}>{playlist.title}</span>
+					<span className="whitespace-nowrap">{playlist.description}</span>
 					<div>
 						<ColorBadge className="mt-2" color={playlist.color}></ColorBadge>
 					</div>

@@ -13,7 +13,7 @@ export interface ChannelListItemProps {
 	remove: (channelId: string) => void;
 }
 
-const css = "rounded-md flex justify-between cursor-pointer";
+const css = "rounded-md flex justify-between cursor-pointer overflow-hidden";
 const imageSize = "md:h-20 sm:h-16 h-16";
 const textSize = "sm:text-md text-md";
 
@@ -47,9 +47,6 @@ export const ChannelListItem: React.FC<ChannelListItemProps> = ({
 		return <ColorBadge key={index} className="mt-2 mr-1" color={color}></ColorBadge>;
 	});
 
-	let trimmed =
-		channel.description.length > 54 ? channel.description.substring(0, 54) + "..." : channel.description;
-
 	return (
 		<>
 			{isOpen && (
@@ -63,7 +60,7 @@ export const ChannelListItem: React.FC<ChannelListItemProps> = ({
 				/>
 			)}
 			<div className={`${className} ${css} ${hover}`} onClick={handleClick}>
-				<div className="flex p-1">
+				<div className="flex p-1 overflow-hidden">
 					<img
 						src={channel.thumbnailUrl}
 						alt="Thumbnail"
@@ -71,11 +68,11 @@ export const ChannelListItem: React.FC<ChannelListItemProps> = ({
 					/>
 					<div className="pl-3 flex flex-col">
 						<span className={`${textSize} font-semibold`}>{channel.title}</span>
-						<span>{trimmed}</span>
+						<span className="whitespace-nowrap">{channel.description}</span>
 						<div>{badges}</div>
 					</div>
 				</div>
-				<div className="mr-2 my-auto select-none">
+				<div className="mr-2 my-auto select-none ml-4">
 					{mode === "normal" && <RightArrow size={24}></RightArrow>}
 					{mode === "delete" && <Trash size={24}></Trash>}
 				</div>
