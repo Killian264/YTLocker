@@ -4,7 +4,7 @@ import { BuildPlaylistUrl } from "../shared/urls";
 import { Button } from "./Button";
 import { Card } from "./Card";
 import { Modal } from "./Modal";
-import { Checkmark, Cog, ExternalLink, LeftArrow, SvgBox, Trash } from "./Svg";
+import { Checkmark, Cog, ExternalLink, SvgBox, Trash } from "./Svg";
 
 export interface PlaylistViewProps {
 	className?: string;

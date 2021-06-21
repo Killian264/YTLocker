@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
 import { Input } from "../components/Input";
-import { LeftArrow } from "../components/Svg";
 import { TextBox } from "./TextBox";
 
 export interface ChannelSubscribeCardProps {
@@ -24,9 +23,7 @@ export const PlaylistCreateCard: React.FC<ChannelSubscribeCardProps> = ({
 			<div className="flex justify-between -mb-1 -mt-1">
 				<span className="leading-none text-2xl font-semibold">Create Playlist</span>
 			</div>
-			<a target="_blank" rel="noreferrer">
-				<div className={`col-span-6 rounded-lg object-cover w-full bg-black h-40`} />
-			</a>
+			<div className={`col-span-6 rounded-lg object-cover w-full bg-black h-40`} />
 			<div className="mt-3">
 				<Input
 					placeholder="Title"

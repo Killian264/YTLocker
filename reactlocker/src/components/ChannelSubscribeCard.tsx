@@ -4,7 +4,6 @@ import { Card } from "../components/Card";
 import { ChannelListItem } from "../components/ChannelListItem";
 import { Input } from "../components/Input";
 import { LoadingListItem } from "../components/LoadingListItem";
-import { LeftArrow } from "../components/Svg";
 import { Channel } from "../shared/types";
 import { BuildChannelUrl, IsValidYTChannelUrl } from "../shared/urls";
 

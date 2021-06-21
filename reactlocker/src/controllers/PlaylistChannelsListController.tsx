@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Card } from "../components/Card";
 import { ChannelListItemController } from "./ChannelListItemController";
 import { Playlist } from "../shared/types";
-import { Cog, SvgBox, Trash, Plus, Checkmark } from "../components/Svg";
+import { Cog, SvgBox, Plus, Checkmark } from "../components/Svg";
 import { ChannelSubscribeCardController } from "./ChannelSubscribeCardController";
 import { useRemoveSubscription } from "../hooks/api/useRemoveSubscription";
 
