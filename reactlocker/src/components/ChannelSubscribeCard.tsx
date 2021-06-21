@@ -42,10 +42,8 @@ export const ChannelSubscribeCard: React.FC<ChannelSubscribeCardProps> = ({
 				<span className="leading-none text-2xl font-semibold">Subscribe</span>
 			</div>
 			<div>
-				<div className="mb-1">
-					<span className="text-2xl font-semibold leading-none">Channel Url:</span>
-				</div>
 				<Input
+					placeholder="Channel Url"
 					value={state}
 					className="mb-3"
 					onChange={(e: React.ChangeEvent<HTMLInputElement>) => {

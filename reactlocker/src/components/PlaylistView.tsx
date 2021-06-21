@@ -50,7 +50,7 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 			)}
 			<Card className={`${className} flex flex-col`}>
 				<div className="flex justify-between -mb-1 -mt-1">
-					<div className="text-2xl font-semibold">
+					<div className="text-2xl font-semibold mt-auto">
 						<span className="leading-none -mt-0.5">{playlist.title}</span>
 					</div>
 					<div></div>

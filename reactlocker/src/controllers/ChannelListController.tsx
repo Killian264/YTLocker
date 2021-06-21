@@ -33,9 +33,7 @@ export const ChannelListController: React.FC<ChannelListControllerProps> = ({ cl
 	return (
 		<Card className={className}>
 			<div className="flex justify-between -mb-1 -mt-1">
-				<div className="text-2xl font-semibold">
-					<span className="leading-none -mt-0.5">Channels</span>
-				</div>
+				<span className="leading-none text-2xl font-semibold">Channels</span>
 			</div>
 			<div className="grid gap-2">{list}</div>
 		</Card>

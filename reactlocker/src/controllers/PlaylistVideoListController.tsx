@@ -26,9 +26,7 @@ export const PlaylistVideoListController: React.FC<PlaylistVideoListControllerPr
 	return (
 		<Card className={className}>
 			<div className="flex justify-between -mb-1 -mt-1">
-				<div className="text-2xl font-semibold">
-					<span className="leading-none -mt-0.5">Videos</span>
-				</div>
+				<span className="leading-none text-2xl font-semibold">Videos</span>
 			</div>
 			<div className="grid gap-2">{list}</div>
 		</Card>
