@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Card } from "../components/Card";
 import { ChannelListItemController } from "./ChannelListItemController";
 import { Playlist } from "../shared/types";
-import { Cog, SvgBox, Trash, Plus } from "../components/Svg";
+import { Cog, SvgBox, Trash, Plus, Checkmark } from "../components/Svg";
 import { ChannelSubscribeCardController } from "./ChannelSubscribeCardController";
 import { useRemoveSubscription } from "../hooks/api/useRemoveSubscription";
 
@@ -24,7 +24,7 @@ export const PlaylistChannelListController: React.FC<PlaylistChannelListControll
 		setMode(mode === "normal" ? "delete" : "normal");
 	};
 
-	let color = mode === "normal" ? "border-primary-200" : "border-red-500";
+	let color = mode === "normal" ? "border-primary-200" : "border-green-500";
 
 	let display = (
 		<ChannelSubscribeCardController
@@ -60,19 +60,21 @@ export const PlaylistChannelListController: React.FC<PlaylistChannelListControll
 						<span className="leading-none -mt-0.5">Channels</span>
 					</div>
 					<div className="flex gap-2">
-						<SvgBox
-							className={`border-green-500 p-0.5`}
-							onClick={() => {
-								setMode("create");
-							}}
-						>
-							<Plus className="text-green-500" size={26}></Plus>
-						</SvgBox>
+						{mode === "normal" && (
+							<SvgBox
+								className={`border-green-500 p-0.5`}
+								onClick={() => {
+									setMode("create");
+								}}
+							>
+								<Plus className="text-green-500" size={26}></Plus>
+							</SvgBox>
+						)}
 						<SvgBox className={`${color} p-0.5`} onClick={swap}>
 							{mode === "normal" ? (
 								<Cog className="text-primary-200" size={26}></Cog>
 							) : (
-								<Trash className="text-red-500" size={28}></Trash>
+								<Checkmark className={`text-green-400`} size={26}></Checkmark>
 							)}
 						</SvgBox>
 					</div>

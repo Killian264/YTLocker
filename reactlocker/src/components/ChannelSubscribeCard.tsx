@@ -37,14 +37,9 @@ export const ChannelSubscribeCard: React.FC<ChannelSubscribeCardProps> = ({
 	}, [state, SearchChannel]);
 
 	return (
-		<Card className={className}>
+		<Card className={`${className} flex flex-col`}>
 			<div className="flex justify-between -mb-1 -mt-1">
-				<div className="flex items-center gap-2">
-					<div onClick={BackClick} className="cursor-pointer -m-1">
-						<LeftArrow size={32} strokeWidth={2}></LeftArrow>
-					</div>
-					<span className="leading-none text-2xl font-semibold">Subscribe</span>
-				</div>
+				<span className="leading-none text-2xl font-semibold">Subscribe</span>
 			</div>
 			<div>
 				<div className="mb-1">
@@ -68,19 +63,14 @@ export const ChannelSubscribeCard: React.FC<ChannelSubscribeCardProps> = ({
 						remove={() => {}}
 					></ChannelListItem>
 				)}
-				<div className="mt-3 flex justify-between">
-					<Button size="medium" color="secondary" onClick={BackClick}>
-						Back
-					</Button>
-					<Button
-						size="medium"
-						color="primary"
-						disabled={channel === null}
-						onClick={SubscribeClick}
-					>
-						Subscribe
-					</Button>
-				</div>
+			</div>
+			<div className="pt-3 flex justify-between mt-auto">
+				<Button size="medium" color="secondary" onClick={BackClick}>
+					Back
+				</Button>
+				<Button size="medium" color="primary" disabled={channel === null} onClick={SubscribeClick}>
+					Subscribe
+				</Button>
 			</div>
 		</Card>
 	);

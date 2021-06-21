@@ -31,7 +31,7 @@ export const DashboardPage: React.FC<{}> = () => {
 			</div>
 			<div className="grid gap-4 px-4 mx-auto max-w-7xl grid-cols-12">
 				{playlistId === 0 && (
-					<DashboardPlaylistsView PlaylistClick={PlaylistClick}></DashboardPlaylistsView>
+					<DashboardPlaylistListView PlaylistClick={PlaylistClick}></DashboardPlaylistListView>
 				)}
 				{playlistId !== 0 && (
 					<DashboardPlaylistView
@@ -44,12 +44,12 @@ export const DashboardPage: React.FC<{}> = () => {
 	);
 };
 
-export interface DashboardPlaylistsViewProps {
+export interface DashboardPlaylistListViewProps {
 	className?: string;
 	PlaylistClick: (id: number) => void;
 }
 
-export const DashboardPlaylistsView: React.FC<DashboardPlaylistsViewProps> = ({ PlaylistClick }) => {
+export const DashboardPlaylistListView: React.FC<DashboardPlaylistListViewProps> = ({ PlaylistClick }) => {
 	const [loadingP, playlists] = usePlaylists();
 	const [loadingC, channels] = usePlaylistChannels();
 	const [isCreate, setCreate] = useState(false);

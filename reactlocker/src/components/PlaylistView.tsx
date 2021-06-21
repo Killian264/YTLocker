@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Playlist } from "../shared/types";
 import { BuildPlaylistUrl } from "../shared/urls";
+import { Button } from "./Button";
 import { Card } from "./Card";
 import { Modal } from "./Modal";
-import { LeftArrow, SvgBox, Trash } from "./Svg";
+import { Checkmark, Cog, ExternalLink, LeftArrow, SvgBox, Trash } from "./Svg";
 
 export interface PlaylistViewProps {
 	className?: string;
@@ -18,10 +19,15 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 	BackClick,
 	playlist,
 }) => {
-	let [isOpen, setIsOpen] = useState(false);
+	const [editing, setEditing] = useState(false);
+	const [isOpen, setIsOpen] = useState(false);
 
 	const remove = () => {
 		setIsOpen(true);
+	};
+
+	const swap = () => {
+		setEditing(!editing);
 	};
 
 	return (
@@ -42,35 +48,53 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 					}}
 				/>
 			)}
-			<Card className={className}>
-				<div className="flex justify-between -mb-1 -mt-1 items-center pb-1">
-					<div className="flex items-center gap-2">
-						<div onClick={BackClick} className="cursor-pointer -m-1">
-							<LeftArrow size={32} strokeWidth={2}></LeftArrow>
-						</div>
-						<span className="leading-none text-2xl font-semibold">{playlist.title}</span>
+			<Card className={`${className} flex flex-col`}>
+				<div className="flex justify-between -mb-1 -mt-1">
+					<div className="text-2xl font-semibold">
+						<span className="leading-none -mt-0.5">{playlist.title}</span>
 					</div>
-					<span className="text-sm leading-none pt-1">{`Created ${playlist.created.toDateString()}`}</span>
+					<div></div>
+					{editing ? (
+						<SvgBox className={`border-green-400 p-0.5`} onClick={swap}>
+							<Checkmark className={`text-green-400`} size={26}></Checkmark>
+						</SvgBox>
+					) : (
+						<SvgBox className={`border-primary-200 p-0.5`} onClick={swap}>
+							<Cog className="text-primary-200" size={26}></Cog>
+						</SvgBox>
+					)}
 				</div>
 				<a href={BuildPlaylistUrl(playlist.youtubeId)} target="_blank" rel="noreferrer">
-					<img
-						src={playlist.thumbnailUrl}
-						alt="Thumbnail"
-						className={`col-span-6 rounded-lg object-cover w-full bg-red-500 h-40`}
-					/>
+					<div className={`col-span-6 rounded-lg object-cover w-full bg-black h-40`} />
 				</a>
 				<div className="flex gap-2 mt-3">
 					<div className="flex-grow">
 						<div className="md:flex-row flex-col flex gap-2 justify-between">
-							<span className="md:text-3xl text-2xl font-semibold">{playlist.title}</span>
-							<div className="flex gap-2">
-								<SvgBox className="text-red-500 border-red-500" onClick={remove}>
-									<Trash className="text-red-500" size={28}></Trash>
-								</SvgBox>
+							<span className="md:text-3xl text-2xl font-semibold block">{playlist.title}</span>
+							<div className="gap-2 flex">
+								<a
+									href={BuildPlaylistUrl(playlist.youtubeId)}
+									target="_blank"
+									rel="noreferrer"
+								>
+									<SvgBox>
+										<ExternalLink size={26}></ExternalLink>
+									</SvgBox>
+								</a>
+								{editing && (
+									<SvgBox className="text-red-500 border-red-500" onClick={remove}>
+										<Trash className="text-red-500" size={26}></Trash>
+									</SvgBox>
+								)}
 							</div>
 						</div>
-						<div>{playlist.description}</div>
+						<div style={{ minHeight: "50px" }}>{playlist.description}</div>
 					</div>
+				</div>
+				<div className="flex justify-between mt-auto pt-4">
+					<Button size="medium" color="secondary" onClick={BackClick}>
+						Back
+					</Button>
 				</div>
 			</Card>
 		</>

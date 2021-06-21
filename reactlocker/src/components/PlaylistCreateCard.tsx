@@ -20,37 +20,31 @@ export const PlaylistCreateCard: React.FC<ChannelSubscribeCardProps> = ({
 	const [description, setDescription] = useState("");
 
 	return (
-		<Card className={className}>
+		<Card className={`${className} flex flex-col justify-content-between`}>
 			<div className="flex justify-between -mb-1 -mt-1">
-				<div className="flex items-center gap-2">
-					<div onClick={BackClick} className="cursor-pointer -m-1">
-						<LeftArrow size={32} strokeWidth={2}></LeftArrow>
-					</div>
-					<span className="leading-none text-2xl font-semibold">Create Playlist</span>
-				</div>
+				<span className="leading-none text-2xl font-semibold">Create Playlist</span>
 			</div>
-			<div>
-				<div className="mb-1">
-					<span className="text-2xl font-semibold leading-none">Title:</span>
-				</div>
+			<a target="_blank" rel="noreferrer">
+				<div className={`col-span-6 rounded-lg object-cover w-full bg-black h-40`} />
+			</a>
+			<div className="mt-3">
 				<Input
+					placeholder="Title"
 					value={title}
 					className="mb-3"
 					onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 						setTitle(e.target.value);
 					}}
 				></Input>
-				<div className="mb-1">
-					<span className="text-2xl font-semibold leading-none">Description</span>
-				</div>
 				<TextBox
+					placeholder="Description"
 					value={description}
 					className="mb-3"
 					onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
 						setDescription(e.target.value);
 					}}
 				></TextBox>
-				<div className="mt-3 flex justify-between">
+				<div className="pt-4 flex justify-between">
 					<Button size="medium" color="secondary" onClick={BackClick}>
 						Back
 					</Button>

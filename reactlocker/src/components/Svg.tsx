@@ -126,10 +126,10 @@ export const Cog: React.FC<SvgProps> = ({ className, size }) => {
 	);
 };
 
-export const Checkmark: React.FC<SvgProps> = ({ size }) => {
+export const Checkmark: React.FC<SvgProps> = ({ className, size }) => {
 	return (
 		<svg
-			xmlns="http://www.w3.org/2000/svg"
+			className={className}
 			fill="none"
 			width={size}
 			height={size}
@@ -137,6 +137,26 @@ export const Checkmark: React.FC<SvgProps> = ({ size }) => {
 			stroke="currentColor"
 		>
 			<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+		</svg>
+	);
+};
+
+export const ExternalLink: React.FC<SvgProps> = ({ className, size }) => {
+	return (
+		<svg
+			className={className}
+			width={size}
+			height={size}
+			fill="none"
+			viewBox="0 0 24 24"
+			stroke="currentColor"
+		>
+			<path
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeWidth={2}
+				d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+			/>
 		</svg>
 	);
 };
