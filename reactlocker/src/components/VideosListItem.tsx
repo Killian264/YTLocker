@@ -12,7 +12,7 @@ export interface VideoListItemProps {
 
 export const VideoListItem: React.FC<VideoListItemProps> = ({ video, className, url, color }) => {
 	const css = `${className} hover:bg-primary-600 rounded-md flex justify-between cursor-pointer overflow-hidden`;
-	const imageSize = "md:h-20 md:w-32 h-16 w-32";
+	const imageSize = "md:h-20 md:w-32 h-16 w-24";
 	const textSize = "sm:text-md text-md";
 
 	const open = () => {

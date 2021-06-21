@@ -11,17 +11,17 @@ export interface PlaylistItemProps {
 }
 
 export const PlaylistListItem: React.FC<PlaylistItemProps> = ({ playlist, className, url, onClick }) => {
-	const css = `${className} hover:bg-primary-600 rounded-md flex justify-between cursor-pointer`;
-	const imageSize = "md:h-20 md:w-32 h-16 w-32";
+	const css = `${className} hover:bg-primary-600 rounded-md flex justify-between cursor-pointer overflow-hidden`;
+	const imageSize = "md:h-20 md:w-32 h-16 w-24";
 	const textSize = "sm:text-md text-md";
 
 	return (
 		<div className={css} onClick={onClick}>
-			<div className="flex p-1">
-				<div className={`rounded-lg bg-black ${imageSize}`} />
+			<div className="flex p-1 overflow-hidden">
+				<div className={`rounded-lg flex-shrink-0 bg-black ${imageSize}`} />
 				<div className="pl-3 flex flex-col">
-					<span className={`${textSize} font-semibold`}>{playlist.title}</span>
-					<span className="whitespace-nowrap">{playlist.description}</span>
+					<span className={`${textSize} font-semibold whitespace-nowrap`}>{playlist.title}</span>
+					<span className="whitespace-nowrap whitespace-nowrap">{playlist.description}</span>
 					<div>
 						<ColorBadge className="mt-2" color={playlist.color}></ColorBadge>
 					</div>

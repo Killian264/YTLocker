@@ -76,7 +76,7 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 									target="_blank"
 									rel="noreferrer"
 								>
-									<SvgBox>
+									<SvgBox className={`p-0.5`}>
 										<ExternalLink size={24}></ExternalLink>
 									</SvgBox>
 								</a>
