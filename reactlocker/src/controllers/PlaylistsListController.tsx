@@ -2,9 +2,9 @@ import React from "react";
 import { Card } from "../components/Card";
 import { PlaylistListItem } from "../components/PlaylistListItem";
 import { BuildPlaylistUrl } from "../shared/urls";
-import { PlusButton } from "../components/PlusButton";
 import { usePlaylists } from "../hooks/api/usePlaylists";
 import { LoadingList } from "../components/LoadingList";
+import { Plus, SvgBox } from "../components/Svg";
 
 export interface PlaylistsListControllerProps {
 	className?: string;
@@ -42,7 +42,9 @@ export const PlaylistsListController: React.FC<PlaylistsListControllerProps> = (
 				<div className="text-2xl font-semibold">
 					<span className="leading-none -mt-0.5">Playlists</span>
 				</div>
-				<PlusButton color="secondary" onClick={CreatePlaylistClick}></PlusButton>
+				<SvgBox className={`border-green-500 p-0.5`} onClick={CreatePlaylistClick}>
+					<Plus className="text-green-500" size={24}></Plus>
+				</SvgBox>
 			</div>
 			<div className="grid gap-2">{list}</div>
 		</Card>

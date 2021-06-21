@@ -67,14 +67,14 @@ export const PlaylistChannelListController: React.FC<PlaylistChannelListControll
 									setMode("create");
 								}}
 							>
-								<Plus className="text-green-500" size={26}></Plus>
+								<Plus className="text-green-500" size={24}></Plus>
 							</SvgBox>
 						)}
 						<SvgBox className={`${color} p-0.5`} onClick={swap}>
 							{mode === "normal" ? (
-								<Cog className="text-primary-200" size={26}></Cog>
+								<Cog className="text-primary-200" size={24}></Cog>
 							) : (
-								<Checkmark className={`text-green-400`} size={26}></Checkmark>
+								<Checkmark className={`text-green-400`} size={24}></Checkmark>
 							)}
 						</SvgBox>
 					</div>

@@ -53,14 +53,13 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 					<div className="text-2xl font-semibold mt-auto">
 						<span className="leading-none -mt-0.5">{playlist.title}</span>
 					</div>
-					<div></div>
 					{editing ? (
 						<SvgBox className={`border-green-400 p-0.5`} onClick={swap}>
-							<Checkmark className={`text-green-400`} size={26}></Checkmark>
+							<Checkmark className={`text-green-400`} size={24}></Checkmark>
 						</SvgBox>
 					) : (
 						<SvgBox className={`border-primary-200 p-0.5`} onClick={swap}>
-							<Cog className="text-primary-200" size={26}></Cog>
+							<Cog className="text-primary-200" size={24}></Cog>
 						</SvgBox>
 					)}
 				</div>
@@ -78,12 +77,12 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 									rel="noreferrer"
 								>
 									<SvgBox>
-										<ExternalLink size={26}></ExternalLink>
+										<ExternalLink size={24}></ExternalLink>
 									</SvgBox>
 								</a>
 								{editing && (
 									<SvgBox className="text-red-500 border-red-500" onClick={remove}>
-										<Trash className="text-red-500" size={26}></Trash>
+										<Trash className="text-red-500" size={24}></Trash>
 									</SvgBox>
 								)}
 							</div>

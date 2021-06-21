@@ -25,7 +25,7 @@ export const DashboardPage: React.FC<{}> = () => {
 	};
 
 	return (
-		<div className="my-5">
+		<div className="my-5 mb-8">
 			<div className="mb-4 px-4 mx-auto max-w-7xl">
 				<UserInfoBarController></UserInfoBarController>
 			</div>
