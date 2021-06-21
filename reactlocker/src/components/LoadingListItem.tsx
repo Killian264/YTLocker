@@ -8,18 +8,18 @@ export interface LoadingListItemProps {
 
 export const LoadingListItem: React.FC<LoadingListItemProps> = ({ className }) => {
 	const css = `${className} hover:bg-primary-600 rounded-md flex justify-between cursor-pointer`;
-	const imageSize = "md:h-20 sm:h-16 h-16 w-36";
+	const imageSize = "md:h-20 md:w-32 h-16 w-24";
 	const textSize = "sm:text-md text-md";
 
 	const color = "bg-primary-600 text-primary-600 rounded leading-5";
 
 	return (
 		<div className={css}>
-			<div className="flex p-1 animate-pulse">
-				<div className={`${color} ${imageSize} rounded-lg object-cover`} />
+			<div className="flex p-1 animate-pulse overflow-hidden">
+				<div className={`${color} ${imageSize} flex-shrink-0 rounded-lg object-cover`} />
 				<div className="pl-3 flex flex-col">
-					<span className={`${textSize} ${color} font-semibold`}>
-						sadfasdasdfasdfasdfasdfasdfasdf
+					<span className={`${textSize} ${color} font-semibold whitespace-nowrap`}>
+						sadfasdasdfasdfsdfsdfasdf
 					</span>
 					<div>
 						<span className={`${color} text-sm mt-1`}>asddsfasdfasdffasdf</span>

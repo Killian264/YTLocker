@@ -68,7 +68,7 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 				</a>
 				<div className="flex gap-2 mt-3">
 					<div className="flex-grow">
-						<div className="md:flex-row flex-col flex gap-2 justify-between">
+						<div className="flex flex-row flex gap-2 justify-between">
 							<span className="md:text-3xl text-2xl font-semibold block">{playlist.title}</span>
 							<div className="gap-2 flex">
 								<a
@@ -80,11 +80,16 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 										<ExternalLink size={24}></ExternalLink>
 									</SvgBox>
 								</a>
-								{editing && (
-									<SvgBox className="text-red-500 border-red-500" onClick={remove}>
-										<Trash className="text-red-500" size={24}></Trash>
-									</SvgBox>
-								)}
+								<div>
+									{editing && (
+										<SvgBox
+											className="text-red-500 border-red-500 p-0.5"
+											onClick={remove}
+										>
+											<Trash className="text-red-500" size={24}></Trash>
+										</SvgBox>
+									)}
+								</div>
 							</div>
 						</div>
 						<div style={{ minHeight: "50px" }}>{playlist.description}</div>
