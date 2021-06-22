@@ -66,8 +66,8 @@ func (s *YTPlaylist) Insert(playlistID string, videoID string) error {
 				Kind:    "youtube#video",
 				VideoId: videoID,
 			},
-			Position: 0,
-			ForceSendFields: []string{"Position"},
+			// Position: 0,
+			// ForceSendFields: []string{"Position"},
 		},
 	}
 
