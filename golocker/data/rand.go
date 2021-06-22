@@ -21,8 +21,8 @@ func (r *ActualRand) ID() uint64 {
 
 	num := binary.LittleEndian.Uint64(buf)
 
-	if(num > 9999999999999999){
-		str := fmt.Sprint(num)[:16]
+	if(num > 99999999999999999){
+		str := fmt.Sprint(num)[:15]
 		num, _ = strconv.ParseUint(str, 10, 64)
 	}
 

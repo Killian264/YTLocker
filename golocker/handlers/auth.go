@@ -38,9 +38,6 @@ func CreatePlaylistAuthenticator(s *services.Services) func(next ServiceHandler)
 	return func(next ServiceHandler) ServiceHandler {
 		return func(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
 			idStr := mux.Vars(r)["playlist_id"]
-			if idStr == "" {
-				return NewResponse(http.StatusForbidden, nil, "no playlist id provided")
-			}
 
 			id, err := strconv.ParseUint(idStr, 10, 64)
 			if err != nil {

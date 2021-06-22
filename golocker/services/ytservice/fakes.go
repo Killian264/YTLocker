@@ -116,7 +116,6 @@ func (s *YTPlaylistFake) Initialize(config oauth2.Config, token oauth2.Token) er
 	return nil
 }
 func (s *YTPlaylistFake) Create(title string, description string) (*youtube.Playlist, error) {
-
 	if !s.initalized {
 		panic("initialize must be ran on playlist")
 	}
@@ -134,7 +133,6 @@ func (s *YTPlaylistFake) Create(title string, description string) (*youtube.Play
 
 }
 func (s *YTPlaylistFake) Insert(playlistID string, videoID string) error {
-
 	if !s.initalized {
 		panic("initialize must be ran on playlist")
 	}

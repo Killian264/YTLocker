@@ -1,13 +1,10 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/gorilla/context"
-	"github.com/gorilla/mux"
 )
 
 type Response struct {
@@ -46,17 +43,4 @@ func GetUserFromRequest(r *http.Request) models.User {
 // GetPlaylistFromRequest gets the playlist set from the request, playlist is set by playlistauthenticator
 func GetPlaylistFromRequest(r *http.Request) models.Playlist {
 	return context.Get(r, "playlist").(models.Playlist)
-}
-
-func GetUintFromRequest(r *http.Request, key string) (uint64, error) {
-	idStr := mux.Vars(r)[key]
-	if idStr == "" {
-		return 0, fmt.Errorf("No value provided")
-	}
-
-	id, err := strconv.ParseUint(idStr, 10, 64)
-	if err != nil {
-		return 0, fmt.Errorf("Value was invalid")
-	}
-	return id, nil
 }

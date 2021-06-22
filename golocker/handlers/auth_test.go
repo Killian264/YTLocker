@@ -47,7 +47,6 @@ var handler = func(w http.ResponseWriter, r *http.Request, s *service.Services) 
 }
 
 func Test_User_Authenticator(t *testing.T) {
-
 	services := service.NewMockServices()
 	Authenticator := CreateUserAuthenticator(services)
 
@@ -69,11 +68,9 @@ func Test_User_Authenticator(t *testing.T) {
 
 	actual := handleUser
 	assert.Equal(t, expected.ID, actual.ID)
-
 }
 
 func Test_Playlist_Authenticator(t *testing.T) {
-
 	s := service.NewMockServices()
 
 	// user 1
@@ -94,11 +91,9 @@ func Test_Playlist_Authenticator(t *testing.T) {
 	// should not get playlist with invalid user
 	Send_Authenticated_Playlist_Request(t, s, playlist, bearer2)
 	assert.Empty(t, handlePlaylist)
-
 }
 
 func Send_Authenticated_Playlist_Request(t *testing.T, s *service.Services, playlist models.Playlist, bearer string) {
-
 	UserAuthenticator := CreateUserAuthenticator(s)
 	PlaylistAuthenticator := CreatePlaylistAuthenticator(s)
 
@@ -113,7 +108,6 @@ func Send_Authenticated_Playlist_Request(t *testing.T, s *service.Services, play
 	}
 
 	SendFakeRequest(fake)
-
 }
 
 type FakeRequest struct {
