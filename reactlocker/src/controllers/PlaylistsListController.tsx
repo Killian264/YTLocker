@@ -38,7 +38,7 @@ export const PlaylistsListController: React.FC<PlaylistsListControllerProps> = (
 
 	return (
 		<Card className={className}>
-			<div className="flex justify-between -mb-1 -mt-1">
+			<div className="flex justify-between -mb-2 -mt-2">
 				<div className="text-2xl font-semibold">
 					<span className="leading-none -mt-0.5">Playlists</span>
 				</div>
