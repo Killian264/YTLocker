@@ -45,7 +45,6 @@ type PlaylistManager struct {
 
 // NewPlaylist creates a new playlist
 func NewPlaylist(yt IYTPlaylist, data IPlaylistManagerData) *PlaylistManager {
-
 	configData, err := data.GetFirstYoutubeClientConfig()
 	if err != nil || configData == (models.YoutubeClientConfig{}) {
 		panic("Failed to get playlist information")
@@ -68,7 +67,6 @@ func NewPlaylist(yt IYTPlaylist, data IPlaylistManagerData) *PlaylistManager {
 
 // NewFakePlaylist creates a fake playlist service with youtube operations mocked
 func NewFakePlaylist(data IPlaylistManagerData) *PlaylistManager {
-
 	configData := models.YoutubeClientConfig{
 		ClientID:     "11223534584-asdfhasdjfhwieyrwqejhkflasd.apps.googleusercontent.com",
 		ClientSecret: "qwerHSwer_asdhwuerJHFDJqkqw",

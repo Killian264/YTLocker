@@ -36,7 +36,6 @@ var (
 )
 
 func TestUpdatedDateParse(t *testing.T) {
-
 	parsed, err := ParseYTHook(testXML)
 	assert.Nil(t, err)
 
@@ -69,11 +68,9 @@ func TestUpdatedDateParse(t *testing.T) {
 	if second != 24 {
 		t.Errorf("malformed date second expected: %q got %q", 24, second)
 	}
-
 }
 
 func BuildExpected() models.YTHookPush {
-
 	channel := models.YTHookChannel{
 		Name: "Channel title",
 		URL:  "http://www.youtube.com/channel/CHANNEL_ID",
@@ -117,7 +114,6 @@ func BuildExpected() models.YTHookPush {
 }
 
 func TestParseYTHook(t *testing.T) {
-
 	got, err := ParseYTHook(testXML)
 	assert.Nil(t, err)
 
@@ -136,7 +132,6 @@ func TestParseYTHook(t *testing.T) {
 }
 
 func TestParseClientJson(t *testing.T) {
-
 	clientJson := `{
 		"installed": {
 			"client_id": "11223534584-asdfhasdjfhwieyrwqejhkflasd.apps.googleusercontent.com",
@@ -164,7 +159,6 @@ func TestParseClientJson(t *testing.T) {
 }
 
 func TestAccessTokenJson(t *testing.T) {
-
 	clientJson := `{
 		"access_token": "sa23.345234524623sdfasdfq-qegehgower9505034jfeworrjwertw_qqwerjfldssgert345sdgdgew-bheiyqeotleqjrljdfluao23423_QwekjfuI023kjasdfwer",
 		"token_type": "Bearer",
@@ -185,7 +179,6 @@ func TestAccessTokenJson(t *testing.T) {
 }
 
 func TestParseYoutubeClient(t *testing.T) {
-
 	input := models.YoutubeClientConfig{
 		ClientID:     "11223534584-asdfhasdjfhwieyrwqejhkflasd.apps.googleusercontent.com",
 		ClientSecret: "qwerHSwer_asdhwuerJHFDJqkqw",
@@ -209,7 +202,6 @@ func TestParseYoutubeClient(t *testing.T) {
 	actual := ParseYoutubeClient(input)
 
 	assert.Equal(t, expected, actual)
-
 }
 
 func TestParseYoutubeToken(t *testing.T) {
@@ -330,7 +322,6 @@ func TestParseYTChannel(t *testing.T) {
 }
 
 func TestParseSearchResponseIntoVideos(t *testing.T) {
-
 	thumbnails := getFakeThumbnails()
 
 	input := &youtube.SearchListResponse{
@@ -380,7 +371,6 @@ func TestParseSearchResponseIntoVideos(t *testing.T) {
 	actual := ParseSearchResponseIntoVideos(input)
 
 	assert.Equal(t, expected, actual)
-
 }
 
 func getFakeThumbnails() youtube.ThumbnailDetails {

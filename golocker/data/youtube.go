@@ -13,7 +13,6 @@ type Data struct {
 }
 
 func (d *Data) NewChannel(channel models.Channel) (models.Channel, error) {
-
 	channel.ID = d.rand.ID()
 
 	for _, thumbnail := range channel.Thumbnails {
@@ -26,7 +25,6 @@ func (d *Data) NewChannel(channel models.Channel) (models.Channel, error) {
 }
 
 func (d *Data) GetChannel(ID uint64) (models.Channel, error) {
-
 	channel := models.Channel{}
 
 	result := d.db.First(&channel, ID)
@@ -39,7 +37,6 @@ func (d *Data) GetChannel(ID uint64) (models.Channel, error) {
 }
 
 func (d *Data) GetChannelByID(channelID string) (models.Channel, error) {
-
 	channel := models.Channel{}
 
 	result := d.db.Where("channels.youtube_id = ?", channelID).First(&channel)
@@ -52,7 +49,6 @@ func (d *Data) GetChannelByID(channelID string) (models.Channel, error) {
 }
 
 func (d *Data) NewVideo(channel models.Channel, video models.Video) (models.Video, error) {
-
 	video.ID = d.rand.ID()
 	video.ChannelID = channel.ID
 
@@ -66,7 +62,6 @@ func (d *Data) NewVideo(channel models.Channel, video models.Video) (models.Vide
 }
 
 func (d *Data) GetVideo(ID uint64) (models.Video, error) {
-
 	video := models.Video{}
 
 	result := d.db.First(&video, ID)
@@ -79,7 +74,6 @@ func (d *Data) GetVideo(ID uint64) (models.Video, error) {
 }
 
 func (d *Data) GetVideoByID(videoID string) (models.Video, error) {
-
 	video := models.Video{}
 
 	result := d.db.Where("videos.youtube_id = ?", videoID).First(&video)
@@ -106,7 +100,6 @@ func (d *Data) GetVideosFromLast24Hours() ([]uint64, error) {
 }
 
 func (d *Data) GetAllChannels() ([]uint64, error) {
-
 	channels := []OnlyID{}
 
 	result := d.db.Model(models.Channel{}).Find(&channels)
@@ -116,7 +109,6 @@ func (d *Data) GetAllChannels() ([]uint64, error) {
 	}
 
 	return parseOnlyIDArray(channels), nil;
-
 }
 
 func (d *Data) GetAllChannelVideos(ID uint64) ([]uint64, error){

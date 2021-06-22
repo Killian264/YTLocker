@@ -25,7 +25,6 @@ type Services struct {
 }
 
 func NewMockServices() *Services {
-
 	data := data.InMemorySQLiteConnect()
 
 	managerService := ytmanager.FakeNewYoutubeManager(data)

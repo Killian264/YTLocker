@@ -15,7 +15,6 @@ type SimpleTest struct {
 //TODO: Add more tests here
 //TODO: Test ValidateStringArray
 func TestValidateString(t *testing.T) {
-
 	tests := []SimpleTest{
 		{
 			input:    "qqq",
@@ -35,7 +34,6 @@ func TestValidateString(t *testing.T) {
 		actual := StringIsValid(test.input)
 		assert.Equal(t, test.expected, actual)
 	}
-
 }
 
 func TestSanitizeString(t *testing.T) {
@@ -53,7 +51,6 @@ func TestSanitizeString(t *testing.T) {
 }
 
 func TestValidEmail(t *testing.T) {
-
 	email := "killiandebacker@gmail.com"
 
 	assert.True(t, IsEmailValid(email))
@@ -65,11 +62,9 @@ func TestValidEmail(t *testing.T) {
 	email = "killiandebacker@"
 
 	assert.False(t, IsEmailValid(email))
-
 }
 
 func TestPasswordValid(t *testing.T) {
-
 	password := "password123"
 
 	assert.True(t, IsPasswordValid(password))
@@ -77,5 +72,4 @@ func TestPasswordValid(t *testing.T) {
 	password = "passwor"
 
 	assert.False(t, IsPasswordValid(password))
-
 }

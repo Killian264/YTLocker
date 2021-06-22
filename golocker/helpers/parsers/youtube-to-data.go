@@ -135,7 +135,6 @@ func ParseAccessTokenJson(jsonData string) (models.YoutubeToken, error) {
 		RefreshToken: token.RefreshToken,
 		Expiry:       token.Expiry,
 	}, nil
-
 }
 
 func ParseYoutubeClient(config models.YoutubeClientConfig) oauth2.Config {
@@ -152,7 +151,6 @@ func ParseYoutubeClient(config models.YoutubeClientConfig) oauth2.Config {
 }
 
 func ParseYoutubeToken(token models.YoutubeToken) oauth2.Token {
-
 	expiry, err := time.Parse("2006-01-02T15:04:05.0000000-07:00", token.Expiry)
 
 	if err != nil {
@@ -168,7 +166,6 @@ func ParseYoutubeToken(token models.YoutubeToken) oauth2.Token {
 }
 
 func ParseSearchResponseIntoVideos(response *youtube.SearchListResponse) []models.Video {
-
 	videos := []models.Video{}
 
 	for _, item := range response.Items {
@@ -184,5 +181,4 @@ func ParseSearchResponseIntoVideos(response *youtube.SearchListResponse) []model
 	}
 
 	return videos
-
 }

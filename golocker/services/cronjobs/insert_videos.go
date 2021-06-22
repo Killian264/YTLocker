@@ -26,7 +26,6 @@ func NewInsertVideosJob(s *services.Services, l *log.Logger) *InsertVideosJob {
 }
 
 func (j InsertVideosJob) Run() error {
-
 	err := j.saveWorkUnits()
 	if err != nil {
 		j.l.Print("Failed to save work units error: ", err)
@@ -34,7 +33,6 @@ func (j InsertVideosJob) Run() error {
 	}
 
 	for true {
-
 		work, err := j.s.Data.GetFirstSubscriptionWorkUnitByStatus("created")
 		if err != nil {
 			j.l.Print("Failed to get work unit: ", err)
@@ -59,15 +57,12 @@ func (j InsertVideosJob) Run() error {
 			j.l.Print("Failed to update work unit ID: ", work.ID, err)
 			continue
 		}
-
 	}
 
 	return nil
-
 }
 
 func (j InsertVideosJob) processVideo(workUnit *models.SubscriptionWorkUnit) error {
-
 	channel, err := j.s.Youtube.GetChannel(workUnit.ChannelID)
 	if err != nil {
 		return err
@@ -85,18 +80,15 @@ func (j InsertVideosJob) processVideo(workUnit *models.SubscriptionWorkUnit) err
 	}
 
 	return j.s.Playlist.ProcessNewVideo(channel, video)
-
 }
 
 func (j InsertVideosJob) saveWorkUnits() error {
-
 	ids, err := j.s.Youtube.GetAllVideosFromLast24Hours()
 	if err != nil {
 		return err
 	}
 
 	for _, id := range ids {
-
 		video, err := j.s.Youtube.GetVideo(id)
 		if err != nil {
 			return err
@@ -121,9 +113,7 @@ func (j InsertVideosJob) saveWorkUnits() error {
 		if err != nil {
 			return err
 		}
-
 	}
 
 	return nil
-
 }

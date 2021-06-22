@@ -15,7 +15,6 @@ import (
 
 // HandleSubscriptionNoError handles a new subscription request
 func HandleYoutubePush(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
-
 	challenge := r.URL.Query().Get("hub.challenge")
 
 	if challenge != "" {
@@ -26,7 +25,6 @@ func HandleYoutubePush(w http.ResponseWriter, r *http.Request, s *services.Servi
 }
 
 func handleChallenge(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
-
 	secret := mux.Vars(r)["secret"]
 	challenge := r.URL.Query().Get("hub.challenge")
 	topic := r.URL.Query().Get("hub.topic")
@@ -62,7 +60,6 @@ func handleChallenge(w http.ResponseWriter, r *http.Request, s *services.Service
 }
 
 func handleNewVideoPush(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
-
 	secret := mux.Vars(r)["secret"]
 	bytes, err := ioutil.ReadAll(r.Body)
 

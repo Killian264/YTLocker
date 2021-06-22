@@ -5,7 +5,6 @@ import (
 )
 
 func (d *Data) NewUser(user *models.User) error {
-
 	db := d.db
 
 	user.ID = d.rand.ID()
@@ -46,11 +45,9 @@ func (d *Data) GetUserByEmail(email string) (*models.User, error) {
 
 // SaveSession saves the session to the user
 func (d *Data) NewUserSession(user *models.User, session *models.Session) error {
-
 	session.ID = d.rand.ID()
 
 	return d.db.Model(user).Association("Session").Replace(session)
-
 }
 
 // GetSession returns the session associated with the bearer if it is the current user session

@@ -54,9 +54,7 @@ func (u *User) Register(user models.User) (models.User, error) {
 
 // GetUserByID gets a user by id
 func (u *User) GetUser(ID uint64) (*models.User, error) {
-
 	return u.data.GetUser(ID)
-
 }
 
 // ValidEmail checks to see if an email is a duplicate

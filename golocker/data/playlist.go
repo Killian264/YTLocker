@@ -7,7 +7,6 @@ import (
 )
 
 func (d *Data) NewPlaylist(userID uint64, playlist models.Playlist) (models.Playlist, error) {
-
 	playlist.ID = d.rand.ID()
 
 	playlist.UserID = userID

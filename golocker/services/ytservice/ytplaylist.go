@@ -17,7 +17,6 @@ type YTPlaylist struct {
 // Config data must match the playlist that is being inserted into
 // Token data should be app level information
 func (s *YTPlaylist) Initialize(config oauth2.Config, token oauth2.Token) error {
-
 	client := config.Client(context.Background(), &token)
 
 	service, err := youtube.New(client)
@@ -33,7 +32,6 @@ func (s *YTPlaylist) Initialize(config oauth2.Config, token oauth2.Token) error 
 
 // Create creates a playlist
 func (s *YTPlaylist) Create(title string, description string) (*youtube.Playlist, error) {
-
 	parts := []string{"id", "snippet", "status"}
 
 	ytPlaylist := &youtube.Playlist{
@@ -58,7 +56,6 @@ func (s *YTPlaylist) Create(title string, description string) (*youtube.Playlist
 
 // Insert inserts a video into a given playlist
 func (s *YTPlaylist) Insert(playlistID string, videoID string) error {
-
 	parts := []string{"id", "snippet"}
 
 	item := &youtube.PlaylistItem{

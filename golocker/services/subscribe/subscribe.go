@@ -50,7 +50,6 @@ func (s *Subscriber) SetYTPubSubUrl(url string) {
 
 // SetSubscribeUrl set the route this application is using to handle challenges
 func (s *Subscriber) SetSubscribeUrl(base string, path string) {
-
 	if !strings.Contains(path, "{secret}") {
 		panic("path must contain secret parameter")
 	}
@@ -63,7 +62,6 @@ func (s *Subscriber) SetSubscribeUrl(base string, path string) {
 
 // Subscribe subscribes to a Subscription feed for a given channel
 func (s *Subscriber) Subscribe(channel *models.Channel) (*models.SubscriptionRequest, error) {
-
 	sub, err := s.GetSubscription(channel)
 	if err != nil || sub != nil {
 		return sub, err
@@ -88,7 +86,6 @@ func (s *Subscriber) Subscribe(channel *models.Channel) (*models.SubscriptionReq
 }
 
 func createSubscription(channel *models.Channel) (*models.SubscriptionRequest, error) {
-
 	secret, err := generateSecret(64)
 	if err != nil {
 		return nil, err
@@ -129,7 +126,6 @@ func (s *Subscriber) postSubscription(request *models.SubscriptionRequest, pushS
 
 // ResubscribeAll resubscribes to all youtube hook subscriptions
 func (s *Subscriber) ResubscribeAll() error {
-
 	err := s.dataService.InactivateAllSubscriptions()
 	if err != nil {
 		return fmt.Errorf("Failed to inactivate all subscriptions got error %s", err.Error())
@@ -171,7 +167,6 @@ func (s *Subscriber) GetSubscription(channel *models.Channel) (*models.Subscript
 
 // HandleChallenge handles a challenge on a new subscription
 func (s *Subscriber) HandleChallenge(request *models.SubscriptionRequest, channelID string) (bool, error) {
-
 	channel, err := s.ytmanager.GetChannelByID(channelID)
 	if err != nil {
 		return false, err
@@ -187,7 +182,6 @@ func (s *Subscriber) HandleChallenge(request *models.SubscriptionRequest, channe
 
 // HandleVideoPush handles a new video push from youtube
 func (s *Subscriber) HandleVideoPush(push *models.YTHookPush, secret string) error {
-
 	channel, err := s.ytmanager.GetChannelByID(push.Video.ChannelID)
 	if err != nil {
 		return err
@@ -210,7 +204,6 @@ func (s *Subscriber) HandleVideoPush(push *models.YTHookPush, secret string) err
 }
 
 func (s *Subscriber) validSubscription(channel *models.Channel, secret string) error {
-
 	saved, err := s.dataService.GetSubscription(channel.ID, secret)
 	if err != nil {
 		return err

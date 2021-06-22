@@ -12,7 +12,6 @@ import (
 
 // HandleSubscriptionNoError handles a new subscription request wrap in a middleware that handles errors
 func PlaylistCreate(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
-
 	user := GetUserFromRequest(r)
 
 	playlist := models.Playlist{}
@@ -30,7 +29,6 @@ func PlaylistCreate(w http.ResponseWriter, r *http.Request, s *services.Services
 	}
 
 	return NewResponse(http.StatusOK, created, "")
-
 }
 
 type PlaylistListItem struct {

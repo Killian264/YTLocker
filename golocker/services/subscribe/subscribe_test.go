@@ -30,7 +30,6 @@ var channel2 = &models.Channel{
 }
 
 func Test_IgnoreDuplicates_Challenge(t *testing.T) {
-
 	service := createMockServices(t)
 
 	sub, err := service.Subscribe(channel)
@@ -43,7 +42,6 @@ func Test_IgnoreDuplicates_Challenge(t *testing.T) {
 }
 
 func Test_Valid_Challenge(t *testing.T) {
-
 	service := createMockServices(t)
 
 	sub, err := service.Subscribe(channel)
@@ -70,7 +68,6 @@ func Test_InValid_Challenge(t *testing.T) {
 }
 
 func Test_Valid_Video_Push(t *testing.T) {
-
 	service := createMockServices(t)
 
 	sub, _ := service.Subscribe(channel)
@@ -80,7 +77,6 @@ func Test_Valid_Video_Push(t *testing.T) {
 }
 
 func Test_InValid_Video_Push(t *testing.T) {
-
 	service := createMockServices(t)
 
 	err := service.HandleVideoPush(hook, "super fake secret")
@@ -89,7 +85,6 @@ func Test_InValid_Video_Push(t *testing.T) {
 }
 
 func Test_InValid_Video_Video_Push(t *testing.T) {
-
 	service := createMockServices(t)
 
 	hook.Video.VideoID = "fake-video-id"
@@ -101,7 +96,6 @@ func Test_InValid_Video_Video_Push(t *testing.T) {
 }
 
 func Test_ResubscribeAll(t *testing.T) {
-
 	service := createMockServices(t)
 
 	sub1, _ := service.Subscribe(channel)
@@ -118,7 +112,6 @@ func Test_ResubscribeAll(t *testing.T) {
 }
 
 func createMockServices(t *testing.T) *Subscriber {
-
 	db := data.InMemorySQLiteConnect()
 
 	manager := ytmanager.FakeNewYoutubeManager(db)
@@ -141,7 +134,6 @@ func createMockServices(t *testing.T) *Subscriber {
 }
 
 func youtubePubSub(t *testing.T) string {
-
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(201)
 		assert.NotEmpty(t, r.FormValue("hub.topic"))

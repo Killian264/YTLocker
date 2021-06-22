@@ -8,7 +8,6 @@ import (
 )
 
 func Test_ParseAndValidateUser(t *testing.T) {
-
 	user := models.User{
 		Username: "test-one",
 		Email:    "cool@gmail.com",
@@ -42,5 +41,4 @@ func Test_ParseAndValidateUser(t *testing.T) {
 
 	_, err = ParseAndValidateUser(badEmail)
 	assert.NotEmpty(t, err)
-
 }

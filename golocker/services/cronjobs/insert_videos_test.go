@@ -45,7 +45,6 @@ func Test_Run(t *testing.T) {
 }
 
 func createServices() (*services.Services, IJob) {
-
 	data := data.InMemorySQLiteConnect()
 
 	managerService := ytmanager.FakeNewYoutubeManager(data)

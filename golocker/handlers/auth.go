@@ -13,7 +13,6 @@ import (
 func CreateUserAuthenticator(s *services.Services) func(next ServiceHandler) ServiceHandler {
 	return func(next ServiceHandler) ServiceHandler {
 		return func(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
-
 			header := r.Header["Authorization"]
 
 			if len(header) != 1 {
@@ -30,7 +29,6 @@ func CreateUserAuthenticator(s *services.Services) func(next ServiceHandler) Ser
 			context.Set(r, "user", *user)
 
 			return next(w, r, s)
-
 		}
 	}
 }
@@ -39,7 +37,6 @@ func CreateUserAuthenticator(s *services.Services) func(next ServiceHandler) Ser
 func CreatePlaylistAuthenticator(s *services.Services) func(next ServiceHandler) ServiceHandler {
 	return func(next ServiceHandler) ServiceHandler {
 		return func(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
-
 			idStr := mux.Vars(r)["playlist_id"]
 			if idStr == "" {
 				return NewResponse(http.StatusForbidden, nil, "no playlist id provided")
@@ -64,7 +61,6 @@ func CreatePlaylistAuthenticator(s *services.Services) func(next ServiceHandler)
 			context.Set(r, "playlist", playlist)
 
 			return next(w, r, s)
-
 		}
 	}
 }
@@ -73,7 +69,6 @@ func CreatePlaylistAuthenticator(s *services.Services) func(next ServiceHandler)
 func CreateAdminAuthenticator(s *services.Services, bearer string) func(next Handler) Handler {
 	return func(next Handler) Handler {
 		return func(w http.ResponseWriter, r *http.Request) {
-
 			header := r.Header["Authorization"]
 
 			if len(header) != 1 {

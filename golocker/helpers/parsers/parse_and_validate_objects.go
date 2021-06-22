@@ -5,7 +5,6 @@ import "github.com/Killian264/YTLocker/golocker/models"
 // returns the parsed user and an error string if an error occurred
 // the error is user safe
 func ParseAndValidateUser(user models.User) (models.User, string) {
-
 	if !StringArrayIsValid([]string{user.Username, user.Email, user.Password}) {
 		return models.User{}, "user information contained invalid characters"
 	}
@@ -29,14 +28,11 @@ func ParseAndValidateUser(user models.User) (models.User, string) {
 	}
 
 	return parsed, ""
-
 }
 
 func ParsePlaylist(playlist models.Playlist) models.Playlist {
-
 	return models.Playlist{
 		Title:       SanitizeString(playlist.Title),
 		Description: SanitizeString(playlist.Description),
 	}
-
 }

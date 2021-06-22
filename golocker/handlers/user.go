@@ -22,7 +22,6 @@ type BearerResponse struct {
 // user requirement specififed in parsers
 // Returns BlankResponse
 func UserRegister(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
-
 	user := models.User{}
 
 	err := json.NewDecoder(r.Body).Decode(&user)
@@ -52,7 +51,6 @@ func UserRegister(w http.ResponseWriter, r *http.Request, s *services.Services) 
 // UserLogin logs in a user,
 // Returns BearerResponse
 func UserLogin(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
-
 	info := login{}
 
 	err := json.NewDecoder(r.Body).Decode(&info)
@@ -77,7 +75,6 @@ func UserLogin(w http.ResponseWriter, r *http.Request, s *services.Services) Res
 // UserInformation not including playlists
 // returns user information
 func UserInformation(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
-
 	user := GetUserFromRequest(r)
 
 	user.Password = ""

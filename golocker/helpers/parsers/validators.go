@@ -7,19 +7,16 @@ import (
 
 // StringIsValid runs StringIsValid on multiple elements
 func StringArrayIsValid(strings []string) bool {
-
 	for _, str := range strings {
 		if !StringIsValid(str) {
 			return false
 		}
 	}
 	return true
-
 }
 
 // StringIsValid checks if a string is non empty and has no illegal characters
 func StringIsValid(str string) bool {
-
 	if str == "" {
 		return false
 	}
@@ -31,7 +28,6 @@ func StringIsValid(str string) bool {
 
 // Sanitize string removes html tags and removes these characters ` " ' > < . ? \ * & ( ) ; : } {
 func SanitizeString(str string) string {
-
 	str = stripTags(str)
 	str = stripIllegal(str)
 
@@ -51,7 +47,6 @@ func stripTags(str string) string {
 }
 
 func stripIllegal(str string) string {
-
 	remove := []rune{'`', '"', '>', '<', '?', '*', '&', '(', ')', ';', ':', '}', '{'}
 
 	for _, char := range remove {
@@ -62,7 +57,6 @@ func stripIllegal(str string) string {
 }
 
 func IsEmailValid(str string) bool {
-
 	regex := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
 	if len(str) < 3 && len(str) > 254 {
@@ -72,7 +66,5 @@ func IsEmailValid(str string) bool {
 }
 
 func IsPasswordValid(str string) bool {
-
 	return 7 < len(str) && len(str) < 254
-
 }

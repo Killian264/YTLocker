@@ -17,7 +17,6 @@ import (
 // For testing purposes only.
 // SQLite supports up to 128 int keys, referential integrity is not checked.
 func InMemorySQLiteConnect() *Data {
-
 	logger := logger.New(
 		log.New(os.Stdout, "Data: ", log.Lshortfile),
 		logger.Config{},
@@ -41,13 +40,11 @@ func InMemorySQLiteConnect() *Data {
 	}
 
 	return &data
-
 }
 
 // InMemoryMySQLConnect connects the the in memory test db
 // TODO: figure out why clear does not work
 func InMemoryMySQLConnect() *Data {
-
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", "user", "password", "localhost", "9906", "YTLockerDB")
 
 	logger := logger.New(
@@ -82,7 +79,6 @@ func InMemoryMySQLConnect() *Data {
 
 // MySQLConnect connects to a mysql db
 func MySQLConnect(username string, password string, ip string, port string, name string, logBase *log.Logger) *Data {
-
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, ip, port, name)
 
 	data := Data{
@@ -120,7 +116,6 @@ func MySQLConnect(username string, password string, ip string, port string, name
 }
 
 func (d *Data) createTables() error {
-
 	return d.db.AutoMigrate(
 		&models.User{},
 		&models.Playlist{},
@@ -133,11 +128,9 @@ func (d *Data) createTables() error {
 		&models.SubscriptionWorkUnit{},
 		&models.Session{},
 	)
-
 }
 
 func (d *Data) dropTables() error {
-
 	return d.db.Migrator().DropTable(
 		&models.User{},
 		&models.Playlist{},
@@ -150,7 +143,6 @@ func (d *Data) dropTables() error {
 		&models.SubscriptionWorkUnit{},
 		&models.Session{},
 	)
-
 }
 
 // TODO: fix
@@ -165,5 +157,4 @@ func (d *Data) clearTables() {
 	d.db.Unscoped().Where("1 = 1").Delete(&models.YoutubeToken{})
 	d.db.Unscoped().Where("1 = 1").Delete(&models.SubscriptionWorkUnit{})
 	d.db.Unscoped().Where("1 = 1").Delete(&models.Session{})
-	return
 }
