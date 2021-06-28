@@ -60,7 +60,6 @@ func (s *YoutubeManager) GetVideoByID(youtubeID string) (models.Video, error) {
 // NewChannel gets and saves to the db a new channel
 func (s *YoutubeManager) NewChannel(channelID string) (models.Channel, error) {
 	saved, _ := s.GetChannelByID(channelID)
-	log.Print(saved)
 	if !reflect.DeepEqual(saved, models.Channel{}) {
 		return saved, nil
 	}
@@ -107,7 +106,6 @@ func (s *YoutubeManager) CheckForMissedUploads(l *log.Logger) error {
 	after := time.Now().AddDate(0, 0, -1)
 
 	for _, id := range ids {
-
 		channel, err := s.GetChannel(id)
 		if err != nil {
 			return err
@@ -121,14 +119,11 @@ func (s *YoutubeManager) CheckForMissedUploads(l *log.Logger) error {
 		videos := parsers.ParseSearchResponseIntoVideos(response)
 
 		for _, video := range videos {
-
 			_, err = s.data.NewVideo(channel, video)
 			if err != nil {
 				l.Printf("MissedUploads: Error processing video: %v", err)
 			}
-
 		}
-
 	}
 
 	return nil

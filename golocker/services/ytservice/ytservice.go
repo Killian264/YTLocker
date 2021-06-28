@@ -18,7 +18,6 @@ type YTService struct {
 
 // NewYoutubeService creates the yt service
 func NewYoutubeService(apiKey string) *YTService {
-
 	service := YTService{}
 
 	youtubeClient := &http.Client{
@@ -63,7 +62,6 @@ func (s *YTService) GetLastVideosFromChannel(channelID string, pageToken string,
 	}
 
 	return response, nil
-
 }
 
 // GetVideo gets a youtube video by it's youtube channel id and youtube video id
