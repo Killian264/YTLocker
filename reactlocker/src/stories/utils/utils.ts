@@ -1,23 +1,23 @@
 // FROM https://github.com/benawad/dogehouse/
 
-export const sRadio = (choices: string[]) => ({
+export const sRadio = (options: string[]) => ({
 	control: {
 		type: "inline-radio",
-		options: choices,
+		options: options,
 	},
-	defaultValue: choices[0],
+	defaultValue: options[0],
 });
 
-export const sString = () => ({
+export const sString = (defaultValue = "") => ({
 	control: {
 		type: "text",
 	},
-	defaultValue: "",
+	defaultValue: defaultValue,
 });
 
-export const sBoolean = () => ({
+export const sBoolean = (defaultValue = false) => ({
 	control: {
 		type: "boolean",
 	},
-	defaultValue: false,
+	defaultValue: defaultValue,
 });

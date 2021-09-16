@@ -9,16 +9,13 @@ export default {
 };
 
 const Mocked: Story<InputProps> = ({ children, ...props }) => {
-	let [value, setValue] = useState("");
+	let [value, setValue] = useState(props.value);
 
 	return (
 		<Input
 			{...props}
 			value={value}
-			onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-				setValue(e.target.value)
-			}
-			placeholder={"Placeholder"}
+			onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
 		></Input>
 	);
 };
@@ -27,6 +24,7 @@ export const Primary = Mocked.bind({});
 
 Primary.argTypes = {
 	className: sString(),
-	placeholder: sString(),
+	placeholder: sString("Placeholder"),
+	type: sString(),
 	value: sString(),
 };

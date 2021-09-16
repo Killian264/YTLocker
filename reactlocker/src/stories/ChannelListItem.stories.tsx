@@ -59,5 +59,3 @@ const Mocked: Story<{}> = ({ ...props }) => {
 };
 
 export const Primary = Mocked.bind({});
-
-Primary.argTypes = {};

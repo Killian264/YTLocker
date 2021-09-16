@@ -15,6 +15,5 @@ export const Primary = Mocked.bind({});
 
 Primary.argTypes = {
 	className: sString(),
-	color: sString(),
-	message: sString(),
+	color: sString("red-1"),
 };

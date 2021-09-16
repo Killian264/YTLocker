@@ -14,7 +14,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({ className, message, checked,
 				onClick={() => setChecked(!checked)}
 				type="checkbox"
 				value={(checked ? 1 : 0).toString()}
-				className="form-tick rounded h-5 w-5 border border-gray-300 rounded-md checked:bg-primary-500 focus:outline-none"
+				className="form-tick rounded h-5 w-5 border border-gray-300 rounded-md checked:bg-accent focus:outline-none"
 			/>
 			<span className="ml-2 text-sm">{message}</span>
 		</label>

@@ -51,10 +51,10 @@ export const Modal: React.FC<ModalProps> = ({
 				)}
 				<div className="mt-4 flex justify-between">
 					<Button onClick={accept} size={"medium"} color={"primary"} disabled={!checked}>
-						Confirm
+						Accept
 					</Button>
 					<Button onClick={reject} className={"ml-2"} size={"medium"} color={"secondary"}>
-						Reject
+						Cancel
 					</Button>
 				</div>
 			</div>

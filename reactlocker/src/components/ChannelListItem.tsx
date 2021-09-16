@@ -69,7 +69,7 @@ export const ChannelListItem: React.FC<ChannelListItemProps> = ({
 					<div className="pl-3 flex flex-col">
 						<span className={`${textSize} font-semibold`}>{channel.title}</span>
 						<span className="whitespace-nowrap">{channel.description}</span>
-						<div>{badges}</div>
+						<div className="flex">{badges}</div>
 					</div>
 				</div>
 				<div className="mr-2 my-auto select-none ml-4">

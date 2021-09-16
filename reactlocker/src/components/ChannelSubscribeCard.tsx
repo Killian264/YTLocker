@@ -40,7 +40,7 @@ export const ChannelSubscribeCard: React.FC<ChannelSubscribeCardProps> = ({
 			<div className="flex justify-between -mb-1 -mt-1">
 				<span className="leading-none text-2xl font-semibold">Subscribe</span>
 			</div>
-			<div>
+			<div className="grid">
 				<Input
 					placeholder="Channel URL"
 					value={state}
