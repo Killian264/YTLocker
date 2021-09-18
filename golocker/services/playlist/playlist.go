@@ -1,6 +1,7 @@
 package playlist
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/Killian264/YTLocker/golocker/helpers/parsers"
@@ -9,6 +10,15 @@ import (
 
 // New creates a new playlist
 func (s *PlaylistManager) New(playlist models.Playlist, user models.User) (models.Playlist, error) {
+	isValidColor, _, err := s.data.PlaylistColorIsValid(user.ID, playlist.Color)
+	if err != nil{
+		return models.Playlist{}, err
+	}
+
+	if !isValidColor {
+		return models.Playlist{}, fmt.Errorf("Duplicate playlist colors are not allowed.")
+	}
+
 	ytPlaylist, err := s.playlist.Create(playlist.Title, playlist.Description)
 	if err != nil || ytPlaylist == nil {
 		return models.Playlist{}, nil
@@ -31,6 +41,21 @@ func (s *PlaylistManager) Get(playlistID uint64) (models.Playlist, error) {
 	}
 
 	return playlist, err
+}
+
+// Updates playlist information
+func (s *PlaylistManager) Update(playlist models.Playlist) (models.Playlist, error) {
+	isColorInUse, playlistUsingColor, err := s.data.PlaylistColorIsValid(playlist.UserID, playlist.Color)
+	if err != nil{
+		return models.Playlist{}, err
+	}
+
+	// if the color is in use from and from another playlist
+	if !isColorInUse && playlistUsingColor != playlist.ID {
+		return models.Playlist{}, fmt.Errorf("Duplicate playlist colors are not allowed.")
+	}
+
+	return s.data.UpdatePlaylist(playlist)
 }
 
 // Insert adds a video to a playlist

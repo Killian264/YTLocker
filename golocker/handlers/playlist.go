@@ -21,7 +21,11 @@ func PlaylistCreate(w http.ResponseWriter, r *http.Request, s *services.Services
 		return BlankResponse(err)
 	}
 
-	playlist = parsers.ParsePlaylist(playlist)
+	playlist, errorString := parsers.ParseAndValidatePlaylist(playlist)
+
+	if(errorString != ""){
+		return NewResponse(http.StatusBadRequest, nil, errorString)
+	}
 
 	created, err := s.Playlist.New(playlist, user)
 	if err != nil {
@@ -29,6 +33,30 @@ func PlaylistCreate(w http.ResponseWriter, r *http.Request, s *services.Services
 	}
 
 	return NewResponse(http.StatusOK, created, "")
+}
+
+func PlaylistUpdate(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
+	playlistToUpdate := GetPlaylistFromRequest(r)
+
+	fieldsToUpdate := models.Playlist{}
+
+	err := json.NewDecoder(r.Body).Decode(&fieldsToUpdate)
+	if err != nil {
+		return BlankResponse(err)
+	}
+
+	fieldsToUpdate, errorString := parsers.ParseAndValidatePlaylist(fieldsToUpdate)
+	if(errorString != ""){
+		return NewResponse(http.StatusBadRequest, nil, errorString)
+	}
+
+	playlistToUpdate.Title = fieldsToUpdate.Title
+	playlistToUpdate.Description = fieldsToUpdate.Description
+	playlistToUpdate.Color = fieldsToUpdate.Color
+
+	updatedPlaylist, err := s.Playlist.Update(playlistToUpdate)
+
+	return NewResponse(http.StatusOK, updatedPlaylist, "")
 }
 
 type PlaylistListItem struct {

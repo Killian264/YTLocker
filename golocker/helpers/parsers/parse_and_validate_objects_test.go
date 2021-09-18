@@ -42,3 +42,20 @@ func Test_ParseAndValidateUser(t *testing.T) {
 	_, err = ParseAndValidateUser(badEmail)
 	assert.NotEmpty(t, err)
 }
+
+func Test_ParseAndValidatePlaylist(t *testing.T) {
+	playlist := models.Playlist{
+		Title: "test",
+		Description: "",
+		Color: "red-1",
+	}
+
+	got, err := ParseAndValidatePlaylist(playlist)
+	assert.Empty(t, err)
+	assert.Equal(t, playlist, got)
+
+	playlist.Color = "red-123"
+
+	got, err = ParseAndValidatePlaylist(playlist)
+	assert.NotEmpty(t, err)
+}

@@ -1,9 +1,8 @@
 package data
 
 import (
-	"log"
-
 	"github.com/Killian264/YTLocker/golocker/models"
+	"gorm.io/gorm"
 )
 
 func (d *Data) NewPlaylist(userID uint64, playlist models.Playlist) (models.Playlist, error) {
@@ -32,10 +31,35 @@ func (d *Data) GetPlaylist(playlistID uint64) (models.Playlist, error) {
 	return playlist, nil
 }
 
+// PlaylistColorIsValid checks if a color is valid retuns wasFound, idOfFound, error
+func (d *Data) PlaylistColorIsValid(userID uint64, color string) (bool, uint64, error) {
+	playlist := models.Playlist{}
+
+	result := d.db.Where("user_id = ? AND color = ?", userID, color).First(&playlist)
+
+	if(result.Error == gorm.ErrRecordNotFound){
+		return true, 0, nil
+	}
+
+	if result.Error != nil {
+		return false, 0, result.Error
+	}
+
+	return false, playlist.ID, nil
+}
+
+func (d *Data) UpdatePlaylist(playlist models.Playlist) (models.Playlist, error) {
+	result := d.db.Model(&playlist).Select("Title", "Description", "Color").Updates(playlist)
+
+	if(result.Error != nil){
+		return models.Playlist{}, result.Error
+	}
+
+	return d.GetPlaylist(playlist.ID)
+}
+
 func (d *Data) DeletePlaylist(ID uint64) (error) {
 	result := d.db.Delete(&models.Playlist{}, ID)
-
-	log.Print(result.Error)
 
 	return result.Error
 }

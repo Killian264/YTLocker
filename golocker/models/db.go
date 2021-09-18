@@ -33,6 +33,7 @@ type Playlist struct {
 	YoutubeID   string `gorm:"type:varchar(256);not null;index;"`
 	Title       string `gorm:"type:varchar(256);not null;"`
 	Description string `gorm:"type:varchar(512);not null;"`
+	Color       string `gorm:"type:varchar(256);not null;"`
 
 	UserID uint64
 
