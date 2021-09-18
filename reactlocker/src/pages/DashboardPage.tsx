@@ -6,40 +6,40 @@ import { ChannelListController } from "../controllers/ChannelListController";
 import { usePlaylistChannels } from "../hooks/api/usePlaylistChannels";
 import { PlaylistsListController } from "../controllers/PlaylistsListController";
 import { usePlaylist } from "../hooks/api/usePlaylist";
-import { PlaylistView } from "../components/PlaylistView";
 import { PlaylistVideoListController } from "../controllers/PlaylistVideoListController";
 import { PlaylistChannelListController } from "../controllers/PlaylistChannelsListController";
 import { PlaylistCreateCard } from "../components/PlaylistCreateCard";
 import { useCreatePlaylist } from "../hooks/api/useCreatePlaylist";
-import { useDeletePlaylist } from "../hooks/api/useDeletePlaylist";
+import { PlaylistViewController } from "../controllers/PlaylistViewController";
 
 export const DashboardPage: React.FC<{}> = () => {
-	const [playlistId, setPlaylistId] = useState(0);
+	const [playlistId, setPlaylistId] = useState<number | null>(null);
 
-	const PlaylistClick = (id: number) => {
-		setPlaylistId(id);
-	};
+	let view = (
+		<DashboardPlaylistListView
+			PlaylistClick={(id) => {
+				setPlaylistId(id);
+			}}
+		></DashboardPlaylistListView>
+	);
 
-	const PlaylistBack = () => {
-		setPlaylistId(0);
-	};
+	if (playlistId !== null) {
+		view = (
+			<PlaylistViewPage
+				BackClick={() => {
+					setPlaylistId(null);
+				}}
+				playlistId={playlistId}
+			></PlaylistViewPage>
+		);
+	}
 
 	return (
 		<div className="my-5 mb-8">
 			<div className="mb-4 px-4 mx-auto max-w-7xl">
 				<UserInfoBarController></UserInfoBarController>
 			</div>
-			<div className="grid gap-4 px-4 mx-auto max-w-7xl grid-cols-12">
-				{playlistId === 0 && (
-					<DashboardPlaylistListView PlaylistClick={PlaylistClick}></DashboardPlaylistListView>
-				)}
-				{playlistId !== 0 && (
-					<DashboardPlaylistView
-						BackClick={PlaylistBack}
-						playlistId={playlistId}
-					></DashboardPlaylistView>
-				)}
-			</div>
+			<div className="grid gap-4 px-4 mx-auto max-w-7xl grid-cols-12">{view}</div>
 		</div>
 	);
 };
@@ -61,22 +61,23 @@ export const DashboardPlaylistListView: React.FC<DashboardPlaylistListViewProps>
 	}
 
 	let view = (
-		<PlaylistCreateCard
-			CreateClick={createPlaylist}
-			BackClick={() => {
-				setCreate(false);
+		<PlaylistsListController
+			CreatePlaylistClick={() => {
+				setCreate(true);
 			}}
-		></PlaylistCreateCard>
+			PlaylistClick={PlaylistClick}
+		></PlaylistsListController>
 	);
 
-	if (!isCreate) {
+	if (isCreate) {
 		view = (
-			<PlaylistsListController
-				CreatePlaylistClick={() => {
-					setCreate(true);
+			<PlaylistCreateCard
+				CreateClick={createPlaylist}
+				BackClick={() => {
+					setCreate(false);
 				}}
-				PlaylistClick={PlaylistClick}
-			></PlaylistsListController>
+				playlists={playlists}
+			></PlaylistCreateCard>
 		);
 	}
 
@@ -99,28 +100,26 @@ export const DashboardPlaylistListView: React.FC<DashboardPlaylistListViewProps>
 	);
 };
 
-export interface DashboardPlaylistViewProps {
+export interface PlaylistViewPageProps {
 	className?: string;
 	playlistId: number;
 	BackClick: () => void;
 }
-export const DashboardPlaylistView: React.FC<DashboardPlaylistViewProps> = ({ playlistId, BackClick }) => {
-	const [loadingP, playlist] = usePlaylist(playlistId);
-	const [loadingC, channels] = usePlaylistChannels();
-	const deletePlaylist = useDeletePlaylist();
+export const PlaylistViewPage: React.FC<PlaylistViewPageProps> = ({ playlistId, BackClick }) => {
+	const [loadingPlaylist, playlist] = usePlaylist(playlistId);
+	const [loadingChannels, channels] = usePlaylistChannels();
 
-	if (loadingP || loadingC || playlist === null) {
+	if (loadingPlaylist || loadingChannels || playlist === null) {
 		return <div>Loading...</div>;
 	}
 
 	return (
 		<>
 			<div className="grid gap-4 xl:col-span-7 col-span-12">
-				<PlaylistView
-					playlist={playlist}
-					DeleteClick={deletePlaylist}
+				<PlaylistViewController
+					playlistId={playlistId}
 					BackClick={BackClick}
-				></PlaylistView>
+				></PlaylistViewController>
 				<PlaylistChannelListController
 					className="xl:block hidden"
 					limit={Number.MAX_VALUE}
@@ -128,7 +127,6 @@ export const DashboardPlaylistView: React.FC<DashboardPlaylistViewProps> = ({ pl
 				></PlaylistChannelListController>
 			</div>
 			<div className="xl:col-span-5 col-span-12">
-				{/* <VideoListLatestController limit={limit}></VideoListLatestController> */}
 				<PlaylistVideoListController
 					limit={channels.length + 4}
 					playlist={playlist}

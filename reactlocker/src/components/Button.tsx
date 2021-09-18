@@ -29,11 +29,13 @@ export const Button: React.FC<ButtonProps> = ({
 	children,
 	...props
 }) => {
+	const cursorCSS = disabled ? "cursor-default" : "cursor-pointer";
+
 	return (
 		<button
 			disabled={disabled || loading}
 			type="button"
-			className={`${className} ${sizes[size]}  ${colors[color]} font-bold focus:outline-none`}
+			className={`${className} ${cursorCSS} ${sizes[size]}  ${colors[color]} font-bold focus:outline-none`}
 			{...props}
 		>
 			{children}

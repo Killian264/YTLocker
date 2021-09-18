@@ -2,12 +2,12 @@ import { Color } from "./types";
 
 export const ColorToColorCSS = {
 	none: "transparent",
-	"red-1": "red-500",
-	"yellow-1": "yellow-500",
-	"green-1": "green-500",
-	"blue-1": "blue-500",
-	"purple-1": "purple-500",
-	"pink-1": "pink-500",
+	"red-1": "red-400",
+	"yellow-1": "yellow-300",
+	"green-1": "green-400",
+	"blue-1": "blue-400",
+	"purple-1": "purple-400",
+	"pink-1": "pink-400",
 	"red-2": "red-800",
 	"yellow-2": "yellow-800",
 	"green-2": "green-800",

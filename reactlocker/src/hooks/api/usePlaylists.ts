@@ -1,6 +1,5 @@
 import axios from "axios";
 import { useQuery } from "react-query";
-import { ColorArray } from "../../shared/colors";
 import { Playlist } from "../../shared/types";
 
 export const usePlaylists = (): [boolean, Playlist[]] => {
@@ -29,7 +28,7 @@ export const fetchPlaylist = async (): Promise<Playlist[]> => {
 				created: new Date(Date.parse(item.CreatedAt)),
 				videos: item.Videos,
 				channels: item.Channels,
-				color: ColorArray[index],
+				color: item.Color,
 			};
 
 			return playlist;

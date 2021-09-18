@@ -24,11 +24,14 @@ const playlist: Playlist = {
 const Mocked: Story<PlaylistViewProps> = ({ ...props }) => {
 	return (
 		<PlaylistView
+			EditClick={() => {
+				console.log("EDIT CLICKED");
+			}}
 			DeleteClick={() => {
-				console.log("hello");
+				console.log("DELETE CLICKED");
 			}}
 			BackClick={() => {
-				console.log("hello");
+				console.log("BACK CLICKED");
 			}}
 			playlist={playlist}
 		></PlaylistView>

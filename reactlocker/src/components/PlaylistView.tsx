@@ -3,65 +3,62 @@ import { Playlist } from "../shared/types";
 import { BuildPlaylistUrl } from "../shared/urls";
 import { Button } from "./Button";
 import { Card } from "./Card";
+import { ColorBadge } from "./ColorBadge";
 import { Modal } from "./Modal";
-import { Checkmark, Cog, ExternalLink, SvgBox, Trash } from "./Svg";
+import { Cog, ExternalLink, SvgBox, Trash } from "./Svg";
 
 export interface PlaylistViewProps {
 	className?: string;
 	playlist: Playlist;
-	DeleteClick: (id: number) => void;
+	EditClick: () => void;
+	DeleteClick: () => void;
 	BackClick: () => void;
 }
 
 export const PlaylistView: React.FC<PlaylistViewProps> = ({
 	className,
+	playlist,
+	EditClick,
 	DeleteClick,
 	BackClick,
-	playlist,
 }) => {
-	const [editing, setEditing] = useState(false);
 	const [isOpen, setIsOpen] = useState(false);
 
 	const remove = () => {
 		setIsOpen(true);
 	};
 
-	const swap = () => {
-		setEditing(!editing);
-	};
+	let modal = (
+		<Modal
+			confirmMessage={"Yes, I am sure"}
+			header={"Are you sure?"}
+			body={"Playlist information will be deleted, but the playlist will remain accessible on youtube."}
+			AcceptClick={() => {
+				DeleteClick();
+				BackClick();
+			}}
+			RejectClick={() => {
+				setIsOpen(false);
+			}}
+		/>
+	);
 
 	return (
-		<>
-			{isOpen && (
-				<Modal
-					confirmMessage={"Yes, I am sure"}
-					header={"Are you sure?"}
-					body={
-						"Playlist information will be deleted, but the playlist will remain accessible on youtube."
-					}
-					AcceptClick={() => {
-						DeleteClick(playlist.id);
-						BackClick();
-					}}
-					RejectClick={() => {
-						setIsOpen(false);
-					}}
-				/>
-			)}
+		<div>
+			{isOpen ? modal : <div></div>}
 			<Card className={`${className} flex flex-col`}>
 				<div className="flex justify-between -mb-2 -mt-2">
 					<div className="text-2xl font-semibold mt-auto">
 						<span className="leading-none -mt-0.5">{playlist.title}</span>
 					</div>
-					{editing ? (
-						<SvgBox className={`border-green-400 p-0.5`} onClick={swap}>
-							<Checkmark className={`text-green-400`} size={24}></Checkmark>
-						</SvgBox>
-					) : (
-						<SvgBox className={`border-primary-200 p-0.5`} onClick={swap}>
+					<div className="flex gap-2">
+						<SvgBox className={`border-primary-200 p-0.5`} onClick={EditClick}>
 							<Cog className="text-primary-200" size={24}></Cog>
 						</SvgBox>
-					)}
+						<SvgBox className="text-red-500 border-red-500 p-0.5" onClick={remove}>
+							<Trash className="text-red-500" size={24}></Trash>
+						</SvgBox>
+					</div>
 				</div>
 				<a href={BuildPlaylistUrl(playlist.youtubeId)} target="_blank" rel="noreferrer">
 					<div className={`col-span-6 rounded-lg object-cover w-full bg-black h-40`} />
@@ -69,7 +66,14 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 				<div className="flex gap-2 mt-3">
 					<div className="flex-grow">
 						<div className="flex flex-row flex gap-2 justify-between">
-							<span className="md:text-3xl text-2xl font-semibold block">{playlist.title}</span>
+							<div className="flex">
+								<span className="md:text-3xl text-2xl font-semibold block">
+									{playlist.title}
+								</span>
+								<div className="m-auto ml-3 mt-3">
+									<ColorBadge color={playlist.color}></ColorBadge>
+								</div>
+							</div>
 							<div className="gap-2 flex">
 								<a
 									href={BuildPlaylistUrl(playlist.youtubeId)}
@@ -80,16 +84,6 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 										<ExternalLink size={24}></ExternalLink>
 									</SvgBox>
 								</a>
-								<div>
-									{editing && (
-										<SvgBox
-											className="text-red-500 border-red-500 p-0.5"
-											onClick={remove}
-										>
-											<Trash className="text-red-500" size={24}></Trash>
-										</SvgBox>
-									)}
-								</div>
 							</div>
 						</div>
 						<div style={{ minHeight: "50px" }}>{playlist.description}</div>
@@ -101,6 +95,6 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 					</Button>
 				</div>
 			</Card>
-		</>
+		</div>
 	);
 };

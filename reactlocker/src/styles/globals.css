@@ -32,3 +32,22 @@
 body {
 	background-color: var(--color-primary-800);
 }
+
+/* Used only in the ColorSelector component */
+.line-container {
+	position: absolute;
+	display: inline-block;
+	width: 22px;
+	height: 18px;
+	-ms-transform: rotate(62deg); /* IE 9 */
+	-webkit-transform: rotate(62deg); /* Chrome, Safari, Opera */
+	transform: rotate(62deg);
+}
+
+.line-line {
+	position: absolute;
+	width: 3px;
+	height: 39px;
+	left: 10.8px;
+	top: -15px;
+}

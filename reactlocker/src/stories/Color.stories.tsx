@@ -8,7 +8,12 @@ export default {
 };
 
 const Mocked: Story<ColorBadgeProps & { message: string }> = ({ ...props }) => {
-	return <ColorBadge {...props}></ColorBadge>;
+	return (
+		<div>
+			<ColorBadge {...props}></ColorBadge>
+			<div className="mt-3"></div>
+		</div>
+	);
 };
 
 export const Primary = Mocked.bind({});
@@ -16,4 +21,5 @@ export const Primary = Mocked.bind({});
 Primary.argTypes = {
 	className: sString(),
 	color: sString("red-1"),
+	status: sRadio(["none", "disabled", "selected"]),
 };
