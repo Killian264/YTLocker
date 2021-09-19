@@ -2,7 +2,7 @@ import React from "react";
 import { BuildChannelUrl } from "../shared/urls";
 import { ChannelListItem } from "../components/ChannelListItem";
 import { useChannel } from "../hooks/api/useChannel";
-import { usePlaylists } from "../hooks/api/usePlaylists";
+import { usePlaylistList } from "../hooks/api/usePlaylistList";
 import { Color } from "../shared/types";
 import { LoadingListItem } from "../components/LoadingListItem";
 
@@ -19,14 +19,14 @@ export const ChannelListItemController: React.FC<ChannelListItemControllerProps>
 	mode = "normal",
 	remove,
 }) => {
-	const [loadingC, channel] = useChannel(channelId);
-	const [loadingP, playlists] = usePlaylists();
+	const [isLoadingChannel, channel] = useChannel(channelId);
+	const [isLoadingPlaylist, playlists] = usePlaylistList();
 
-	if (loadingC || channel == null) {
+	if (isLoadingChannel || channel == null) {
 		return <LoadingListItem></LoadingListItem>;
 	}
 
-	if (loadingP || playlists == null) {
+	if (isLoadingPlaylist || playlists == null) {
 		return <LoadingListItem></LoadingListItem>;
 	}
 

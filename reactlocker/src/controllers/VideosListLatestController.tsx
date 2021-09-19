@@ -1,8 +1,8 @@
 import React from "react";
-import { usePlaylists } from "../hooks/api/usePlaylists";
+import { usePlaylistList } from "../hooks/api/usePlaylistList";
 import { VideoListItemController } from "./VideoListItemController";
 import { Card } from "../components/Card";
-import { useLatestVideos } from "../hooks/api/useLatestVideos";
+import { useVideoListLatest } from "../hooks/api/useVideoListLatest";
 import { LoadingList } from "../components/LoadingList";
 
 export interface VideoListLatestControllerProps {
@@ -11,10 +11,10 @@ export interface VideoListLatestControllerProps {
 }
 
 export const VideoListLatestController: React.FC<VideoListLatestControllerProps> = ({ className, limit }) => {
-	const [loadingP, playlists] = usePlaylists();
-	const [loadingV, vidoes] = useLatestVideos();
+	const [isLoadingPlaylists, playlists] = usePlaylistList();
+	const [isLoadingVideos, vidoes] = useVideoListLatest();
 
-	if (loadingP || loadingV || playlists == null) {
+	if (isLoadingPlaylists || isLoadingVideos || playlists == null) {
 		return <LoadingList limit={10}></LoadingList>;
 	}
 

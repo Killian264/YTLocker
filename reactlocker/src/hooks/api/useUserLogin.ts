@@ -4,7 +4,7 @@ import { useHistory } from "react-router-dom";
 import { AlertContext } from "../AlertContext";
 import { useBearer } from "../useBearer";
 
-export const useLogin = (): ((email: string, password: string) => void) => {
+export const useUserLogin = (): ((email: string, password: string) => void) => {
 	const { pushAlert } = useContext(AlertContext);
 	const [, setBearer] = useBearer("");
 	const history = useHistory();

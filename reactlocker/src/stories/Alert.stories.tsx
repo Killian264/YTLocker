@@ -16,5 +16,5 @@ export const Primary = Mocked.bind({});
 Primary.argTypes = {
 	className: sString(),
 	type: sRadio(["success", "failure"]),
-	message: sString(),
+	message: sString("This is an alert"),
 };

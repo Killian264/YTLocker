@@ -7,8 +7,8 @@ export default {
 	component: Button,
 };
 
-const Mocked: Story<ButtonProps & { message: string }> = ({ ...props }) => {
-	return <Button {...props}>{"New Playlist"}</Button>;
+const Mocked: Story<ButtonProps & { message: string }> = ({ message, ...props }) => {
+	return <Button {...props}>{message}</Button>;
 };
 
 export const Primary = Mocked.bind({});
@@ -18,5 +18,5 @@ Primary.argTypes = {
 	color: sRadio(["primary"]),
 	disabled: sBoolean(),
 	loading: sBoolean(),
-	message: sString(),
+	message: sString("New Playlist"),
 };

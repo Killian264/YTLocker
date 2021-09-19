@@ -4,7 +4,7 @@ import { ChannelListItemController } from "./ChannelListItemController";
 import { Playlist } from "../shared/types";
 import { Cog, SvgBox, Plus, Checkmark } from "../components/Svg";
 import { ChannelSubscribeCardController } from "./ChannelSubscribeCardController";
-import { useRemoveSubscription } from "../hooks/api/useRemoveSubscription";
+import { useSubscriptionRemove } from "../hooks/api/useSubscriptionRemove";
 
 export interface PlaylistChannelListControllerProps {
 	className?: string;
@@ -18,7 +18,7 @@ export const PlaylistChannelListController: React.FC<PlaylistChannelListControll
 	playlist,
 }) => {
 	const [mode, setMode] = useState<"normal" | "delete" | "create">("normal");
-	const removeSubscription = useRemoveSubscription();
+	const removeSubscription = useSubscriptionRemove();
 
 	const swap = () => {
 		setMode(mode === "normal" ? "delete" : "normal");

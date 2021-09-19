@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { ChannelSubscribeCard } from "../components/ChannelSubscribeCard";
 import { useChannelSearch } from "../hooks/api/useChannelSearch";
-import { useCreateSubscription } from "../hooks/api/useCreateSubscription";
+import { useSubscriptionCreate } from "../hooks/api/useSubscriptionCreate";
 
 export interface ChannelSubscribeCardControllerProps {
 	className?: string;
@@ -14,7 +14,7 @@ export const ChannelSubscribeCardController: React.FC<ChannelSubscribeCardContro
 	BackClick,
 }) => {
 	const [url, setUrl] = useState<string>("");
-	const createSubscription = useCreateSubscription();
+	const createSubscription = useSubscriptionCreate();
 	let [, channel] = useChannelSearch(url);
 
 	let SubscribeClick = () => {

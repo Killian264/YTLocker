@@ -1,8 +1,8 @@
 import React from "react";
 import { LoadingUserInfoBar } from "../components/LoadingUserInfoBar";
 import { UserInfoBar } from "../components/UserInfoBar";
-import { useLatestVideos } from "../hooks/api/useLatestVideos";
-import { usePlaylists } from "../hooks/api/usePlaylists";
+import { useVideoListLatest } from "../hooks/api/useVideoListLatest";
+import { usePlaylistList } from "../hooks/api/usePlaylistList";
 import { useUser } from "../hooks/api/useUser";
 import { useVideo } from "../hooks/api/useVideo";
 import { Playlist, StatCard, Video } from "../shared/types";
@@ -12,14 +12,14 @@ export interface UserInfoBarControllerProps {
 }
 
 export const UserInfoBarController: React.FC<UserInfoBarControllerProps> = ({ className }) => {
-	const [loadingU, user] = useUser();
-	const [loadingP, playlists] = usePlaylists();
-	const [loadingLV, videos] = useLatestVideos();
-	const [, video] = useVideo(videos[0], !loadingLV);
+	const [isLoadingUser, user] = useUser();
+	const [isLoadingVideos, videos] = useVideoListLatest();
+	const [isLoadingPlaylists, playlists] = usePlaylistList();
+	const [, video] = useVideo(videos[0], !isLoadingVideos);
 
-	let loading = loadingU || loadingP || loadingLV;
+	let isLoading = isLoadingUser || isLoadingPlaylists || isLoadingVideos;
 
-	if (loading || user === null || playlists === null) {
+	if (isLoading || user === null || playlists === null) {
 		return <LoadingUserInfoBar></LoadingUserInfoBar>;
 	}
 
@@ -53,12 +53,12 @@ const ParseStats = (playlists: Playlist[], latestVideo: Video | null): StatCard[
 			measurement: "total",
 		},
 		{
-			header: "Subscriptions",
+			header: "Channels",
 			count: channelCount,
 			measurement: "total",
 		},
 		{
-			header: "Updated",
+			header: "Last Updated",
 			count: count,
 			measurement: measurement,
 		},

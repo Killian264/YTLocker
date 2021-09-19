@@ -3,8 +3,8 @@ import { Login } from "../components/Login";
 import { Register } from "../components/Register";
 import { LogoBar } from "../components/LogoBar";
 import { RouteComponentProps } from "react-router-dom";
-import { useLogin } from "../hooks/api/useLogin";
-import { useRegistration, UserRegister } from "../hooks/api/useRegister";
+import { useUserLogin } from "../hooks/api/useUserLogin";
+import { useUserRegister, UserRegister } from "../hooks/api/useUserRegister";
 
 export interface LoginPageProps extends RouteComponentProps {
 	className?: string;
@@ -13,8 +13,8 @@ export interface LoginPageProps extends RouteComponentProps {
 export const LoginPage: React.FC<LoginPageProps> = ({ className, history }) => {
 	const [page, setPage] = React.useState("login");
 
-	const postLogin = useLogin();
-	const postRegister = useRegistration();
+	const postLogin = useUserLogin();
+	const postRegister = useUserRegister();
 
 	const register = async (user: UserRegister) => {
 		postRegister(user).then(() => {

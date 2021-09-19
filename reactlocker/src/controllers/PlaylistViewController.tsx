@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { usePlaylists } from "../hooks/api/usePlaylists";
+import { usePlaylistList } from "../hooks/api/usePlaylistList";
 import { PlaylistCreateCard } from "../components/PlaylistCreateCard";
 import { PlaylistView } from "../components/PlaylistView";
-import { useDeletePlaylist } from "../hooks/api/useDeletePlaylist";
-import { useUpdatePlaylist } from "../hooks/api/useUpdatePlaylist";
+import { usePlaylistDelete } from "../hooks/api/usePlaylistDelete";
+import { usePlaylistUpdate } from "../hooks/api/usePlaylistUpdate";
 import { usePlaylist } from "../hooks/api/usePlaylist";
 
 export interface PlaylistViewControllerProps {
@@ -17,15 +17,15 @@ export const PlaylistViewController: React.FC<PlaylistViewControllerProps> = ({
 	playlistId,
 	BackClick,
 }) => {
-	const [loadingPlaylistList, playlists] = usePlaylists();
-	const [loadingPlaylist, playlist] = usePlaylist(playlistId);
+	const [isLoadingPlaylists, playlists] = usePlaylistList();
+	const [isLoadingPlaylist, playlist] = usePlaylist(playlistId);
 
 	const [isEditing, setEditing] = useState(false);
 
-	const deletePlaylist = useDeletePlaylist();
-	const updatePlaylist = useUpdatePlaylist();
+	const deletePlaylist = usePlaylistDelete();
+	const updatePlaylist = usePlaylistUpdate();
 
-	if (loadingPlaylist || loadingPlaylistList || playlist == null) {
+	if (isLoadingPlaylist || isLoadingPlaylists || playlist == null) {
 		return <div>Loading...</div>;
 	}
 

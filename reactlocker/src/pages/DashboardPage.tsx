@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { UserInfoBarController } from "../controllers/UserInfoBarController";
-import { usePlaylists } from "../hooks/api/usePlaylists";
+import { usePlaylistList } from "../hooks/api/usePlaylistList";
 import { VideoListLatestController } from "../controllers/VideosListLatestController";
 import { ChannelListController } from "../controllers/ChannelListController";
 import { usePlaylistChannels } from "../hooks/api/usePlaylistChannels";
@@ -9,7 +9,7 @@ import { usePlaylist } from "../hooks/api/usePlaylist";
 import { PlaylistVideoListController } from "../controllers/PlaylistVideoListController";
 import { PlaylistChannelListController } from "../controllers/PlaylistChannelsListController";
 import { PlaylistCreateCard } from "../components/PlaylistCreateCard";
-import { useCreatePlaylist } from "../hooks/api/useCreatePlaylist";
+import { usePlaylistCreate } from "../hooks/api/usePlaylistCreate";
 import { PlaylistViewController } from "../controllers/PlaylistViewController";
 
 export const DashboardPage: React.FC<{}> = () => {
@@ -50,13 +50,13 @@ export interface DashboardPlaylistListViewProps {
 }
 
 export const DashboardPlaylistListView: React.FC<DashboardPlaylistListViewProps> = ({ PlaylistClick }) => {
-	const [loadingP, playlists] = usePlaylists();
-	const [loadingC, channels] = usePlaylistChannels();
+	const [isLoadingPlaylists, playlists] = usePlaylistList();
+	const [isLoadingChannels, channels] = usePlaylistChannels();
 	const [isCreate, setCreate] = useState(false);
-	const createPlaylist = useCreatePlaylist();
+	const createPlaylist = usePlaylistCreate();
 
 	let limit = 5;
-	if (!(loadingP && loadingC)) {
+	if (!(isLoadingPlaylists && isLoadingChannels)) {
 		limit = playlists.length + channels.length + 2;
 	}
 
@@ -106,10 +106,10 @@ export interface PlaylistViewPageProps {
 	BackClick: () => void;
 }
 export const PlaylistViewPage: React.FC<PlaylistViewPageProps> = ({ playlistId, BackClick }) => {
-	const [loadingPlaylist, playlist] = usePlaylist(playlistId);
-	const [loadingChannels, channels] = usePlaylistChannels();
+	const [isLoadingPlaylist, playlist] = usePlaylist(playlistId);
+	const [isLoadingChannels, channels] = usePlaylistChannels();
 
-	if (loadingPlaylist || loadingChannels || playlist === null) {
+	if (isLoadingPlaylist || isLoadingChannels || playlist === null) {
 		return <div>Loading...</div>;
 	}
 

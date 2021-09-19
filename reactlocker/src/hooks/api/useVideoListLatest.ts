@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useQuery } from "react-query";
 
-export const useLatestVideos = (): [boolean, number[]] => {
+export const useVideoListLatest = (): [boolean, number[]] => {
 	const { isSuccess, data } = useQuery(["latest"], () => fetchLatest());
 
 	if (!isSuccess || data === undefined) {

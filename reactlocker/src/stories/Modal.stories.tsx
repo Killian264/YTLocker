@@ -1,6 +1,6 @@
 import { Story } from "@storybook/react";
 import { useState } from "react";
-import { Modal } from "../components/Modal";
+import { Modal, ModalProps } from "../components/Modal";
 import { sString } from "./utils/utils";
 
 export default {
@@ -8,7 +8,7 @@ export default {
 	component: Modal,
 };
 
-const Mocked: Story<{}> = ({ ...props }) => {
+const Mocked: Story<ModalProps> = ({ ...props }) => {
 	let [isOpen, setIsOpen] = useState(true);
 
 	setTimeout(() => {
@@ -19,11 +19,7 @@ const Mocked: Story<{}> = ({ ...props }) => {
 		<div>
 			{isOpen && (
 				<Modal
-					confirmMessage={"I am sure"}
-					header={"Are you sure?"}
-					body={
-						"Playlist information will be deleted, but the playlist will remain accessible on youtube."
-					}
+					{...props}
 					AcceptClick={() => {
 						setIsOpen(false);
 					}}
@@ -39,6 +35,9 @@ const Mocked: Story<{}> = ({ ...props }) => {
 export const Primary = Mocked.bind({});
 
 Primary.argTypes = {
-	header: sString(),
-	body: sString(),
+	header: sString("Are you sure?"),
+	body: sString(
+		"Playlist information will be deleted, but the playlist will remain accessible on youtube."
+	),
+	confirmMessage: sString("I am sure"),
 };

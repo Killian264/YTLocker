@@ -1,7 +1,7 @@
-import { usePlaylists } from "./usePlaylists";
+import { usePlaylistList } from "./usePlaylistList";
 
 export const usePlaylistChannels = (): [boolean, number[]] => {
-	const [loading, playlists] = usePlaylists();
+	const [loading, playlists] = usePlaylistList();
 
 	let merged: number[] = [];
 

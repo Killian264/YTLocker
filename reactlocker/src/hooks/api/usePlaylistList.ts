@@ -2,7 +2,7 @@ import axios from "axios";
 import { useQuery } from "react-query";
 import { Playlist } from "../../shared/types";
 
-export const usePlaylists = (): [boolean, Playlist[]] => {
+export const usePlaylistList = (): [boolean, Playlist[]] => {
 	const { isSuccess, data } = useQuery(["playlists"], () => fetchPlaylist());
 
 	if (!isSuccess || data === undefined) {

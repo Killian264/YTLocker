@@ -1,18 +1,24 @@
 import axios from "axios";
 import { useContext } from "react";
 import { useQueryClient } from "react-query";
+import { Color } from "../../shared/types";
 import { AlertContext } from "../AlertContext";
 
-export const useCreateSubscription = (): ((playlistId: number, channelId: string) => Promise<void>) => {
+export const usePlaylistUpdate = (): ((
+	id: number,
+	title: string,
+	description: string,
+	color: Color
+) => Promise<void>) => {
 	const { pushAlert } = useContext(AlertContext);
 	const queryClient = useQueryClient();
 
-	return async (playlistId: number, channelId: string) => {
+	return async (id: number, title: string, description: string, color: Color) => {
 		return axios
-			.post(`/playlist/${playlistId}/subscribe/${channelId}`)
+			.post(`/playlist/${id}/update`, { title, description, color })
 			.then(() => {
 				pushAlert({
-					message: "Subscription was created.",
+					message: "Playlist was updated successfully.",
 					type: "success",
 				});
 				queryClient.invalidateQueries(["playlists"]);
@@ -20,7 +26,7 @@ export const useCreateSubscription = (): ((playlistId: number, channelId: string
 			})
 			.catch(() => {
 				pushAlert({
-					message: "Failed to create subscription",
+					message: "Failed to update playlist.",
 					type: "failure",
 				});
 			});

@@ -16,9 +16,9 @@ export const VideoListItemController: React.FC<VideoListItemControllerProps> = (
 	videoId,
 	playlist,
 }) => {
-	const [loading, video] = useVideo(videoId);
+	const [isLoadingVideo, video] = useVideo(videoId);
 
-	if (loading || video == null) {
+	if (isLoadingVideo || video == null) {
 		return <LoadingListItem></LoadingListItem>;
 	}
 

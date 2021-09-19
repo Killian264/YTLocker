@@ -2,7 +2,7 @@ import React from "react";
 import { Card } from "../components/Card";
 import { PlaylistListItem } from "../components/PlaylistListItem";
 import { BuildPlaylistUrl } from "../shared/urls";
-import { usePlaylists } from "../hooks/api/usePlaylists";
+import { usePlaylistList } from "../hooks/api/usePlaylistList";
 import { LoadingList } from "../components/LoadingList";
 import { Plus, SvgBox } from "../components/Svg";
 
@@ -17,9 +17,9 @@ export const PlaylistsListController: React.FC<PlaylistsListControllerProps> = (
 	CreatePlaylistClick,
 	PlaylistClick,
 }) => {
-	const [loading, playlists] = usePlaylists();
+	const [isLoadingPlaylists, playlists] = usePlaylistList();
 
-	if (loading) {
+	if (isLoadingPlaylists) {
 		return <LoadingList limit={3}></LoadingList>;
 	}
 

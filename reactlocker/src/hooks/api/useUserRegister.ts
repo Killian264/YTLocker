@@ -9,7 +9,7 @@ export interface UserRegister {
 	password2: string;
 }
 
-export const useRegistration = (): ((user: UserRegister) => Promise<void>) => {
+export const useUserRegister = (): ((user: UserRegister) => Promise<void>) => {
 	const { pushAlert } = useContext(AlertContext);
 
 	return (user: UserRegister) => {
@@ -22,9 +22,9 @@ export const useRegistration = (): ((user: UserRegister) => Promise<void>) => {
 				});
 				return;
 			})
-			.catch(() => {
+			.catch((error) => {
 				pushAlert({
-					message: "Failed to create account",
+					message: `Failed to create account: '${error.response.data.Message}'.`,
 					type: "failure",
 				});
 			});

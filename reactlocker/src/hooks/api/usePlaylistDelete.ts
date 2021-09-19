@@ -3,16 +3,16 @@ import { useContext } from "react";
 import { useQueryClient } from "react-query";
 import { AlertContext } from "../AlertContext";
 
-export const useCreatePlaylist = (): ((title: string, description: string) => Promise<void>) => {
+export const usePlaylistDelete = (): ((id: number) => Promise<void>) => {
 	const { pushAlert } = useContext(AlertContext);
 	const queryClient = useQueryClient();
 
-	return async (title: string, description: string) => {
+	return async (id: number) => {
 		return axios
-			.post(`/playlist/create`, { title, description })
+			.delete(`/playlist/${id}/delete`)
 			.then(() => {
 				pushAlert({
-					message: "Playlist was created.",
+					message: "Playlist was deleted.",
 					type: "success",
 				});
 				queryClient.invalidateQueries(["playlists"]);
@@ -20,7 +20,7 @@ export const useCreatePlaylist = (): ((title: string, description: string) => Pr
 			})
 			.catch(() => {
 				pushAlert({
-					message: "Failed to create playlist",
+					message: "Failed to delete playlist",
 					type: "failure",
 				});
 			});

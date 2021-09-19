@@ -8,7 +8,7 @@ export default {
 };
 
 const Mocked: Story<BadgeProps & { message: string }> = ({ ...props }) => {
-	return <Badge {...props}>{props.message || "PRO"}</Badge>;
+	return <Badge {...props}>{props.message}</Badge>;
 };
 
 export const Primary = Mocked.bind({});
@@ -16,5 +16,5 @@ export const Primary = Mocked.bind({});
 Primary.argTypes = {
 	className: sString(),
 	color: sRadio(["primary", "secondary"]),
-	message: sString(),
+	message: sString("PRO"),
 };

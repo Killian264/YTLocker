@@ -10,9 +10,9 @@ export interface ChannelListControllerProps {
 }
 
 export const ChannelListController: React.FC<ChannelListControllerProps> = ({ className, limit }) => {
-	const [loading, channels] = usePlaylistChannels();
+	const [isLoadingChannels, channels] = usePlaylistChannels();
 
-	if (loading) {
+	if (isLoadingChannels) {
 		return <LoadingList limit={5}></LoadingList>;
 	}
 

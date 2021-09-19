@@ -91,7 +91,6 @@ func (s *PlaylistManager) ProcessNewVideo(channel models.Channel, video models.V
 	}
 
 	for _, id := range ids {
-
 		playlist, err := s.Get(id)
 		if err != nil {
 			return err
@@ -110,7 +109,6 @@ func (s *PlaylistManager) ProcessNewVideo(channel models.Channel, video models.V
 		if err != nil {
 			return err
 		}
-
 	}
 
 	return nil

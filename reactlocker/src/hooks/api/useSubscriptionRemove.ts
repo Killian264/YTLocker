@@ -3,16 +3,16 @@ import { useContext } from "react";
 import { useQueryClient } from "react-query";
 import { AlertContext } from "../AlertContext";
 
-export const useDeletePlaylist = (): ((id: number) => Promise<void>) => {
+export const useSubscriptionRemove = (): ((playlistId: number, channelId: string) => Promise<void>) => {
 	const { pushAlert } = useContext(AlertContext);
 	const queryClient = useQueryClient();
 
-	return async (id: number) => {
+	return async (playlistId: number, channelId: string) => {
 		return axios
-			.delete(`/playlist/${id}/delete`)
+			.post(`/playlist/${playlistId}/unsubscribe/${channelId}`)
 			.then(() => {
 				pushAlert({
-					message: "Playlist was deleted.",
+					message: "Subscription was removed from the playlist.",
 					type: "success",
 				});
 				queryClient.invalidateQueries(["playlists"]);
@@ -20,7 +20,7 @@ export const useDeletePlaylist = (): ((id: number) => Promise<void>) => {
 			})
 			.catch(() => {
 				pushAlert({
-					message: "Failed to delete playlist",
+					message: "Failed to remove subscription.",
 					type: "failure",
 				});
 			});
