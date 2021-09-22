@@ -1,5 +1,5 @@
 import React from "react";
-import logo from "../static/logo.png";
+import { Logo } from "./Logo";
 
 export interface LogoBarProps {
 	className?: string;
@@ -11,7 +11,7 @@ export const LogoBar: React.FC<LogoBarProps> = ({ className, children }) => {
 
 	return (
 		<div className={css}>
-			<img src={logo} alt="Logo" width="32" height="32" />
+			<Logo></Logo>
 			<span className="text-xl font-bold ml-1 text-accent tracking-wide">YTLocker</span>
 		</div>
 	);

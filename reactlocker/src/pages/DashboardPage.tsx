@@ -11,45 +11,131 @@ import { PlaylistChannelListController } from "../controllers/PlaylistChannelsLi
 import { PlaylistCreateCard } from "../components/PlaylistCreateCard";
 import { usePlaylistCreate } from "../hooks/api/usePlaylistCreate";
 import { PlaylistViewController } from "../controllers/PlaylistViewController";
+import { Plus, RightArrow, SvgBox } from "../components/Svg";
+import { Card } from "../components/Card";
+import { LinkButton } from "../components/LinkButton";
+import { Footer } from "../components/Footer";
+import { Logo } from "../components/Logo";
 
 export const DashboardPage: React.FC<{}> = () => {
-	const [playlistId, setPlaylistId] = useState<number | null>(null);
+	const [viewPage, setViewPage] = useState<"playlists" | "accounts">("playlists");
 
-	let view = (
-		<DashboardPlaylistListView
-			PlaylistClick={(id) => {
-				setPlaylistId(id);
-			}}
-		></DashboardPlaylistListView>
-	);
+	let view = <AccountsView></AccountsView>;
 
-	if (playlistId !== null) {
-		view = (
-			<PlaylistViewPage
-				BackClick={() => {
-					setPlaylistId(null);
-				}}
-				playlistId={playlistId}
-			></PlaylistViewPage>
-		);
+	if (viewPage === "playlists") {
+		view = <PlaylistView></PlaylistView>;
 	}
 
 	return (
-		<div className="my-5 mb-8">
-			<div className="mb-4 px-4 mx-auto max-w-7xl">
-				<UserInfoBarController></UserInfoBarController>
+		<div className="h-screen flex flex-col flex-grow justify-between">
+			<div className="mb-5 mt-6 pb-4">
+				<div className="mb-4 px-4 mx-auto max-w-7xl">
+					<UserInfoBarController></UserInfoBarController>
+				</div>
+				<div className="mb-4 px-4 mx-auto max-w-7xl">
+					<div className="flex gap-6 mx-3">
+						<LinkButton
+							onClick={() => setViewPage("playlists")}
+							selected={viewPage === "playlists"}
+						>
+							Playlists
+						</LinkButton>
+						<LinkButton
+							onClick={() => setViewPage("accounts")}
+							selected={viewPage === "accounts"}
+						>
+							Accounts
+						</LinkButton>
+					</div>
+				</div>
+				<div className="grid gap-4 px-4 mx-auto max-w-7xl grid-cols-12">{view}</div>
 			</div>
-			<div className="grid gap-4 px-4 mx-auto max-w-7xl grid-cols-12">{view}</div>
+			<Footer></Footer>
 		</div>
 	);
 };
 
-export interface DashboardPlaylistListViewProps {
+export const AccountsView: React.FC<{}> = () => {
+	const [isLoadingPlaylists, playlists] = usePlaylistList();
+
+	if (isLoadingPlaylists) {
+		return <div>Loading...</div>;
+	}
+
+	const css = `hover:bg-primary-600 rounded-md flex justify-between cursor-pointer overflow-hidden`;
+	const imageSize = "md:h-20 md:w-32 h-16 w-24";
+	const textSize = "sm:text-md text-md";
+
+	return (
+		<div className="col-span-12 gap-4 flex flex-col">
+			<Card className={"className"}>
+				<div className="flex justify-between -mb-2 -mt-2">
+					<div className="text-2xl font-semibold">
+						<span className="leading-none -mt-0.5">Linked Accounts</span>
+					</div>
+					<SvgBox className={`border-green-500 p-0.5 opacity-50 cursor-default`} onClick={() => {}}>
+						<Plus className="text-green-500" size={24}></Plus>
+					</SvgBox>
+				</div>
+				<div>
+					<div className={css} onClick={() => {}}>
+						<div className="flex p-1 overflow-hidden">
+							<div
+								className={`rounded-lg flex-shrink-0 bg-black ${imageSize} flex justify-center items-center`}
+							>
+								<Logo></Logo>
+							</div>
+							<div className="pl-3 flex flex-col">
+								<span className={`${textSize} font-semibold whitespace-nowrap`}>
+									YTLocker Playlists |
+									<span className="text-accent ml-2">{playlists.length}</span>/6
+								</span>
+								<span className="whitespace-nowrap whitespace-nowrap">
+									FREE-tier playlists. Playlists limited.
+									<br />
+									New videos may take longer to be added.
+								</span>
+							</div>
+						</div>
+						<div className="mr-2 my-auto select-none">
+							<RightArrow size={24}></RightArrow>
+						</div>
+					</div>
+				</div>
+			</Card>
+		</div>
+	);
+};
+
+export const PlaylistView: React.FC<{}> = () => {
+	const [playlistId, setPlaylistId] = useState<number | null>(null);
+
+	if (playlistId === null) {
+		return (
+			<PlaylistListView
+				PlaylistClick={(id) => {
+					setPlaylistId(id);
+				}}
+			></PlaylistListView>
+		);
+	}
+
+	return (
+		<PlaylistViewPage
+			BackClick={() => {
+				setPlaylistId(null);
+			}}
+			playlistId={playlistId}
+		></PlaylistViewPage>
+	);
+};
+
+export interface PlaylistListViewProps {
 	className?: string;
 	PlaylistClick: (id: number) => void;
 }
 
-export const DashboardPlaylistListView: React.FC<DashboardPlaylistListViewProps> = ({ PlaylistClick }) => {
+export const PlaylistListView: React.FC<PlaylistListViewProps> = ({ PlaylistClick }) => {
 	const [isLoadingPlaylists, playlists] = usePlaylistList();
 	const [isLoadingChannels, channels] = usePlaylistChannels();
 	const [isCreate, setCreate] = useState(false);

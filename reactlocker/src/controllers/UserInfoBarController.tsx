@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { LoadingUserInfoBar } from "../components/LoadingUserInfoBar";
 import { UserInfoBar } from "../components/UserInfoBar";
 import { useVideoListLatest } from "../hooks/api/useVideoListLatest";
@@ -6,12 +6,16 @@ import { usePlaylistList } from "../hooks/api/usePlaylistList";
 import { useUser } from "../hooks/api/useUser";
 import { useVideo } from "../hooks/api/useVideo";
 import { Playlist, StatCard, Video } from "../shared/types";
+import { AlertContext } from "../hooks/AlertContext";
+import { useHistory } from "react-router";
 
 export interface UserInfoBarControllerProps {
 	className?: string;
 }
 
 export const UserInfoBarController: React.FC<UserInfoBarControllerProps> = ({ className }) => {
+	const { pushAlert } = useContext(AlertContext);
+	const history = useHistory();
 	const [isLoadingUser, user] = useUser();
 	const [isLoadingVideos, videos] = useVideoListLatest();
 	const [isLoadingPlaylists, playlists] = usePlaylistList();
@@ -23,7 +27,22 @@ export const UserInfoBarController: React.FC<UserInfoBarControllerProps> = ({ cl
 		return <LoadingUserInfoBar></LoadingUserInfoBar>;
 	}
 
-	return <UserInfoBar className={className} user={user} stats={ParseStats(playlists, video)}></UserInfoBar>;
+	return (
+		<UserInfoBar
+			HomeClick={() => {
+				pushAlert({
+					message: "Coming soon...",
+					type: "success",
+				});
+			}}
+			LogOutClick={() => {
+				history.push("/login");
+			}}
+			className={className}
+			user={user}
+			stats={ParseStats(playlists, video)}
+		></UserInfoBar>
+	);
 };
 
 const ParseStats = (playlists: Playlist[], latestVideo: Video | null): StatCard[] => {

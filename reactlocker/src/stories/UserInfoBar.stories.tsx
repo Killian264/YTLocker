@@ -39,7 +39,12 @@ const statsCards = [
 const Mocked: Story<UserInfoBarProps> = ({ ...props }) => {
 	return (
 		<>
-			<UserInfoBar user={user} stats={statsCards}></UserInfoBar>
+			<UserInfoBar
+				HomeClick={() => {}}
+				LogOutClick={() => {}}
+				user={user}
+				stats={statsCards}
+			></UserInfoBar>
 			<LoadingUserInfoBar></LoadingUserInfoBar>
 		</>
 	);

@@ -1,5 +1,6 @@
 import React from "react";
 import { Playlist } from "../shared/types";
+import { Badge } from "./Badge";
 import { ColorBadge } from "./ColorBadge";
 import { RightArrow } from "./Svg";
 
@@ -22,7 +23,10 @@ export const PlaylistListItem: React.FC<PlaylistItemProps> = ({ playlist, classN
 				<div className="pl-3 flex flex-col">
 					<span className={`${textSize} font-semibold whitespace-nowrap`}>{playlist.title}</span>
 					<span className="whitespace-nowrap whitespace-nowrap">{playlist.description}</span>
-					<div>
+					<div className="flex">
+						<Badge className="mt-2 mr-2" color="primary">
+							YTLocker
+						</Badge>
 						<ColorBadge className="mt-2" color={playlist.color}></ColorBadge>
 					</div>
 				</div>
