@@ -11,10 +11,11 @@ type User struct {
 	ID       uint64 `gorm:"primaryKey"`
 	Username string `gorm:"type:varchar(256);not null;"`
 	Email    string `gorm:"type:varchar(256);not null;unique;"`
-	Password string `gorm:"type:varchar(256);not null;"`
+	Picture  string `gorm:"type:varchar(512);not null;"`
 
 	Session   Session
 	Playlists []Playlist
+	// YoutubeAccount []YoutubeAccount
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -101,6 +102,14 @@ type SubscriptionRequest struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
+
+// type YoutubeAccount struct {
+// 	ID              uint64 `gorm:"primaryKey;"`
+// 	Username        string `gorm:"type:varchar(256);not null;"`
+// 	Email           string `gorm:"type:varchar(256);not null;unique;"`
+// 	PermissionLevel string `gorm:"type:varchar(256);not null;"`
+// 	YoutubeToken    YoutubeToken
+// }
 
 type YoutubeToken struct {
 	ID           uint64 `gorm:"primaryKey;"`

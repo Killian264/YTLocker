@@ -11,7 +11,7 @@ import (
 // New creates a new playlist
 func (s *PlaylistManager) New(playlist models.Playlist, user models.User) (models.Playlist, error) {
 	isValidColor, _, err := s.data.PlaylistColorIsValid(user.ID, playlist.Color)
-	if err != nil{
+	if err != nil {
 		return models.Playlist{}, err
 	}
 
@@ -46,7 +46,7 @@ func (s *PlaylistManager) Get(playlistID uint64) (models.Playlist, error) {
 // Updates playlist information
 func (s *PlaylistManager) Update(playlist models.Playlist) (models.Playlist, error) {
 	isColorInUse, playlistUsingColor, err := s.data.PlaylistColorIsValid(playlist.UserID, playlist.Color)
-	if err != nil{
+	if err != nil {
 		return models.Playlist{}, err
 	}
 

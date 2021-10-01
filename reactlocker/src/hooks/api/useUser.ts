@@ -14,12 +14,13 @@ export const useUser = (): [boolean, User | null] => {
 
 const UserInformation = (): Promise<User> => {
 	return axios.get("/user/information").then((response) => {
-		let { Username, Email, CreatedAt } = response.data.Data;
+		let { Username, Email, Picture, CreatedAt } = response.data.Data;
 
 		return {
 			username: Username,
 			email: Email,
 			joined: new Date(Date.parse(CreatedAt)),
+			picture: Picture,
 		};
 	});
 };

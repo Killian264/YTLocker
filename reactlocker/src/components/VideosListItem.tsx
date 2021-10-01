@@ -19,6 +19,23 @@ export const VideoListItem: React.FC<VideoListItemProps> = ({ video, className, 
 		window.open(url, "_blank");
 	};
 
+	const UpdatedStats = (video: Video): [number, string] => {
+		const diff = Math.abs(new Date().valueOf() - video.created.valueOf());
+		const hours = Math.floor(diff / 36e5);
+		const minutes = Math.floor(diff / 6e4);
+		const seconds = Math.floor(diff / 1e3);
+
+		if (hours === 0 && minutes === 0) {
+			return [seconds, "seconds ago"];
+		}
+
+		if (hours === 0) {
+			return [minutes, "minutes ago"];
+		}
+
+		return [hours, "hours ago"];
+	};
+
 	return (
 		<div className={css} onClick={open}>
 			<div className="flex p-1 overflow-hidden">
@@ -29,7 +46,9 @@ export const VideoListItem: React.FC<VideoListItemProps> = ({ video, className, 
 				/>
 				<div className="pl-3 flex flex-col">
 					<span className={`${textSize} font-semibold whitespace-nowrap`}>{video.title}</span>
-					<span className="text-sm text-primary-text-200">{video.created.toDateString()}</span>
+					<span className="text-sm text-primary-text-200">
+						{UpdatedStats(video)[0] + " " + UpdatedStats(video)[1]}
+					</span>
 					<div>
 						<ColorBadge className="mt-2" color={color}></ColorBadge>
 					</div>

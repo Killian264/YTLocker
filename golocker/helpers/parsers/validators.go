@@ -55,16 +55,3 @@ func stripIllegal(str string) string {
 
 	return str
 }
-
-func IsEmailValid(str string) bool {
-	regex := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
-
-	if len(str) < 3 && len(str) > 254 {
-		return false
-	}
-	return regex.MatchString(str)
-}
-
-func IsPasswordValid(str string) bool {
-	return 7 < len(str) && len(str) < 254
-}

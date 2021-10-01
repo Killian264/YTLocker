@@ -8,6 +8,7 @@ import { LoginPage } from "./LoginPage";
 import { AlertProps } from "../components/Alert";
 import { AlertContext } from "../hooks/AlertContext";
 import { Alert } from "../components/Alert";
+import { RedirectPage } from "./RedirectPage";
 
 axios.defaults.baseURL = DROPLET_BASE;
 
@@ -72,6 +73,7 @@ export const IndexPage: React.FC<{}> = () => {
 				<Switch>
 					<AuthenticatedRoute path="/" exact component={DashboardPage}></AuthenticatedRoute>
 					<Route path="/login" exact component={LoginPage}></Route>
+					<Route path="/redirect" exact component={RedirectPage}></Route>
 				</Switch>
 			</Router>
 		</AlertsDisplay>

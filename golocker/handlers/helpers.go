@@ -8,17 +8,21 @@ import (
 )
 
 type Response struct {
-	Status  int
-	Data    interface{}
-	Message string
+	Redirect    bool
+	RedirectUrl string
+	Status      int
+	Data        interface{}
+	Message     string
 }
 
 // NewResponse creates a new api response
 func NewResponse(status int, data interface{}, message string) Response {
 	return Response{
-		Status:  status,
-		Data:    data,
-		Message: message,
+		Redirect:    false,
+		RedirectUrl: "",
+		Status:      status,
+		Data:        data,
+		Message:     message,
 	}
 }
 
@@ -33,6 +37,16 @@ func BlankResponse(err error) Response {
 	}
 
 	return NewResponse(status, nil, message)
+}
+
+func NewRedirectResponse(url string, message string) Response {
+	return Response{
+		Redirect:    true,
+		RedirectUrl: url,
+		Status:      http.StatusTemporaryRedirect,
+		Data:        nil,
+		Message:     message,
+	}
 }
 
 // GetUserFromRequest gets the user from the request, user is set by user authenticator

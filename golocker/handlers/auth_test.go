@@ -15,15 +15,15 @@ import (
 )
 
 var user = models.User{
-	Username: "Killian",
-	Password: "askdfj23823qqqq",
+	Username: "killian",
 	Email:    "killiandebacker@gmail.com",
+	Picture:  "https://lh3.googleusercontent.com/a/default-user=s96-c",
 }
 
 var user2 = models.User{
-	Username: "Killianqq",
-	Password: "askdfj2d3823qqqq",
-	Email:    "killiandebackwerer@gmail.com",
+	Username: "killian",
+	Email:    "killiandebacker2@gmail.com",
+	Picture:  "https://lh3.googleusercontent.com/a/default-user=s96-c",
 }
 
 var playlist = models.Playlist{
@@ -31,18 +31,18 @@ var playlist = models.Playlist{
 	Description: "this is a cool playlist",
 }
 
-var handleUser = models.User{}
-var handlePlaylist = models.Playlist{}
+var userGottenFromRequest = models.User{}
+var playlistGottenFromRequest = models.Playlist{}
 
 var handler = func(w http.ResponseWriter, r *http.Request, s *service.Services) Response {
-	handleUser = GetUserFromRequest(r)
+	userGottenFromRequest = GetUserFromRequest(r)
 
 	_, ok := context.GetOk(r, "playlist")
 	if !ok {
 		return BlankResponse(nil)
 	}
 
-	handlePlaylist = GetPlaylistFromRequest(r)
+	playlistGottenFromRequest = GetPlaylistFromRequest(r)
 	return BlankResponse(nil)
 }
 
@@ -50,11 +50,10 @@ func Test_User_Authenticator(t *testing.T) {
 	services := service.NewMockServices()
 	Authenticator := CreateUserAuthenticator(services)
 
-	expected, _ := services.User.Register(user)
-	bearer, _ := services.User.Login(user.Email, user.Password)
+	expected, _ := services.User.Login(user)
 
 	req, _ := http.NewRequest("GET", "/user/information/", nil)
-	req.Header["Authorization"] = []string{bearer}
+	req.Header["Authorization"] = []string{expected.Session.Bearer}
 
 	fake := FakeRequest{
 		Services: services,
@@ -66,31 +65,49 @@ func Test_User_Authenticator(t *testing.T) {
 	res := SendFakeRequest(fake)
 	assert.Equal(t, 200, res.StatusCode)
 
-	actual := handleUser
+	actual := userGottenFromRequest
 	assert.Equal(t, expected.ID, actual.ID)
+}
+
+func Test_User_Authenticator_Fails(t *testing.T) {
+	services := service.NewMockServices()
+	Authenticator := CreateUserAuthenticator(services)
+
+	services.User.Login(user)
+
+	req, _ := http.NewRequest("GET", "/user/information/", nil)
+	req.Header["Authorization"] = []string{"banans"}
+
+	fake := FakeRequest{
+		Services: services,
+		Route:    "/user/information/",
+		Request:  req,
+		Handler:  Authenticator(handler),
+	}
+
+	res := SendFakeRequest(fake)
+	assert.Equal(t, 401, res.StatusCode)
+
+	assert.Equal(t, userGottenFromRequest, models.User{})
 }
 
 func Test_Playlist_Authenticator(t *testing.T) {
 	s := service.NewMockServices()
 
-	// user 1
-	savedUser, _ := s.User.Register(user)
-	bearer, _ := s.User.Login(user.Email, user.Password)
-	playlist, _ := s.Playlist.New(playlist, savedUser)
+	savedUser1, _ := s.User.Login(user)
+	savedUser2, _ := s.User.Login(user2)
 
-	// user 2
-	s.User.Register(user2)
-	bearer2, _ := s.User.Login(user2.Email, user2.Password)
+	playlist, _ := s.Playlist.New(playlist, savedUser1)
 
 	// should get playlist with correct user
-	Send_Authenticated_Playlist_Request(t, s, playlist, bearer)
-	assert.Equal(t, playlist.ID, handlePlaylist.ID)
+	Send_Authenticated_Playlist_Request(t, s, playlist, savedUser1.Session.Bearer)
+	assert.Equal(t, playlist.ID, playlistGottenFromRequest.ID)
 
-	handlePlaylist = models.Playlist{}
+	playlistGottenFromRequest = models.Playlist{}
 
 	// should not get playlist with invalid user
-	Send_Authenticated_Playlist_Request(t, s, playlist, bearer2)
-	assert.Empty(t, handlePlaylist)
+	Send_Authenticated_Playlist_Request(t, s, playlist, savedUser2.Session.Bearer)
+	assert.Empty(t, playlistGottenFromRequest)
 }
 
 func Send_Authenticated_Playlist_Request(t *testing.T, s *service.Services, playlist models.Playlist, bearer string) {
@@ -121,6 +138,9 @@ type FakeRequest struct {
 func SendFakeRequest(request FakeRequest) *http.Response {
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
+
+	userGottenFromRequest = models.User{}
+	playlistGottenFromRequest = models.Playlist{}
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		res := request.Handler(w, r, request.Services)

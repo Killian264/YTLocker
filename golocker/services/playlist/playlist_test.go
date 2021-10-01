@@ -39,7 +39,7 @@ func Test_Create_Playlist_Fails_On_Duplicate_Color(t *testing.T) {
 
 func Test_Update_Playlist(t *testing.T) {
 	s := createMockServices(t)
-	
+
 	playlist1, _ := s.New(playlist, user)
 
 	playlist1.Title = "something else"
@@ -55,7 +55,7 @@ func Test_Update_Playlist(t *testing.T) {
 
 func Test_Update_Playlist_Fails_On_Duplicate_Color(t *testing.T) {
 	s := createMockServices(t)
-	
+
 	playlist1, err := s.New(playlist, user)
 	playlist2, err := s.New(playlist2, user)
 
@@ -242,10 +242,11 @@ func Test_Get_Playlist_Thumbnails(t *testing.T) {
 func createMockServices(t *testing.T) *PlaylistManager {
 	data := data.InMemorySQLiteConnect()
 
-	setDefaultModels();
+	setDefaultModels()
 
-	data.NewUser(&user)
-	data.NewUser(&user)
+	// TODO: Use actual services
+	data.NewUser(user)
+	data.NewUser(user)
 
 	newChannel, _ := data.NewChannel(channel)
 	channel = newChannel
@@ -288,37 +289,36 @@ func playlistExpectedIsActual(t *testing.T, s *PlaylistManager, playlist models.
 	assert.Equal(t, playlist, found)
 }
 
-func setDefaultModels(){
+func setDefaultModels() {
 	user = models.User{
 		Username: "Killian",
 		Email:    "killiandebacker@gmail.com",
-		Password: "one-two-three",
 	}
-	
+
 	playlist = models.Playlist{
 		Title:       "New Playlist",
 		Description: "Cool new playlist!!!",
-		Color: "red-1",
+		Color:       "red-1",
 	}
 
 	playlist2 = models.Playlist{
 		Title:       "New Playlist",
 		Description: "Cool new playlist!!!",
-		Color: "red-2",
+		Color:       "red-2",
 	}
 
 	playlist3 = models.Playlist{
 		Title:       "New Playlist",
 		Description: "Cool new playlist!!!",
-		Color: "red-3",
+		Color:       "red-3",
 	}
-	
+
 	channel = models.Channel{
 		YoutubeID:   "this is a youtube id",
 		Title:       "This is a channel title",
 		Description: "This is a channel description",
 	}
-	
+
 	video = models.Video{
 		YoutubeID:   "this is a youtube id",
 		Title:       "This is a video title",

@@ -1,7 +1,15 @@
 package data
 
-import "github.com/Killian264/YTLocker/golocker/models"
+import (
+	"github.com/Killian264/YTLocker/golocker/models"
+)
 
+var (
+	YTLOCKER_TOKEN_TYPE = "ytlocker"
+	USER_TOKEN_TYPE     = "user"
+)
+
+// NewYoutubeClientConfig creates a new client config
 func (d *Data) NewYoutubeClientConfig(config *models.YoutubeClientConfig) error {
 	config.ID = d.rand.ID()
 
@@ -10,33 +18,34 @@ func (d *Data) NewYoutubeClientConfig(config *models.YoutubeClientConfig) error 
 	return result.Error
 }
 
-func (d *Data) NewYoutubeToken(token *models.YoutubeToken) error {
-	token.ID = d.rand.ID()
+// NewYoutubeToken creates a new token isUserToken is true if the token is for a user account
+// func (d *Data) NewYoutubeToken(token *models.YoutubeToken, isUserToken bool) error {
+// 	token.ID = d.rand.ID()
 
-	result := d.db.Create(&token)
+// 	token.Type = YTLOCKER_TOKEN_TYPE
+// 	if isUserToken {
+// 		token.Type = USER_TOKEN_TYPE
+// 	}
 
-	return result.Error
-}
+// 	result := d.db.Create(&token)
 
-func (d *Data) GetFirstYoutubeClientConfig() (models.YoutubeClientConfig, error) {
+// 	return result.Error
+// }
+
+// GetBaseClientConfig gets the base client config for the program
+func (d *Data) GetBaseClientConfig() (models.YoutubeClientConfig, error) {
 	config := models.YoutubeClientConfig{}
 
 	result := d.db.First(&config)
 
-	if result.Error != nil || notFound(result.Error) {
-		return models.YoutubeClientConfig{}, removeNotFound(result.Error)
-	}
-
-	return config, nil
+	return config, result.Error
 }
-func (d *Data) GetFirstYoutubeToken() (models.YoutubeToken, error) {
+
+// GetBaseToken gets the base token for the program
+func (d *Data) GetBaseToken() (models.YoutubeToken, error) {
 	token := models.YoutubeToken{}
 
-	result := d.db.First(&token)
+	result := d.db.Where("type = ?", YTLOCKER_TOKEN_TYPE).First(&token)
 
-	if result.Error != nil || notFound(result.Error) {
-		return models.YoutubeToken{}, removeNotFound(result.Error)
-	}
-
-	return token, nil
+	return token, result.Error
 }

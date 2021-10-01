@@ -49,27 +49,3 @@ func TestSanitizeString(t *testing.T) {
 
 	assert.NotEqual(t, str, stripped)
 }
-
-func TestValidEmail(t *testing.T) {
-	email := "killiandebacker@gmail.com"
-
-	assert.True(t, IsEmailValid(email))
-
-	email = "killiandebacker"
-
-	assert.False(t, IsEmailValid(email))
-
-	email = "killiandebacker@"
-
-	assert.False(t, IsEmailValid(email))
-}
-
-func TestPasswordValid(t *testing.T) {
-	password := "password123"
-
-	assert.True(t, IsPasswordValid(password))
-
-	password = "passwor"
-
-	assert.False(t, IsPasswordValid(password))
-}

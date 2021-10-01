@@ -10,6 +10,7 @@ export default {
 const user = {
 	username: "Killian",
 	email: "killiandebacker@gmail.com",
+	picture: "bananas",
 	joined: new Date(),
 };
 

@@ -27,19 +27,29 @@ func CreateResponseWriter(l *log.Logger) func(next ErrorHandler) Handler {
 		return func(w http.ResponseWriter, r *http.Request) {
 			res := next(w, r)
 
-			if res.Status == http.StatusInternalServerError {
-				l.Printf("ERROR: - - ROUTE: %s - - ERROR: %s", r.URL, res.Message)
-				res.Message = "An Error Occurred"
+			marshaled := []byte{}
+
+			if res.Redirect {
+				if res.Message != "" {
+					l.Printf("ERROR OCCURRED ON: %s ERROR: %s", r.URL, res.Message)
+				}
+				http.Redirect(w, r, res.RedirectUrl, http.StatusTemporaryRedirect)
+			} else {
+				if res.Status == http.StatusInternalServerError {
+					l.Printf("ERROR: - - ROUTE: %s - - ERROR: %s", r.URL, res.Message)
+					res.Message = "An Error Occurred"
+				}
+
+				marshaled, err := json.Marshal(res)
+				if err != nil {
+					l.Printf("Failed to marshal json %v", err)
+				}
+
+				w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+				w.WriteHeader(res.Status)
+				w.Write(marshaled)
 			}
 
-			marshaled, err := json.Marshal(res)
-			if err != nil {
-				l.Printf("Failed to marshal json %v", err)
-			}
-
-			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-			w.WriteHeader(res.Status)
-			w.Write(marshaled)
 			l.Printf("%s - - %s %s %s %d %d", r.RemoteAddr, r.Method, r.URL, r.Proto, res.Status, len(marshaled))
 		}
 	}

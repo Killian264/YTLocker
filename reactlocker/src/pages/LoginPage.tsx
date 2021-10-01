@@ -1,48 +1,38 @@
-import React from "react";
-import { Login } from "../components/Login";
-import { Register } from "../components/Register";
+import React, { useEffect } from "react";
 import { LogoBar } from "../components/LogoBar";
-import { RouteComponentProps } from "react-router-dom";
-import { useUserLogin } from "../hooks/api/useUserLogin";
-import { useUserRegister, UserRegister } from "../hooks/api/useUserRegister";
+import { RouteComponentProps, useLocation } from "react-router-dom";
+import { useUserRefreshSession } from "../hooks/api/useUserRefreshSession";
+import { GoogleOAuthCard } from "../components/GoogleOauthCard";
 
 export interface LoginPageProps extends RouteComponentProps {
 	className?: string;
 }
 
 export const LoginPage: React.FC<LoginPageProps> = ({ className, history }) => {
-	const [page, setPage] = React.useState("login");
+	const postSessionRefresh = useUserRefreshSession()
 
-	const postLogin = useUserLogin();
-	const postRegister = useUserRegister();
+	let params = (new URLSearchParams(useLocation().search))
+	let bearer = params.get("bearer")
 
-	const register = async (user: UserRegister) => {
-		postRegister(user).then(() => {
-			setPage("login");
-		});
-	};
+	useEffect(() => {
+		if(bearer != null){
+			params.delete('bearer')
+			history.replace({
+			  search: params.toString(),
+			})
+	
+			postSessionRefresh(bearer)
+		}
+	}, )
 
 	return (
 		<>
 			<LogoBar className="absolute top-1 left-5"></LogoBar>
 			<div className="flex h-screen">
 				<div className="m-auto">
-					{page === "login" && (
-						<Login
-							onSubmit={postLogin}
-							onClickRegister={() => {
-								setPage("register");
-							}}
-						/>
-					)}
-					{page === "register" && (
-						<Register
-							onSubmit={register}
-							onClickLogin={() => {
-								setPage("login");
-							}}
-						/>
-					)}
+					<GoogleOAuthCard
+						type="login"
+					/>
 				</div>
 			</div>
 		</>

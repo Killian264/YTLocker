@@ -5,12 +5,20 @@ import (
 	"os"
 
 	"github.com/Killian264/YTLocker/golocker/data"
+	"github.com/Killian264/YTLocker/golocker/services/cronjobs"
+	"github.com/Killian264/YTLocker/golocker/services/oauthmanager"
 	"github.com/Killian264/YTLocker/golocker/services/playlist"
 	"github.com/Killian264/YTLocker/golocker/services/subscribe"
-	userservice "github.com/Killian264/YTLocker/golocker/services/user"
+	"github.com/Killian264/YTLocker/golocker/services/user"
 	"github.com/Killian264/YTLocker/golocker/services/ytmanager"
 	"github.com/gorilla/mux"
 )
+
+type Config struct {
+	WebBaseUrl     string
+	WebLoginUrl    string
+	WebRedirectUrl string
+}
 
 // Services to be injected into handlers and cron jobs
 type Services struct {
@@ -18,10 +26,13 @@ type Services struct {
 	Data   *data.Data
 	Logger *log.Logger
 
-	Youtube   *ytmanager.YoutubeManager
-	User      *userservice.User
-	Subscribe *subscribe.Subscriber
-	Playlist  *playlist.PlaylistManager
+	Youtube      *ytmanager.YoutubeManager
+	User         *user.User
+	Subscribe    *subscribe.Subscriber
+	Playlist     *playlist.PlaylistManager
+	OauthManager *oauthmanager.OauthManager
+	Cronjob      *cronjobs.CronJobManager
+	Config       Config
 }
 
 func NewMockServices() *Services {
@@ -29,7 +40,7 @@ func NewMockServices() *Services {
 
 	managerService := ytmanager.FakeNewYoutubeManager(data)
 	playlistService := playlist.NewFakePlaylist(data)
-	userService := userservice.NewUser(data)
+	userService := user.NewUser(data)
 
 	logger := log.New(os.Stdout, "Test: ", log.Lshortfile)
 

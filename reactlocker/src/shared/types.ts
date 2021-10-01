@@ -3,6 +3,7 @@ import { ColorToColorCSS } from "./colors";
 export interface User {
 	username: string;
 	email: string;
+	picture: string;
 	joined: Date;
 }
 
