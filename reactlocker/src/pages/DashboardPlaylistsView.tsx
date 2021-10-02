@@ -6,6 +6,7 @@ import { PlaylistsListController } from "../controllers/PlaylistsListController"
 import { PlaylistVideoListController } from "../controllers/PlaylistVideoListController";
 import { PlaylistViewController } from "../controllers/PlaylistViewController";
 import { VideoListLatestController } from "../controllers/VideosListLatestController";
+import { useAccountList } from "../hooks/api/useAccountList";
 import { usePlaylist } from "../hooks/api/usePlaylist";
 import { usePlaylistChannels } from "../hooks/api/usePlaylistChannels";
 import { usePlaylistCreate } from "../hooks/api/usePlaylistCreate";
@@ -45,12 +46,13 @@ export interface PlaylistListViewProps {
 
 export const PlaylistListView: React.FC<PlaylistListViewProps> = ({ PlaylistClick }) => {
 	const [isLoadingPlaylists, playlists] = usePlaylistList();
+	const [isLoadingAccounts, accounts] = useAccountList();
 	const [isLoadingChannels, channels] = usePlaylistChannels();
 	const [isCreate, setCreate] = useState(false);
 	const createPlaylist = usePlaylistCreate();
 
 	let limit = 5;
-	if (!(isLoadingPlaylists && isLoadingChannels)) {
+	if (!(isLoadingPlaylists && isLoadingChannels && isLoadingAccounts)) {
 		limit = playlists.length + channels.length + 2;
 	}
 
@@ -71,6 +73,7 @@ export const PlaylistListView: React.FC<PlaylistListViewProps> = ({ PlaylistClic
 					setCreate(false);
 				}}
 				playlists={playlists}
+				accounts={accounts}
 			></PlaylistCreateCard>
 		);
 	}

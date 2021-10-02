@@ -13,9 +13,9 @@ type User struct {
 	Email    string `gorm:"type:varchar(256);not null;unique;"`
 	Picture  string `gorm:"type:varchar(512);not null;"`
 
-	Session        Session
-	Playlists      []Playlist
-	YoutubeAccount []YoutubeAccount `gorm:"many2many:user_youtube_account;"`
+	Session         Session
+	Playlists       []Playlist
+	YoutubeAccounts []YoutubeAccount `gorm:"many2many:user_youtube_account;"`
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -36,7 +36,10 @@ type Playlist struct {
 	Description string `gorm:"type:varchar(512);not null;"`
 	Color       string `gorm:"type:varchar(256);not null;"`
 
-	UserID uint64
+	UserID    uint64
+	AccountID uint64 `gorm:"index"`
+
+	YoutubeAccount YoutubeAccount `gorm:"foreignkey:ID;references:account_id"`
 
 	Videos     []Video     `gorm:"many2many:playlist_video;"`
 	Channels   []Channel   `gorm:"many2many:playlist_channel;"`

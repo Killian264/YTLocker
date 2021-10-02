@@ -25,6 +25,7 @@ export const fetchPlaylist = async (): Promise<Playlist[]> => {
 				thumbnailUrl: thumbnail.URL,
 				title: item.Title,
 				description: item.Description,
+				accountId: item.AccountID,
 				created: new Date(Date.parse(item.CreatedAt)),
 				videos: item.Videos,
 				channels: item.Channels,

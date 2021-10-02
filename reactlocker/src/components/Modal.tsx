@@ -37,7 +37,7 @@ export const Modal: React.FC<ModalProps> = ({
 	return (
 		<ModalDialogWrapper isOpen={isOpen} CloseClick={reject}>
 			<div
-				className={`${modalCSSReqs} bg-primary-700 max-w-xs p-6 my-8 text-left rounded-2xl border-2 border-accent`}
+				className={`${modalCSSReqs} bg-primary-700 max-w-sm p-6 my-8 text-left rounded-2xl border-2 border-white`}
 			>
 				<span className="text-lg font-medium leading-6">{header}</span>
 				<p className="mt-2 text-sm">{body}</p>

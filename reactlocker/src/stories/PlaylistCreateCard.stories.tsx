@@ -15,6 +15,7 @@ const Mocked: Story<{}> = () => {
 			"https://yt3.ggpht.com/ytc/AAUvwngwzt6aURebMaKQpNkT9WpY3A3z0rtocMufWQwLxA=s800-c-k-c0x00ffffff-no-rj-mo",
 		title: "DogeLog",
 		description: "Videos showing Ben Awad as he builds dogehouse.",
+		accountId: 12,
 		channels: [],
 		videos: [],
 		color: "red-1",
@@ -25,6 +26,7 @@ const Mocked: Story<{}> = () => {
 		<div>
 			<PlaylistCreateCard
 				playlists={[]}
+				accounts={[]}
 				CreateClick={() => console.log("created")}
 				BackClick={() => console.log("go back")}
 			></PlaylistCreateCard>
@@ -32,6 +34,7 @@ const Mocked: Story<{}> = () => {
 				className="mt-3"
 				editPlaylist={editPlaylist}
 				playlists={[]}
+				accounts={[]}
 				CreateClick={() => console.log("created")}
 				BackClick={() => console.log("go back")}
 			></PlaylistCreateCard>

@@ -1,24 +1,19 @@
+import { AccountListItem } from "../components/AccountListItem";
 import { Card } from "../components/Card";
 import { GoogleOAuthCard } from "../components/GoogleOauthCard";
 import { BeforeLinkingInfo, BaseAccountInfo } from "../components/InfoCards";
 import { LoadingListItem } from "../components/LoadingListItem";
-import { AccountListItemController } from "../controllers/AccountListController";
 import { useAccountList } from "../hooks/api/useAccountList";
 
 export const DashboardAccountsView: React.FC<{}> = () => {
 	const [isLoadingAccounts, accounts] = useAccountList();
 
-	let items = [
-		<LoadingListItem></LoadingListItem>,
-		<LoadingListItem></LoadingListItem>
-	]
+	let items = [<LoadingListItem key={1}></LoadingListItem>, <LoadingListItem key={2}></LoadingListItem>];
 
 	if (!isLoadingAccounts) {
-		items = accounts.map((accountId) => {
-			return <AccountListItemController
-				accountId={accountId}
-			></AccountListItemController>
-		})
+		items = accounts.map((account, index) => {
+			return <AccountListItem account={account} key={index} />;
+		});
 	}
 
 	return (
@@ -31,9 +26,7 @@ export const DashboardAccountsView: React.FC<{}> = () => {
 								<span className="leading-none -mt-0.5">Linked Accounts</span>
 							</div>
 						</div>
-						<div>
-							{items}
-						</div>
+						<div>{items}</div>
 					</Card>
 					<BeforeLinkingInfo></BeforeLinkingInfo>
 				</div>

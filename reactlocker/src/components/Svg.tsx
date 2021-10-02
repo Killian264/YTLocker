@@ -11,9 +11,27 @@ export interface SvgBoxProps {
 
 export const SvgBox: React.FC<SvgBoxProps> = ({ className, onClick, children }) => {
 	return (
-		<div onClick={onClick} className={`${className} p-1 border-2 rounded-md cursor-pointer`}>
+		<div onClick={onClick} className={`${className} border-2 rounded-md cursor-pointer`}>
 			{children}
 		</div>
+	);
+};
+
+export const ChevronDown: React.FC<{}> = () => {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="16"
+			height="16"
+			fill="currentColor"
+			className="bi bi-chevron-down"
+			viewBox="0 0 16 16"
+		>
+			<path
+				fillRule="evenodd"
+				d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"
+			/>
+		</svg>
 	);
 };
 
@@ -157,6 +175,61 @@ export const ExternalLink: React.FC<SvgProps> = ({ className, size }) => {
 				strokeWidth={2}
 				d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
 			/>
+		</svg>
+	);
+};
+
+export const Copy: React.FC<SvgProps> = ({ className, size }) => {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width={size}
+			height={size}
+			fill="none"
+			viewBox="0 0 24 24"
+			stroke="currentColor"
+		>
+			<path
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeWidth={2}
+				d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+			/>
+		</svg>
+	);
+};
+
+export const Cancel: React.FC<SvgProps> = ({ className, size }) => {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width={size}
+			height={size}
+			fill="none"
+			viewBox="0 0 24 24"
+			stroke="currentColor"
+		>
+			<path
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeWidth={2}
+				d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+			/>
+		</svg>
+	);
+};
+
+export const Pause: React.FC<SvgProps> = ({ className, size }) => {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width={size}
+			height={size}
+			fill="currentColor"
+			className={className}
+			viewBox="0 0 16 16"
+		>
+			<path d="M6 3.5a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5zm4 0a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5z" />
 		</svg>
 	);
 };

@@ -1,34 +1,49 @@
 import { useState } from "react";
-import { Playlist } from "../shared/types";
+import { Account, Playlist } from "../shared/types";
 import { BuildPlaylistUrl } from "../shared/urls";
 import { Button } from "./Button";
 import { Card } from "./Card";
 import { ColorBadge } from "./ColorBadge";
+import { Dropdown } from "./Dropdown";
 import { Modal } from "./Modal";
-import { Cog, ExternalLink, SvgBox, Trash } from "./Svg";
+import { Cancel, Cog, Copy, ExternalLink, Pause, SvgBox, Trash } from "./Svg";
+import { TextBox } from "./TextBox";
 
 export interface PlaylistViewProps {
 	className?: string;
 	playlist: Playlist;
+	account: Account;
+	accounts: Account[];
 	EditClick: () => void;
 	DeleteClick: () => void;
+	PauseClick: () => void;
+	CopyClick: () => void;
 	BackClick: () => void;
 }
 
 export const PlaylistView: React.FC<PlaylistViewProps> = ({
 	className,
 	playlist,
+	account,
+	accounts,
 	EditClick,
 	DeleteClick,
+	PauseClick,
+	CopyClick,
 	BackClick,
 }) => {
-	const [isOpen, setIsOpen] = useState(false);
+	const [isOpenDelete, setIsOpenDelete] = useState(false);
+	const [isOpenPause, setIsOpenPause] = useState(false);
+	const [isOpenCopy, setIsOpenCopy] = useState(false);
 
-	const remove = () => {
-		setIsOpen(true);
-	};
+	const accountDropdownItems = accounts.map((account) => {
+		return {
+			title: account.username,
+			value: account.id,
+		};
+	});
 
-	let modal = (
+	let deleteModal = (
 		<Modal
 			confirmMessage={"Yes, I am sure"}
 			header={"Are you sure?"}
@@ -38,61 +53,139 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 				BackClick();
 			}}
 			RejectClick={() => {
-				setIsOpen(false);
+				setIsOpenDelete(false);
+			}}
+		/>
+	);
+
+	let pauseModal = (
+		<Modal
+			header={"Are you sure?"}
+			body={"Pausing the playlist will stop new videos from being added."}
+			AcceptClick={() => {
+				PauseClick();
+				setIsOpenPause(false);
+			}}
+			RejectClick={() => {
+				setIsOpenPause(false);
+			}}
+		/>
+	);
+
+	let copyModal = (
+		<Modal
+			header={"Are you sure?"}
+			body={
+				"Copying will create a new playlist with the same information and subscriptions but not videos."
+			}
+			AcceptClick={() => {
+				CopyClick();
+				BackClick();
+			}}
+			RejectClick={() => {
+				setIsOpenCopy(false);
 			}}
 		/>
 	);
 
 	return (
 		<div>
-			{isOpen ? modal : <div></div>}
+			{isOpenDelete ? deleteModal : <div></div>}
+			{isOpenPause ? pauseModal : <div></div>}
+			{isOpenCopy ? copyModal : <div></div>}
 			<Card className={`${className} flex flex-col`}>
 				<div className="flex justify-between -mb-2 -mt-2">
 					<div className="text-2xl font-semibold mt-auto">
-						<span className="leading-none -mt-0.5">{playlist.title}</span>
+						<span className="leading-none -mt-0.5">View Playlist</span>
 					</div>
 					<div className="flex gap-2">
 						<SvgBox className={`border-primary-200 p-0.5`} onClick={EditClick}>
 							<Cog className="text-primary-200" size={24}></Cog>
 						</SvgBox>
-						<SvgBox className="text-red-500 border-red-500 p-0.5" onClick={remove}>
-							<Trash className="text-red-500" size={24}></Trash>
-						</SvgBox>
 					</div>
 				</div>
-				<a href={BuildPlaylistUrl(playlist.youtubeId)} target="_blank" rel="noreferrer">
+				<a
+					className="relative"
+					href={BuildPlaylistUrl(playlist.youtubeId)}
+					target="_blank"
+					rel="noreferrer"
+				>
+					<div className="absolute right-0 opacity-20">
+						<ExternalLink size={38}></ExternalLink>
+					</div>
 					<div className={`col-span-6 rounded-lg object-cover w-full bg-black h-40`} />
 				</a>
 				<div className="flex gap-2 mt-3">
 					<div className="flex-grow">
 						<div className="flex flex-row flex gap-2 justify-between">
 							<div className="flex">
-								<span className="md:text-3xl text-2xl font-semibold block">
+								<span className="md:text-2xl text-2xl font-semibold block my-auto">
 									{playlist.title}
 								</span>
+								<div className="my-auto ml-2">
+									<SvgBox className={`flex text-green-300 border-green-300`}>
+										<span className="text-md font-semibold mx-1">Active</span>
+									</SvgBox>
+								</div>
 								<div className="m-auto ml-3 mt-3">
 									<ColorBadge color={playlist.color}></ColorBadge>
 								</div>
 							</div>
-							<div className="gap-2 flex">
-								<a
-									href={BuildPlaylistUrl(playlist.youtubeId)}
-									target="_blank"
-									rel="noreferrer"
-								>
-									<SvgBox className={`p-0.5`}>
-										<ExternalLink size={24}></ExternalLink>
-									</SvgBox>
-								</a>
-							</div>
+							<Dropdown
+								className="mt-3 mb-2 sm:m-0"
+								defaultSelected={account.username}
+								title="Account Selection"
+								items={accountDropdownItems}
+								disabled={true}
+							></Dropdown>
 						</div>
-						<div style={{ minHeight: "50px" }}>{playlist.description}</div>
+						<TextBox
+							className="my-3"
+							disabled={true}
+							placeholder="Description"
+							value={playlist.description}
+						></TextBox>
 					</div>
 				</div>
-				<div className="flex justify-between mt-auto pt-4">
+				<div className="flex justify-between mt-auto pt-1">
 					<Button size="medium" color="secondary" onClick={BackClick}>
 						Back
 					</Button>
+					<div className="flex gap-2 my-auto">
+						<div className="gap-2 flex">
+							<SvgBox
+								className={`p-0.5 flex`}
+								onClick={() => {
+									setIsOpenCopy(true);
+								}}
+							>
+								<Copy size={24}></Copy>
+								<span className="font-semibold mx-1">Copy</span>
+							</SvgBox>
+						</div>
+						<div className="gap-2 flex">
+							<SvgBox
+								className={`p-0.5 flex`}
+								onClick={() => {
+									setIsOpenPause(true);
+								}}
+							>
+								<Pause size={24}></Pause>
+								<span className="font-semibold mr-1">Pause</span>
+							</SvgBox>
+						</div>
+						<div className="gap-2 flex">
+							<SvgBox
+								className={`p-0.5 flex text-red-500 border-red-500`}
+								onClick={() => {
+									setIsOpenDelete(true);
+								}}
+							>
+								<Trash size={24}></Trash>
+								<span className="text-red-500 font-semibold mx-1">Delete</span>
+							</SvgBox>
+						</div>
+					</div>
 				</div>
 			</Card>
 		</div>

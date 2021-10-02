@@ -66,12 +66,12 @@ func InMemoryMySQLConnect() *Data {
 
 	err = data.dropTables()
 	if err != nil {
-		panic("error initializing db")
+		panic("error initializing db: " + err.Error())
 	}
 
 	err = data.createTables()
 	if err != nil {
-		panic("error initializing db")
+		panic("error initializing db: " + err.Error())
 	}
 
 	return &data
@@ -86,14 +86,16 @@ func MySQLConnect(username string, password string, ip string, port string, name
 	}
 
 	for true {
-
 		logBase.Println("MYSQL Waiting...")
 
 		db, err := gorm.Open(mysql.Open(connectionString),
-			&gorm.Config{Logger: logger.New(
-				logBase,
-				logger.Config{},
-			)},
+			&gorm.Config{
+				Logger: logger.New(
+					logBase,
+					logger.Config{},
+				),
+				DisableForeignKeyConstraintWhenMigrating: true,
+			},
 		)
 
 		if err == nil {
@@ -102,14 +104,13 @@ func MySQLConnect(username string, password string, ip string, port string, name
 		}
 
 		time.Sleep(15 * time.Second)
-
 	}
 
 	logBase.Println("MYSQL Connected...")
 
 	err := data.createTables()
 	if err != nil {
-		panic("error initializing db")
+		panic("error initializing db: " + err.Error())
 	}
 
 	return &data

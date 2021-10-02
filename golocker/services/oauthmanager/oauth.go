@@ -80,7 +80,7 @@ func (m *OauthManager) LinkBaseAccounts(user models.User, token oauth2.Token) er
 		return err
 	}
 
-	if helpers.IsKeyInArray(accountList, m.account.ID) {
+	if helpers.IsAccountInArray(accountList, m.account) {
 		return nil
 	}
 
@@ -92,12 +92,30 @@ func (m *OauthManager) LinkAccount(user models.User, account models.YoutubeAccou
 	return m.data.NewUserYoutubeAccount(user.ID, account.ID)
 }
 
-func (m *OauthManager) GetUserAccountList(user models.User) ([]uint64, error) {
+func (m *OauthManager) GetUserAccountList(user models.User) ([]models.YoutubeAccount, error) {
 	return m.data.GetUserYoutubeAccounts(user)
 }
 
 func (m *OauthManager) GetAccountById(accountID uint64) (models.YoutubeAccount, error) {
 	return m.data.GetAccount(accountID)
+}
+
+func (m *OauthManager) GetUserAccount(user models.User, accountId uint64) (models.YoutubeAccount, error) {
+	accountList, err := m.GetUserAccountList(user)
+	if err != nil {
+		return models.YoutubeAccount{}, err
+	}
+
+	account, err := m.GetAccountById(accountId)
+	if err != nil {
+		return models.YoutubeAccount{}, err
+	}
+
+	if !helpers.IsAccountInArray(accountList, account) {
+		return models.YoutubeAccount{}, data.ErrorNotFound
+	}
+
+	return account, nil
 }
 
 // GetAccountFromAccessToken very specifically for the base account only

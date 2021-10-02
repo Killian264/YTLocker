@@ -2,5 +2,8 @@
 	"prettier.useTabs": true,
 	"editor.defaultFormatter": null,
 	"editor.formatOnSave": true,
-	"prettier.printWidth": 110
+	"prettier.printWidth": 110,
+	"[typescriptreact]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	}
 }

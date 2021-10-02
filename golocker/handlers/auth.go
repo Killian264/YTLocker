@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/Killian264/YTLocker/golocker/helpers"
 	"github.com/Killian264/YTLocker/golocker/services"
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
@@ -76,18 +75,9 @@ func CreateAccountAuthenticator(s *services.Services) func(next ServiceHandler) 
 
 			user := GetUserFromRequest(r)
 
-			accountList, err := s.OauthManager.GetUserAccountList(user)
+			account, err := s.OauthManager.GetUserAccount(user, id)
 			if err != nil {
-				return BlankResponse(err)
-			}
-
-			if !helpers.IsKeyInArray(accountList, id) {
-				return NewResponse(http.StatusForbidden, nil, "invalid account id")
-			}
-
-			account, err := s.OauthManager.GetAccountById(id)
-			if err != nil {
-				return BlankResponse(err)
+				return NewResponse(http.StatusForbidden, nil, "failed to get account")
 			}
 
 			context.Set(r, "account", account)

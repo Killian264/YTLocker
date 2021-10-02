@@ -35,19 +35,12 @@ func (d *Data) NewUserYoutubeAccount(userID uint64, accountID uint64) error {
 	return d.db.Model(user).Association("YoutubeAccount").Append(account)
 }
 
-func (d *Data) GetUserYoutubeAccounts(user models.User) ([]uint64, error) {
-	accounts := []OnlyID{}
+func (d *Data) GetUserYoutubeAccounts(user models.User) ([]models.YoutubeAccount, error) {
+	accounts := []models.YoutubeAccount{}
 
-	join := "INNER JOIN user_youtube_account ON user_youtube_account.user_id = ? "
-	join += "AND user_youtube_account.youtube_account_id = youtube_accounts.id"
+	result := d.db.Model(&user).Association("YoutubeAccounts").Find(&accounts)
 
-	result := d.db.Model(models.YoutubeAccount{}).Joins(join, user.ID).Find(&accounts)
-
-	if result.Error != nil || notFound(result.Error) {
-		return []uint64{}, removeNotFound(result.Error)
-	}
-
-	return parseOnlyIDArray(accounts), nil
+	return accounts, result
 }
 
 func (d *Data) GetAccountFromToken(token models.YoutubeToken) (models.YoutubeAccount, error) {

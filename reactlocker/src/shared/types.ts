@@ -19,6 +19,7 @@ export interface Playlist {
 	thumbnailUrl: string;
 	title: string;
 	description: string;
+	accountId: number;
 	channels: number[];
 	videos: number[];
 	created: Date;

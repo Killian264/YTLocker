@@ -1,6 +1,6 @@
 import { Story } from "@storybook/react";
 import { PlaylistView, PlaylistViewProps } from "../components/PlaylistView";
-import { Playlist } from "../shared/types";
+import { Account, Playlist } from "../shared/types";
 import { sString } from "./utils/utils";
 
 export default {
@@ -15,10 +15,19 @@ const playlist: Playlist = {
 		"https://i.ytimg.com/vi/1PBNAoKd-70/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLCFnLzV-VCKC28TFfjTi5cQL7zXiA",
 	title: "DogeLog",
 	description: "Videos showing Ben Awad as he builds dogehouse.",
+	accountId: 12,
 	created: new Date(),
 	videos: [],
 	channels: [],
 	color: "red-1",
+};
+
+const account: Account = {
+	id: 12,
+	username: "Killian's Account",
+	email: "killian@ytlocker.com",
+	picture: "google.com",
+	permissionLevel: "manage",
 };
 
 const Mocked: Story<PlaylistViewProps> = ({ ...props }) => {
@@ -33,7 +42,11 @@ const Mocked: Story<PlaylistViewProps> = ({ ...props }) => {
 			BackClick={() => {
 				console.log("BACK CLICKED");
 			}}
+			PauseClick={() => {}}
+			CopyClick={() => {}}
 			playlist={playlist}
+			account={account}
+			accounts={[account]}
 		></PlaylistView>
 	);
 };

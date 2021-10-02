@@ -24,5 +24,6 @@ func ParseAndValidatePlaylist(playlist models.Playlist) (models.Playlist, string
 		Title:       SanitizeString(playlist.Title),
 		Description: SanitizeString(playlist.Description),
 		Color:       playlist.Color,
+		AccountID:   playlist.AccountID,
 	}, ""
 }

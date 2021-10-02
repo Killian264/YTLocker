@@ -22,9 +22,13 @@ func PlaylistCreate(w http.ResponseWriter, r *http.Request, s *services.Services
 	}
 
 	playlist, errorString := parsers.ParseAndValidatePlaylist(playlist)
-
-	if(errorString != ""){
+	if errorString != "" {
 		return NewResponse(http.StatusBadRequest, nil, errorString)
+	}
+
+	_, err = s.OauthManager.GetUserAccount(user, playlist.AccountID)
+	if err != nil {
+		return NewResponse(http.StatusBadRequest, nil, "invalid account id")
 	}
 
 	created, err := s.Playlist.New(playlist, user)
@@ -46,7 +50,7 @@ func PlaylistUpdate(w http.ResponseWriter, r *http.Request, s *services.Services
 	}
 
 	fieldsToUpdate, errorString := parsers.ParseAndValidatePlaylist(fieldsToUpdate)
-	if(errorString != ""){
+	if errorString != "" {
 		return NewResponse(http.StatusBadRequest, nil, errorString)
 	}
 
@@ -62,7 +66,7 @@ func PlaylistUpdate(w http.ResponseWriter, r *http.Request, s *services.Services
 type PlaylistListItem struct {
 	models.Playlist
 	Channels []uint64
-	Videos []uint64
+	Videos   []uint64
 }
 
 // HandleSubscriptionNoError handles a new subscription request wrap in a middleware that handles errors
@@ -76,7 +80,7 @@ func PlaylistList(w http.ResponseWriter, r *http.Request, s *services.Services) 
 
 	items := []PlaylistListItem{}
 
-	for _, playlist := range(playlists) {
+	for _, playlist := range playlists {
 
 		var item PlaylistListItem
 
@@ -142,7 +146,7 @@ func PlaylistLatestVideos(w http.ResponseWriter, r *http.Request, s *services.Se
 	user := GetUserFromRequest(r)
 
 	videos, err := s.Playlist.GetLastestPlaylistVideos(user)
-	if( err != nil ){
+	if err != nil {
 		return BlankResponse(err)
 	}
 

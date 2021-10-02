@@ -146,7 +146,7 @@ func InitializeRoutes(serviceContainer *services.Services, cronjobContainer *cro
 	Errors := handlers.CreateResponseWriter(logger)
 	UserAuth := handlers.CreateUserAuthenticator(serviceContainer)
 	PlaylistAuth := handlers.CreatePlaylistAuthenticator(serviceContainer)
-	AccountAuth := handlers.CreateAccountAuthenticator(serviceContainer)
+	// AccountAuth := handlers.CreateAccountAuthenticator(serviceContainer)
 
 	router := serviceContainer.Router
 
@@ -168,7 +168,7 @@ func InitializeRoutes(serviceContainer *services.Services, cronjobContainer *cro
 	router.HandleFunc("/channel/get/{channel_id}", Errors(Injector(UserAuth(handlers.GetChannel))))
 
 	router.HandleFunc("/account/list", Errors(Injector(UserAuth(handlers.AccountList))))
-	router.HandleFunc("/account/{account_id}", Errors(Injector(UserAuth(AccountAuth(handlers.AccountGet)))))
+	// router.HandleFunc("/account/{account_id}", Errors(Injector(UserAuth(AccountAuth(handlers.AccountGet)))))
 
 	SubscribeErrors := handlers.CreateSubscribeHandler(logger)
 	AdminAuth := handlers.CreateAdminAuthenticator(serviceContainer, adminBearer)

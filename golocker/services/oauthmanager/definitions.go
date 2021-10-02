@@ -16,7 +16,7 @@ type IOauthManagerData interface {
 	GetAccount(accountId uint64) (models.YoutubeAccount, error)
 	GetAccountByEmail(email string) (models.YoutubeAccount, error)
 	GetAccountFromToken(token models.YoutubeToken) (models.YoutubeAccount, error)
-	GetUserYoutubeAccounts(user models.User) ([]uint64, error)
+	GetUserYoutubeAccounts(user models.User) ([]models.YoutubeAccount, error)
 	UpdateAccount(account models.YoutubeAccount) (models.YoutubeAccount, error)
 }
 
