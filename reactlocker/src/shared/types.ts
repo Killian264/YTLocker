@@ -34,6 +34,14 @@ export interface Video {
 	created: Date;
 }
 
+export interface Account {
+	id: number;
+	username: string;
+	email: string;
+	picture: string;
+	permissionLevel: "view" | "manage";
+}
+
 export interface Channel {
 	id: number;
 	youtubeId: string;

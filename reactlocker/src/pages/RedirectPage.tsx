@@ -22,11 +22,18 @@ export const RedirectPage: React.FC<RedirectPageProps> = ({ className, history }
 			refreshSession(bearer)
 			return;
 		}
-		console.log(!success)
+
 		if(!success && reason !== null){
 			pushAlert({
 				message: reason,
 				type: "failure",
+			})
+		}
+
+		if(success){
+			pushAlert({
+				message: "Successfully linked account.",
+				type: "success",
 			})
 		}
 

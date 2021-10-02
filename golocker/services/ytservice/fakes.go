@@ -2,8 +2,10 @@ package ytservice
 
 import (
 	"fmt"
+	"math/rand"
 	"time"
 
+	"github.com/Killian264/YTLocker/golocker/models"
 	"golang.org/x/oauth2"
 	"google.golang.org/api/youtube/v3"
 )
@@ -107,14 +109,45 @@ func (s *YTSerivceFake) GetLastVideosFromChannel(channelID string, pageToken str
 }
 
 type YTPlaylistFake struct {
-	initalized bool
+	initalized  bool
+	timesCalled int
 }
 
 func (s *YTPlaylistFake) Initialize(config oauth2.Config, token oauth2.Token) error {
 	s.initalized = true
+	s.timesCalled = 1
 
 	return nil
 }
+
+// TODO: Make actual fake implementation
+func (s *YTPlaylistFake) GetUser() (models.OAuthUserInfo, error) {
+	s.timesCalled += 1
+
+	return models.OAuthUserInfo{
+		Email:         "killian@ytlocker.com" + fmt.Sprint(rand.Int()),
+		VerifiedEmail: true,
+		Picture:       "ytlocker.com" + fmt.Sprint(rand.Int()),
+	}, nil
+}
+
+// TODO: Make actual fake implementation
+func (s *YTPlaylistFake) GetChannel() (*youtube.Channel, error) {
+	s.timesCalled += 1
+	return &youtube.Channel{
+		Snippet: &youtube.ChannelSnippet{
+			Title: "Killian's Channel" + fmt.Sprint(rand.Int()),
+			Thumbnails: &youtube.ThumbnailDetails{
+				Standard: &youtube.Thumbnail{
+					Url:    "ytlocker.com",
+					Height: 200,
+					Width:  200,
+				},
+			},
+		},
+	}, nil
+}
+
 func (s *YTPlaylistFake) Create(title string, description string) (*youtube.Playlist, error) {
 	if !s.initalized {
 		panic("initialize must be ran on playlist")

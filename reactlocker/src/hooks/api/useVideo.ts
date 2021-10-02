@@ -3,7 +3,7 @@ import { useQuery } from "react-query";
 import { Video } from "../../shared/types";
 
 export const useVideo = (id: number, enabled = true): [boolean, Video | null] => {
-	const { isSuccess, data } = useQuery(["channel", id], () => fetchVideo(id), {
+	const { isSuccess, data } = useQuery(["video", id], () => fetchVideo(id), {
 		staleTime: Infinity,
 		enabled: enabled,
 	});

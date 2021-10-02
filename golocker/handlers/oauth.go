@@ -1,14 +1,12 @@
 package handlers
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
-	"time"
 
+	"github.com/Killian264/YTLocker/golocker/data"
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/Killian264/YTLocker/golocker/services"
 	"github.com/Killian264/YTLocker/golocker/services/ytservice"
@@ -22,24 +20,9 @@ type stateDetails struct {
 }
 
 func OAuthAuthenticate(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
-	scope := r.URL.Query().Get("scope")
 	bearer := r.URL.Query().Get("bearer")
 
-	scopes, accessType, scope := getOAuthDetails(scope)
-
-	state := stateDetails{
-		Bearer:    bearer,
-		ScopeType: scope,
-	}
-
-	if state.ScopeType == "manage" && state.Bearer == "" {
-		return createRedirect(s.Config.WebRedirectUrl, "scope 'manage' was provided without a bearer", url.Values{})
-	}
-
-	stateDetailsJson, err := json.Marshal(state)
-	if err != nil {
-		return createRedirect(s.Config.WebRedirectUrl, "failed to marshal state json data", url.Values{})
-	}
+	scopes, accessType, _ := getOAuthDetails(bearer)
 
 	config := s.OauthManager.GetBaseConfig()
 
@@ -50,69 +33,94 @@ func OAuthAuthenticate(w http.ResponseWriter, r *http.Request, s *services.Servi
 	parameters.Add("redirect_uri", config.RedirectURL)
 	parameters.Add("response_type", "code")
 	parameters.Add("include_granted_scopes", "true")
-	parameters.Add("state", string(stateDetailsJson))
+	parameters.Add("state", bearer)
 
-	return createRedirect(google.Endpoint.AuthURL, "", parameters)
+	return createOAuthRedirect(google.Endpoint.AuthURL, "", parameters)
 }
 
 func OAuthAuthenticateCallback(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
+	code := r.FormValue("code")
+	bearer := r.FormValue("state")
+
 	youtubeService := &ytservice.YTPlaylist{}
 	config := s.OauthManager.GetBaseConfig()
-	code := r.FormValue("code")
 
-	state, err := parseOAuthCallbackDetails(r.FormValue("state"), code)
-	if err != nil {
-		return createRedirect(s.Config.WebRedirectUrl, err.Error(), url.Values{})
-	}
+	_, _, scope := getOAuthDetails(bearer)
 
 	token, err := config.Exchange(oauth2.NoContext, code)
 	if err != nil {
-		return createRedirect(s.Config.WebRedirectUrl, "failed to exchange oauth code to token err: "+err.Error(), url.Values{})
+		return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to exchange oauth code to token err: "+err.Error(), url.Values{})
 	}
 
 	err = youtubeService.Initialize(config, *token)
 	if err != nil {
-		return createRedirect(s.Config.WebRedirectUrl, "failed to initialize youtube service : "+err.Error(), url.Values{})
+		return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to initialize youtube service : "+err.Error(), url.Values{})
 	}
 
 	userDetails, err := youtubeService.GetUser()
 	if err != nil {
-		return createRedirect(s.Config.WebRedirectUrl, "failed to get user info: "+err.Error(), url.Values{})
+		return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to get user info: "+err.Error(), url.Values{})
 	}
 
-	channel, err := youtubeService.GetChannel()
-	if err != nil {
-		return createRedirect(s.Config.WebRedirectUrl, "failed to get user channel information: "+err.Error(), url.Values{})
+	account, err := s.OauthManager.GetAccountByEmail(userDetails.Email)
+	if err != nil && err != data.ErrorNotFound {
+		return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to get account from email: "+err.Error(), url.Values{})
 	}
 
-	if state.ScopeType == "view" {
+	if err == data.ErrorNotFound {
+		account, err = s.OauthManager.CreateAccount(*token, scope)
+		if err != nil {
+			return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to get create an account: "+err.Error(), url.Values{})
+		}
+	}
+
+	// user login
+	if scope == "view" {
 		user := models.User{
-			Username: channel.Snippet.Title,
-			Email:    userDetails.Email,
-			Picture:  userDetails.Picture,
+			Username: account.Username,
+			Email:    account.Email,
+			Picture:  account.Picture,
 		}
 
 		user, err := s.User.Login(user)
 		if err != nil {
-			return createRedirect(s.Config.WebRedirectUrl, "failed to login"+err.Error(), url.Values{})
+			return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to login: "+err.Error(), url.Values{})
 		}
 
-		// note that this is refreshed on page load for security
-		http.SetCookie(w, &http.Cookie{
-			Name:    "bearer",
-			Value:   user.Session.Bearer,
-			Expires: time.Now().Add(24 * time.Hour),
-		})
+		err = s.OauthManager.LinkBaseAccounts(user, *token)
+		if err != nil {
+			return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to link base accounts: "+err.Error(), url.Values{})
+		}
 
 		parameters := url.Values{}
 		parameters.Add("bearer", user.Session.Bearer)
-		return createRedirect(s.Config.WebRedirectUrl, "", parameters)
+		return createOAuthRedirect(s.Config.WebRedirectUrl, "", parameters)
 	}
 
-	return BlankResponse(nil)
+	// account is already linked as view only
+	if account.PermissionLevel != "manage" {
+		account, err = s.OauthManager.UpdateAccountToManage(account)
+		if err != nil {
+			return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to upgrade account permissions: "+err.Error(), url.Values{})
+		}
+		return createOAuthRedirect(s.Config.WebRedirectUrl, "", url.Values{})
+	}
+
+	// account is being added under manage permissions
+	user, err := s.User.GetUserFromBearer(bearer)
+	if err != nil {
+		return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to get user from bearer: "+err.Error(), url.Values{})
+	}
+
+	err = s.OauthManager.LinkAccount(user, account)
+	if err != nil {
+		return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to create account: "+err.Error(), url.Values{})
+	}
+
+	return createOAuthRedirect(s.Config.WebRedirectUrl, "", url.Values{})
 }
 
-func createRedirect(rawurl string, message string, params url.Values) Response {
+func createOAuthRedirect(rawurl string, message string, params url.Values) Response {
 	params.Add("success", strconv.FormatBool((message == "")))
 	params.Add("reason", "user account was not linked")
 
@@ -126,34 +134,16 @@ func createRedirect(rawurl string, message string, params url.Values) Response {
 	return NewRedirectResponse(URL.String(), message)
 }
 
-func getOAuthDetails(scope string) ([]string, string, string) {
+func getOAuthDetails(bearer string) ([]string, string, string) {
 	scopes := []string{"https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/youtube.readonly"}
 	accessType := "online"
+	scope := "view"
 
-	if scope != "view" {
+	if bearer != "" {
 		scopes = append(scopes, "https://www.googleapis.com/auth/youtube")
 		accessType = "offline"
 		scope = "manage"
 	}
 
 	return scopes, accessType, scope
-}
-
-func parseOAuthCallbackDetails(state string, code string) (stateDetails, error) {
-	details := stateDetails{}
-
-	if code == "" {
-		return details, fmt.Errorf("code was not returned on callback")
-	}
-
-	err := json.Unmarshal([]byte(state), &details)
-	if err != nil {
-		return details, fmt.Errorf("failed to parse state details, error: " + err.Error())
-	}
-
-	if details.ScopeType != "view" && (details.ScopeType != "manage" || details.Bearer == "") {
-		return details, fmt.Errorf("invalid state type and or bearer")
-	}
-
-	return details, nil
 }

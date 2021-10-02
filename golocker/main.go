@@ -57,6 +57,7 @@ func NewServices(logger *log.Logger) *services.Services {
 
 	oauthManagerService := oauthmanager.NewOauthManager(
 		dataService,
+		playlistHelperService,
 		"secrets/",
 		"http://localhost:8080/"+"user/oauth/callback",
 	)
@@ -145,6 +146,7 @@ func InitializeRoutes(serviceContainer *services.Services, cronjobContainer *cro
 	Errors := handlers.CreateResponseWriter(logger)
 	UserAuth := handlers.CreateUserAuthenticator(serviceContainer)
 	PlaylistAuth := handlers.CreatePlaylistAuthenticator(serviceContainer)
+	AccountAuth := handlers.CreateAccountAuthenticator(serviceContainer)
 
 	router := serviceContainer.Router
 
@@ -164,6 +166,9 @@ func InitializeRoutes(serviceContainer *services.Services, cronjobContainer *cro
 	router.HandleFunc("/video/{video_id}", Errors(Injector(UserAuth(handlers.GetVideo))))
 	router.HandleFunc("/channel/search", Errors(Injector(UserAuth(handlers.SearchChannel))))
 	router.HandleFunc("/channel/get/{channel_id}", Errors(Injector(UserAuth(handlers.GetChannel))))
+
+	router.HandleFunc("/account/list", Errors(Injector(UserAuth(handlers.AccountList))))
+	router.HandleFunc("/account/{account_id}", Errors(Injector(UserAuth(AccountAuth(handlers.AccountGet)))))
 
 	SubscribeErrors := handlers.CreateSubscribeHandler(logger)
 	AdminAuth := handlers.CreateAdminAuthenticator(serviceContainer, adminBearer)

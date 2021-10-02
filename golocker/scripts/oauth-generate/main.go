@@ -1,9 +1,7 @@
 package main
 
 func main() {
-	scope := "https://www.googleapis.com/auth/youtube"
+	scopes := []string{"https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/youtube.readonly", "https://www.googleapis.com/auth/youtube"}
 
-	filePath := "../../secrets/"
-
-	getClient(scope, filePath)
+	getClient(scopes)
 }

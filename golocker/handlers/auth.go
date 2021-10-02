@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/Killian264/YTLocker/golocker/helpers"
 	"github.com/Killian264/YTLocker/golocker/services"
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
@@ -56,6 +57,40 @@ func CreatePlaylistAuthenticator(s *services.Services) func(next ServiceHandler)
 			}
 
 			context.Set(r, "playlist", playlist)
+
+			return next(w, r, s)
+		}
+	}
+}
+
+// CreateUserAuthenticator returns a route wrapper that authenticates the user and adds them to the session
+func CreateAccountAuthenticator(s *services.Services) func(next ServiceHandler) ServiceHandler {
+	return func(next ServiceHandler) ServiceHandler {
+		return func(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
+			idStr := mux.Vars(r)["account_id"]
+
+			id, err := strconv.ParseUint(idStr, 10, 64)
+			if err != nil {
+				return NewResponse(http.StatusForbidden, nil, "invalid account id")
+			}
+
+			user := GetUserFromRequest(r)
+
+			accountList, err := s.OauthManager.GetUserAccountList(user)
+			if err != nil {
+				return BlankResponse(err)
+			}
+
+			if !helpers.IsKeyInArray(accountList, id) {
+				return NewResponse(http.StatusForbidden, nil, "invalid account id")
+			}
+
+			account, err := s.OauthManager.GetAccountById(id)
+			if err != nil {
+				return BlankResponse(err)
+			}
+
+			context.Set(r, "account", account)
 
 			return next(w, r, s)
 		}

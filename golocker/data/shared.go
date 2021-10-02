@@ -18,5 +18,5 @@ func (d *Data) GetThumbnails(ID uint64, ownerType string) ([]models.Thumbnail, e
 		return nil, result.Error
 	}
 
-	return thumbnails, nil;
+	return thumbnails, nil
 }

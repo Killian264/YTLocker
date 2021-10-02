@@ -13,9 +13,9 @@ type User struct {
 	Email    string `gorm:"type:varchar(256);not null;unique;"`
 	Picture  string `gorm:"type:varchar(512);not null;"`
 
-	Session   Session
-	Playlists []Playlist
-	// YoutubeAccount []YoutubeAccount
+	Session        Session
+	Playlists      []Playlist
+	YoutubeAccount []YoutubeAccount `gorm:"many2many:user_youtube_account;"`
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -103,13 +103,14 @@ type SubscriptionRequest struct {
 	UpdatedAt time.Time
 }
 
-// type YoutubeAccount struct {
-// 	ID              uint64 `gorm:"primaryKey;"`
-// 	Username        string `gorm:"type:varchar(256);not null;"`
-// 	Email           string `gorm:"type:varchar(256);not null;unique;"`
-// 	PermissionLevel string `gorm:"type:varchar(256);not null;"`
-// 	YoutubeToken    YoutubeToken
-// }
+type YoutubeAccount struct {
+	ID              uint64 `gorm:"primaryKey;"`
+	Username        string `gorm:"type:varchar(256);not null;"`
+	Email           string `gorm:"type:varchar(256);not null;unique;"`
+	Picture         string `gorm:"type:varchar(512);not null;"`
+	PermissionLevel string `gorm:"type:varchar(256);not null;"`
+	YoutubeToken    YoutubeToken
+}
 
 type YoutubeToken struct {
 	ID           uint64 `gorm:"primaryKey;"`
@@ -117,6 +118,8 @@ type YoutubeToken struct {
 	TokenType    string `gorm:"type:varchar(256);not null;"`
 	RefreshToken string `gorm:"type:varchar(256);not null;unique;"`
 	Expiry       string `gorm:"type:varchar(256);not null;"`
+
+	YoutubeAccountID uint64
 }
 
 type YoutubeClientConfig struct {

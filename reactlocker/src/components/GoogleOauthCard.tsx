@@ -11,9 +11,7 @@ export interface GoogleOAuthCardProps {
 export const GoogleOAuthCard: React.FC<GoogleOAuthCardProps> = ({ className, type }) => {
 	const [bearer] = useBearer("");
 
-	let scope = type === "login" ? "view" : "manage"
-
-	let link = DROPLET_BASE + `/user/oauth/login?scope=${scope}&bearer=${bearer}`
+	let link = DROPLET_BASE + `/user/oauth/login?bearer=${type === "login" ? "" : bearer}`
 
 	return (
 		<div className={`${className} bg-primary-700 p-10 pt-8 rounded-md max-w-sm`}>

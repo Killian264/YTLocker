@@ -37,6 +37,21 @@ func ParseYTChannel(channel *youtube.Channel) models.Channel {
 	return parsed
 }
 
+func ParseYTChannelGetThumbnail(channel *youtube.Channel) string {
+	thumbnails := ParseYTThumbnails(channel.Snippet.Thumbnails)
+
+	bestThumbnail := ""
+	highestRes := 0
+
+	for _, thumnail := range thumbnails {
+		if thumnail.Width > highestRes {
+			bestThumbnail = thumnail.URL
+		}
+	}
+
+	return bestThumbnail
+}
+
 // ParseYTVideo parses a youtube.Video into the db video model
 // returns parsed video, channelID
 func ParseYTVideo(video *youtube.Video) (models.Video, string) {
@@ -162,6 +177,15 @@ func ParseYoutubeToken(token models.YoutubeToken) oauth2.Token {
 		TokenType:    token.TokenType,
 		RefreshToken: token.RefreshToken,
 		Expiry:       expiry,
+	}
+}
+
+func ParseYoutubeTokenToModel(token oauth2.Token) models.YoutubeToken {
+	return models.YoutubeToken{
+		AccessToken:  token.AccessToken,
+		TokenType:    token.TokenType,
+		RefreshToken: token.RefreshToken,
+		Expiry:       token.Expiry.String(),
 	}
 }
 

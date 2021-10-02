@@ -58,3 +58,8 @@ func GetUserFromRequest(r *http.Request) models.User {
 func GetPlaylistFromRequest(r *http.Request) models.Playlist {
 	return context.Get(r, "playlist").(models.Playlist)
 }
+
+// GetAccountFromRequest gets the account set from the request, account is set by accountauthenticator
+func GetAccountFromRequest(r *http.Request) models.YoutubeAccount {
+	return context.Get(r, "account").(models.YoutubeAccount)
+}

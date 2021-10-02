@@ -18,34 +18,70 @@ func (d *Data) NewYoutubeClientConfig(config *models.YoutubeClientConfig) error 
 	return result.Error
 }
 
-// NewYoutubeToken creates a new token isUserToken is true if the token is for a user account
-// func (d *Data) NewYoutubeToken(token *models.YoutubeToken, isUserToken bool) error {
-// 	token.ID = d.rand.ID()
+func (d *Data) NewYoutubeAccount(account models.YoutubeAccount) (models.YoutubeAccount, error) {
+	account.ID = d.rand.ID()
 
-// 	token.Type = YTLOCKER_TOKEN_TYPE
-// 	if isUserToken {
-// 		token.Type = USER_TOKEN_TYPE
-// 	}
+	account.YoutubeToken.ID = d.rand.ID()
 
-// 	result := d.db.Create(&token)
+	result := d.db.Create(&account)
 
-// 	return result.Error
-// }
-
-// GetBaseClientConfig gets the base client config for the program
-func (d *Data) GetBaseClientConfig() (models.YoutubeClientConfig, error) {
-	config := models.YoutubeClientConfig{}
-
-	result := d.db.First(&config)
-
-	return config, result.Error
+	return account, result.Error
 }
 
-// GetBaseToken gets the base token for the program
-func (d *Data) GetBaseToken() (models.YoutubeToken, error) {
-	token := models.YoutubeToken{}
+func (d *Data) NewUserYoutubeAccount(userID uint64, accountID uint64) error {
+	user := &models.User{ID: userID}
+	account := &models.YoutubeAccount{ID: accountID}
 
-	result := d.db.Where("type = ?", YTLOCKER_TOKEN_TYPE).First(&token)
+	return d.db.Model(user).Association("YoutubeAccount").Append(account)
+}
 
-	return token, result.Error
+func (d *Data) GetUserYoutubeAccounts(user models.User) ([]uint64, error) {
+	accounts := []OnlyID{}
+
+	join := "INNER JOIN user_youtube_account ON user_youtube_account.user_id = ? "
+	join += "AND user_youtube_account.youtube_account_id = youtube_accounts.id"
+
+	result := d.db.Model(models.YoutubeAccount{}).Joins(join, user.ID).Find(&accounts)
+
+	if result.Error != nil || notFound(result.Error) {
+		return []uint64{}, removeNotFound(result.Error)
+	}
+
+	return parseOnlyIDArray(accounts), nil
+}
+
+func (d *Data) GetAccountFromToken(token models.YoutubeToken) (models.YoutubeAccount, error) {
+	result := d.db.Where("access_token = ?", token.AccessToken).First(&token)
+	if result.Error != nil {
+		return models.YoutubeAccount{}, result.Error
+	}
+	account := models.YoutubeAccount{}
+
+	result = d.db.First(&account, token.YoutubeAccountID)
+
+	return account, result.Error
+}
+
+func (d *Data) GetAccountByEmail(email string) (models.YoutubeAccount, error) {
+	account := models.YoutubeAccount{}
+
+	result := d.db.Where("email = ?", email).First(&account)
+
+	return account, result.Error
+}
+
+func (d *Data) GetAccount(accountId uint64) (models.YoutubeAccount, error) {
+	account := models.YoutubeAccount{}
+
+	result := d.db.First(&account, accountId)
+
+	return account, result.Error
+}
+
+func (d *Data) UpdateAccount(account models.YoutubeAccount) (models.YoutubeAccount, error) {
+	account.PermissionLevel = "manage"
+
+	result := d.db.Model(&account).Select("PermissionLevel").Updates(account)
+
+	return account, result.Error
 }
