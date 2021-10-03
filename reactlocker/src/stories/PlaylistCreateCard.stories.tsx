@@ -16,6 +16,7 @@ const Mocked: Story<{}> = () => {
 		title: "DogeLog",
 		description: "Videos showing Ben Awad as he builds dogehouse.",
 		accountId: 12,
+		isActive: true,
 		channels: [],
 		videos: [],
 		color: "red-1",

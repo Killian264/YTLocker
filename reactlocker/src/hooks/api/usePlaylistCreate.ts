@@ -8,9 +8,9 @@ export const usePlaylistCreate = (): ((title: string, description: string, color
 	const { pushAlert } = useContext(AlertContext);
 	const queryClient = useQueryClient();
 
-	return async (title: string, description: string, color: Color, playlistId: number) => {
+	return async (title: string, description: string, color: Color, youtubeAccountID: number) => {
 		return axios
-			.post(`/playlist/create`, { title, description, color, AccountID: playlistId })
+			.post(`/playlist/create`, { title, description, color, youtubeAccountID })
 			.then(() => {
 				pushAlert({
 					message: "Playlist was created.",

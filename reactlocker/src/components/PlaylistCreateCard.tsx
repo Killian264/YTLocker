@@ -31,16 +31,20 @@ export const PlaylistCreateCard: React.FC<ChannelSubscribeCardProps> = ({
 
 	let defaultSelected = "";
 
-	const accountDropdownItems = accounts.map((account) => {
-		if (editPlaylist !== null && account.id == editPlaylist.accountId) {
-			defaultSelected = account.username;
-		}
+	const accountDropdownItems = accounts
+		.filter((account) => {
+			return account.permissionLevel === "manage";
+		})
+		.map((account) => {
+			if (editPlaylist !== null && account.id == editPlaylist.accountId) {
+				defaultSelected = account.username;
+			}
 
-		return {
-			title: account.username,
-			value: account.id,
-		};
-	});
+			return {
+				title: account.username,
+				value: account.id,
+			};
+		});
 
 	return (
 		<Card className={`${className} flex flex-col justify-content-between`}>
@@ -84,7 +88,6 @@ export const PlaylistCreateCard: React.FC<ChannelSubscribeCardProps> = ({
 					}}
 				></Input>
 				<TextBox
-					disabled={true}
 					placeholder="Description"
 					value={description}
 					className="mb-3"
@@ -92,23 +95,6 @@ export const PlaylistCreateCard: React.FC<ChannelSubscribeCardProps> = ({
 						setDescription(e.target.value);
 					}}
 				></TextBox>
-				<div>
-					<Button
-						size="medium"
-						color="primary"
-						disabled={title === "" || color === null || accountId === null}
-						onClick={() => {
-							if (title === "" || color === null || accountId === null) {
-								return;
-							}
-
-							CreateClick(title, description, color, accountId);
-							BackClick();
-						}}
-					>
-						{editPlaylist === null ? "Create" : "Save"}
-					</Button>
-				</div>
 				<div className="pt-4 flex justify-between">
 					<Button size="medium" color="secondary" onClick={BackClick}>
 						Back

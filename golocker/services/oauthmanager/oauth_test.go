@@ -2,63 +2,100 @@ package oauthmanager
 
 import (
 	"testing"
+	"time"
 
 	"github.com/Killian264/YTLocker/golocker/data"
+	"github.com/Killian264/YTLocker/golocker/helpers/parsers"
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/Killian264/YTLocker/golocker/services/user"
+	"github.com/Killian264/YTLocker/golocker/services/ytservice"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/oauth2"
 )
 
-var validUser = models.User{
-	Username: "killian",
-	Email:    "killiandebacker@gmail.com",
-	Picture:  "https://lh3.googleusercontent.com/a/default-user=s96-c",
-}
+var validUser = models.User{}
+var validToken = oauth2.Token{}
 
 func Test_Get_Base_Methods(t *testing.T) {
 	service, service2 := createMockServices2()
 
 	config := service.GetBaseConfig()
-	token := service.GetBaseToken()
 	account := service.GetBaseYoutubeAccount()
 
 	assert.NotEmpty(t, config)
-	assert.NotEmpty(t, token)
 	assert.NotEmpty(t, account)
+	assert.NotEmpty(t, account.YoutubeToken)
+	assert.NotEmpty(t, account.YoutubeToken.ID)
 
 	// There should only be one base account
 	config2 := service2.GetBaseConfig()
-	token2 := service2.GetBaseToken()
 	account2 := service2.GetBaseYoutubeAccount()
 
 	assert.Equal(t, account.ID, account2.ID)
-	assert.Equal(t, config, config2)
-	assert.Equal(t, token, token2)
+	assert.Equal(t, config.ClientID, config2.ClientID)
+	assert.NotEmpty(t, account2.YoutubeToken.ID)
 }
 
 func Test_Create_Account(t *testing.T) {
 	service := createMockServices()
 
-	account, err := service.CreateAccount(oauth2.Token{}, "view")
-
+	account, err := service.GetLoginAccount(validToken, "view")
 	assert.Nil(t, err)
-	assert.NotEmpty(t, account)
+	assert.NotEmpty(t, account.Email)
+	assert.NotEmpty(t, account.Username)
+
+	account2, err := service.GetAccountByEmail(account.Email)
+	assert.Nil(t, err)
+
+	assert.Equal(t, account.Email, account2.Email)
+
+	assert.NotEmpty(t, account.YoutubeToken.AccessToken)
+	assert.Equal(t, account.YoutubeToken.AccessToken, account2.YoutubeToken.AccessToken)
+
+	account3, err := service.GetAccountById(account.ID)
+	assert.Nil(t, err)
+
+	assert.Equal(t, account.Email, account3.Email)
+
+	assert.NotEmpty(t, account3.YoutubeToken.AccessToken)
+	assert.NotEmpty(t, account3.YoutubeToken.ID)
+	assert.Equal(t, account.YoutubeToken.AccessToken, account3.YoutubeToken.AccessToken)
+}
+
+func Test_Create_Account_Expired_Token(t *testing.T) {
+	service := createMockServices()
+
+	validToken.Expiry = time.Now().AddDate(-1, 1, 1)
+
+	account, err := service.GetLoginAccount(validToken, "view")
+	assert.Nil(t, err)
+	assert.NotEmpty(t, account.Email)
+	assert.NotEmpty(t, account.Username)
+
+	account2, err := service.GetAccountByEmail(account.Email)
+	assert.Nil(t, err)
+
+	assert.Equal(t, account.Email, account2.Email)
+
+	assert.NotEmpty(t, account.YoutubeToken.AccessToken)
+	assert.Equal(t, account.YoutubeToken.AccessToken, account2.YoutubeToken.AccessToken)
 }
 
 func Test_Account_Cannot_Be_Created_Twice(t *testing.T) {
 	service := createMockServices()
 
-	service.CreateAccount(oauth2.Token{}, "view")
+	account, err := service.GetLoginAccount(validToken, "view")
+	assert.Nil(t, err)
+	assert.NotEmpty(t, account.Email)
 
-	_, err := service.CreateAccount(oauth2.Token{}, "view")
-	assert.NotNil(t, err)
+	account2, err := service.GetLoginAccount(validToken, "view")
+	assert.Equal(t, account.Email, account2.Email)
 }
 
 func Test_Link_Account(t *testing.T) {
 	service := createMockServices()
 
-	account, _ := service.CreateAccount(oauth2.Token{}, "view")
+	account, _ := service.GetLoginAccount(validToken, "view")
 
 	err := service.LinkAccount(validUser, account)
 	assert.Nil(t, err)
@@ -67,60 +104,94 @@ func Test_Link_Account(t *testing.T) {
 func Test_Get_User_YoutubeAccounts(t *testing.T) {
 	service := createMockServices()
 
-	account, _ := service.CreateAccount(oauth2.Token{}, "view")
-
-	service.LinkAccount(validUser, account)
-
 	accounts, err := service.GetUserAccountList(validUser)
 	assert.Nil(t, err)
-	assert.NotEmpty(t, accounts)
-	assert.Equal(t, len(accounts), 1)
-}
+	assert.Equal(t, 0, len(accounts))
 
-func Test_Get_Account_From_Token(t *testing.T) {
-	service := createMockServices()
-
-	account, _ := service.CreateAccount(oauth2.Token{}, "view")
-
-	found, err := service.GetAccountByAccessToken(account.YoutubeToken)
-
-	assert.Nil(t, err)
-	assert.Equal(t, found.ID, account.ID)
-}
-
-func Test_Get_Account_From_Token_Fails(t *testing.T) {
-	service := createMockServices()
-
-	_, err := service.GetAccountByAccessToken(models.YoutubeToken{
-		AccessToken: "bananas",
-	})
-
-	assert.NotNil(t, err)
-	assert.Equal(t, err, data.ErrorNotFound)
-}
-
-func Test_Link_Base_Accounts(t *testing.T) {
-	service := createMockServices()
-
-	err := service.LinkBaseAccounts(validUser, oauth2.Token{})
+	account, err := service.GetLoginAccount(validToken, "view")
 	assert.Nil(t, err)
 
-	accountList, _ := service.GetUserAccountList(validUser)
-
-	assert.Equal(t, len(accountList), 2)
-
-	err = service.LinkBaseAccounts(validUser, oauth2.Token{})
+	err = service.LinkAccount(validUser, account)
 	assert.Nil(t, err)
 
-	assert.Equal(t, len(accountList), 2)
+	accounts, err = service.GetUserAccountList(validUser)
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(accounts))
+}
+
+func Test_Get_User_Account(t *testing.T) {
+	service := createMockServices()
+
+	account, err := service.GetLoginAccount(validToken, "view")
+	assert.Nil(t, err)
+
+	err = service.LinkAccount(validUser, account)
+	assert.Nil(t, err)
+
+	foundAccount, err := service.GetUserAccount(models.User{ID: validUser.ID}, account.ID)
+	assert.Nil(t, err)
+	assert.Equal(t, account.ID, foundAccount.ID)
+}
+
+func Test_Refresh_Token(t *testing.T) {
+	service := createMockServices()
+
+	account, err := service.GetLoginAccount(validToken, PERMISSION_LEVEL_VIEW)
+	assert.Nil(t, err)
+
+	oauth2Token := parsers.ParseYoutubeToken(account.YoutubeToken)
+	oauth2Token.AccessToken = "aslkdjfasdf"
+
+	account2, err := service.RefreshToken(account, oauth2Token, PERMISSION_LEVEL_VIEW)
+	assert.Nil(t, err)
+
+	assert.Equal(t, account.Email, account2.Email)
+	assert.NotEqual(t, account.YoutubeToken.AccessToken, account2.YoutubeToken.AccessToken)
+}
+
+func Test_Initialize_Youtube_Service(t *testing.T) {
+	service := createMockServices()
+	youtube := ytservice.NewYTPlaylistFake()
+
+	account, err := service.GetLoginAccount(validToken, PERMISSION_LEVEL_VIEW)
+	assert.Nil(t, err)
+
+	account.YoutubeToken.Expiry = time.Now().AddDate(-1, 0, 0).String()
+
+	returnedService, err := service.InitializeYTService(youtube, account.ID)
+	assert.Nil(t, err)
+
+	returnedService.GetUser()
+
+	account2, err := service.GetAccountByEmail(account.Email)
+
+	assert.Equal(t, account.Email, account2.Email)
+	assert.NotEqual(t, account.YoutubeToken.AccessToken, account2.YoutubeToken.AccessToken)
 }
 
 func createMockServices() *OauthManager {
-	db := data.InMemorySQLiteConnect()
+	db := data.InMemoryMySQLConnect()
+
+	validUser = models.User{
+		Username: "killian",
+		Email:    "killiandebacker@gmail.com",
+		Picture:  "https://lh3.googleusercontent.com/a/default-user=s96-c",
+	}
+
+	validToken = oauth2.Token{
+		AccessToken:  "23593045903245",
+		TokenType:    "Bearer",
+		Expiry:       time.Now().AddDate(0, 0, 1),
+		RefreshToken: "q30572309458320945",
+	}
 
 	userService := user.NewUser(db)
 
-	validUser, _ = userService.Login(validUser)
+	createdUser, err := userService.Login(validUser)
+	if err != nil {
+		panic("err should not happen")
+	}
+	validUser = createdUser
 
 	service := NewFakeOauthManager(
 		db,

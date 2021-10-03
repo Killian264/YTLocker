@@ -1,25 +1,18 @@
 import axios from "axios";
 import { useContext } from "react";
 import { useQueryClient } from "react-query";
-import { Color } from "../../shared/types";
 import { AlertContext } from "../AlertContext";
 
-export const usePlaylistUpdate = (): ((
-	id: number,
-	title: string,
-	description: string,
-	color: Color,
-	active: boolean
-) => Promise<void>) => {
+export const usePlaylistCopy = (): ((id: number) => Promise<void>) => {
 	const { pushAlert } = useContext(AlertContext);
 	const queryClient = useQueryClient();
 
-	return async (id: number, title: string, description: string, color: Color, active: boolean) => {
+	return async (id: number) => {
 		return axios
-			.post(`/playlist/${id}/update`, { title, description, color, active })
+			.post(`/playlist/${id}/copy`)
 			.then(() => {
 				pushAlert({
-					message: "Playlist was updated successfully.",
+					message: "Playlist was copied.",
 					type: "success",
 				});
 				queryClient.invalidateQueries(["playlists"]);
@@ -27,7 +20,7 @@ export const usePlaylistUpdate = (): ((
 			})
 			.catch(() => {
 				pushAlert({
-					message: "Failed to update playlist.",
+					message: "Failed to copy playlist",
 					type: "failure",
 				});
 			});

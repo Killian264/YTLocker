@@ -9,7 +9,6 @@ import (
 	"github.com/Killian264/YTLocker/golocker/data"
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/Killian264/YTLocker/golocker/services"
-	"github.com/Killian264/YTLocker/golocker/services/ytservice"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -38,11 +37,13 @@ func OAuthAuthenticate(w http.ResponseWriter, r *http.Request, s *services.Servi
 	return createOAuthRedirect(google.Endpoint.AuthURL, "", parameters)
 }
 
+// gets or creates your account
+// uses that to log you in
+
 func OAuthAuthenticateCallback(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
 	code := r.FormValue("code")
 	bearer := r.FormValue("state")
 
-	youtubeService := &ytservice.YTPlaylist{}
 	config := s.OauthManager.GetBaseConfig()
 
 	_, _, scope := getOAuthDetails(bearer)
@@ -52,30 +53,13 @@ func OAuthAuthenticateCallback(w http.ResponseWriter, r *http.Request, s *servic
 		return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to exchange oauth code to token err: "+err.Error(), url.Values{})
 	}
 
-	err = youtubeService.Initialize(config, *token)
+	account, err := s.OauthManager.GetLoginAccount(*token, scope)
 	if err != nil {
-		return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to initialize youtube service : "+err.Error(), url.Values{})
-	}
-
-	userDetails, err := youtubeService.GetUser()
-	if err != nil {
-		return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to get user info: "+err.Error(), url.Values{})
-	}
-
-	account, err := s.OauthManager.GetAccountByEmail(userDetails.Email)
-	if err != nil && err != data.ErrorNotFound {
-		return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to get account from email: "+err.Error(), url.Values{})
-	}
-
-	if err == data.ErrorNotFound {
-		account, err = s.OauthManager.CreateAccount(*token, scope)
-		if err != nil {
-			return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to get create an account: "+err.Error(), url.Values{})
-		}
+		return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to get youtube account "+err.Error(), url.Values{})
 	}
 
 	// user login
-	if scope == "view" {
+	if bearer == "" {
 		user := models.User{
 			Username: account.Username,
 			Email:    account.Email,
@@ -87,9 +71,20 @@ func OAuthAuthenticateCallback(w http.ResponseWriter, r *http.Request, s *servic
 			return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to login: "+err.Error(), url.Values{})
 		}
 
-		err = s.OauthManager.LinkBaseAccounts(user, *token)
+		accountList, err := s.OauthManager.GetUserAccountList(user)
 		if err != nil {
-			return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to link base accounts: "+err.Error(), url.Values{})
+			return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to get account list: "+err.Error(), url.Values{})
+		}
+
+		if len(accountList) == 0 {
+			err = s.OauthManager.LinkAccount(user, account)
+			if err != nil {
+				return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to link base account: "+err.Error(), url.Values{})
+			}
+			err = s.OauthManager.LinkAccount(user, s.OauthManager.GetBaseYoutubeAccount())
+			if err != nil {
+				return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to link base account: "+err.Error(), url.Values{})
+			}
 		}
 
 		parameters := url.Values{}
@@ -97,24 +92,22 @@ func OAuthAuthenticateCallback(w http.ResponseWriter, r *http.Request, s *servic
 		return createOAuthRedirect(s.Config.WebRedirectUrl, "", parameters)
 	}
 
-	// account is already linked as view only
-	if account.PermissionLevel != "manage" {
-		account, err = s.OauthManager.UpdateAccountToManage(account)
-		if err != nil {
-			return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to upgrade account permissions: "+err.Error(), url.Values{})
-		}
-		return createOAuthRedirect(s.Config.WebRedirectUrl, "", url.Values{})
-	}
-
-	// account is being added under manage permissions
+	// add account to user
 	user, err := s.User.GetUserFromBearer(bearer)
 	if err != nil {
 		return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to get user from bearer: "+err.Error(), url.Values{})
 	}
 
-	err = s.OauthManager.LinkAccount(user, account)
-	if err != nil {
-		return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to create account: "+err.Error(), url.Values{})
+	_, err = s.OauthManager.GetUserAccount(user, account.ID)
+	if err != nil && err != data.ErrorNotFound {
+		return createOAuthRedirect(s.Config.WebRedirectUrl, "error occurred when finding account: "+err.Error(), url.Values{})
+	}
+
+	if err == data.ErrorNotFound {
+		err = s.OauthManager.LinkAccount(user, account)
+		if err != nil {
+			return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to create account: "+err.Error(), url.Values{})
+		}
 	}
 
 	return createOAuthRedirect(s.Config.WebRedirectUrl, "", url.Values{})

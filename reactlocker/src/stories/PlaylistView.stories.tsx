@@ -19,6 +19,7 @@ const playlist: Playlist = {
 	created: new Date(),
 	videos: [],
 	channels: [],
+	isActive: true,
 	color: "red-1",
 };
 
@@ -44,6 +45,7 @@ const Mocked: Story<PlaylistViewProps> = ({ ...props }) => {
 			}}
 			PauseClick={() => {}}
 			CopyClick={() => {}}
+			RefreshClick={() => {}}
 			playlist={playlist}
 			account={account}
 			accounts={[account]}

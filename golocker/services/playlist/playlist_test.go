@@ -2,6 +2,7 @@ package playlist
 
 import (
 	"testing"
+	"time"
 
 	"github.com/Killian264/YTLocker/golocker/data"
 	"github.com/Killian264/YTLocker/golocker/models"
@@ -17,6 +18,8 @@ var playlist3 = models.Playlist{}
 
 var channel = models.Channel{}
 var video = models.Video{}
+
+var account = models.YoutubeAccount{}
 
 func Test_Create_Playlist(t *testing.T) {
 	s := createMockServices(t)
@@ -45,6 +48,7 @@ func Test_Update_Playlist(t *testing.T) {
 	playlist1.Title = "something else"
 	playlist1.Description = "something else"
 	playlist1.Color = "something else"
+	playlist1.Active = false
 
 	playlist2, err := s.Update(playlist1)
 	assert.Nil(t, err)
@@ -195,6 +199,24 @@ func Test_IgnoreDuplicates_ProcessNewVideo(t *testing.T) {
 	playlistExpectedIsActual(t, s, expected, user)
 }
 
+func Test_SkipInactive_ProcessNewVideo(t *testing.T) {
+	s := createMockServices(t)
+
+	expected, _ := s.New(playlist, user)
+
+	s.Subscribe(expected, channel)
+
+	expected.Color = "green-1"
+	expected.Active = false
+	s.Update(expected)
+
+	s.ProcessNewVideo(channel, video)
+
+	expected.Channels = append(expected.Channels, channel)
+
+	playlistExpectedIsActual(t, s, expected, user)
+}
+
 func Test_Get_All_Playlists(t *testing.T) {
 	service := createMockServices(t)
 
@@ -239,6 +261,52 @@ func Test_Get_Playlist_Thumbnails(t *testing.T) {
 	assert.Equal(t, 5, len(thumbnails))
 }
 
+func Test_Copy_Playlist(t *testing.T) {
+	s := createMockServices(t)
+
+	expected, _ := s.New(playlist, user)
+	s.Subscribe(expected, channel)
+	s.ProcessNewVideo(channel, video)
+
+	expected, err := s.CopyPlaylist(expected)
+	assert.Nil(t, err)
+
+	assert.Equal(t, len(expected.Thumbnails), 5)
+	assert.Equal(t, len(expected.Channels), 1)
+	assert.Equal(t, len(expected.Videos), 0)
+
+	playlistExpectedIsActual(t, s, expected, user)
+}
+
+func Test_Refresh_Playlist(t *testing.T) {
+	s := createMockServices(t)
+
+	expected, err := s.New(playlist, user)
+	assert.Nil(t, err)
+	expected2, err := s.New(playlist2, user)
+	assert.Nil(t, err)
+
+	s.Subscribe(expected, channel)
+	s.Subscribe(expected2, channel)
+	s.ProcessNewVideo(channel, video)
+
+	expectedVideos, err := s.GetAllVideos(expected)
+	assert.Equal(t, 1, len(expectedVideos))
+	expected2Videos, err := s.GetAllVideos(expected2)
+	assert.Equal(t, 1, len(expected2Videos))
+
+	refreshed, err := s.RefreshPlaylist(expected)
+	assert.Nil(t, err)
+
+	expected2Videos, err = s.GetAllVideos(expected2)
+	refreshedVideos, err := s.GetAllVideos(refreshed)
+
+	assert.Equal(t, 1, len(expected2Videos))
+	assert.Equal(t, 0, len(refreshedVideos))
+}
+
+// RefreshPlaylist
+
 func createMockServices(t *testing.T) *PlaylistManager {
 	data := data.InMemorySQLiteConnect()
 
@@ -248,11 +316,27 @@ func createMockServices(t *testing.T) *PlaylistManager {
 	data.NewUser(user)
 	data.NewUser(user)
 
-	newChannel, _ := data.NewChannel(channel)
+	newChannel, err := data.NewChannel(channel)
+	if err != nil {
+		panic("failed to create channel: " + err.Error())
+	}
+
 	channel = newChannel
 
-	newVideo, _ := data.NewVideo(channel, video)
+	newVideo, err := data.NewVideo(channel, video)
+	if err != nil {
+		panic("failed to create video: " + err.Error())
+	}
 	video = newVideo
+
+	account, err := data.NewYoutubeAccount(account)
+	if err != nil {
+		panic("failed to create account: " + err.Error())
+	}
+
+	playlist.YoutubeAccountID = account.ID
+	playlist2.YoutubeAccountID = account.ID
+	playlist3.YoutubeAccountID = account.ID
 
 	return NewFakePlaylist(data)
 }
@@ -299,18 +383,21 @@ func setDefaultModels() {
 		Title:       "New Playlist",
 		Description: "Cool new playlist!!!",
 		Color:       "red-1",
+		Active:      true,
 	}
 
 	playlist2 = models.Playlist{
 		Title:       "New Playlist",
 		Description: "Cool new playlist!!!",
 		Color:       "red-2",
+		Active:      true,
 	}
 
 	playlist3 = models.Playlist{
 		Title:       "New Playlist",
 		Description: "Cool new playlist!!!",
 		Color:       "red-3",
+		Active:      true,
 	}
 
 	channel = models.Channel{
@@ -323,5 +410,20 @@ func setDefaultModels() {
 		YoutubeID:   "this is a youtube id",
 		Title:       "This is a video title",
 		Description: "This is a video description",
+		CreatedAt:   time.Date(2100, 12, 12, 12, 12, 12, 12, time.Local),
+	}
+
+	account = models.YoutubeAccount{
+		ID:              12342,
+		Username:        "asdfsadf",
+		Email:           "asdfasdfsdaf@cool.com",
+		Picture:         "asdjfasdf",
+		PermissionLevel: "manage",
+		YoutubeToken: models.YoutubeToken{
+			AccessToken:  "asdfasd",
+			RefreshToken: "asdfkasdf",
+			Expiry:       "12/12/12",
+			TokenType:    "Bearer",
+		},
 	}
 }

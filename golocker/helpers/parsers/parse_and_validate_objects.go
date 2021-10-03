@@ -21,9 +21,10 @@ func ParseAndValidatePlaylist(playlist models.Playlist) (models.Playlist, string
 	}
 
 	return models.Playlist{
-		Title:       SanitizeString(playlist.Title),
-		Description: SanitizeString(playlist.Description),
-		Color:       playlist.Color,
-		AccountID:   playlist.AccountID,
+		Title:            SanitizeString(playlist.Title),
+		Description:      SanitizeString(playlist.Description),
+		Color:            playlist.Color,
+		YoutubeAccountID: playlist.YoutubeAccountID,
+		Active:           playlist.Active,
 	}, ""
 }

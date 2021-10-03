@@ -18,6 +18,7 @@ const playlists: Playlist[] = [
 		title: "DogeLog",
 		description: "Videos showing Ben Awad as he builds dogehouse.",
 		accountId: 12,
+		isActive: true,
 		// url: "https://www.youtube.com/playlist?list=PLN3n1USn4xlkZgqq9SdgUXPmgpoxUM9QK",
 		created: new Date(),
 		channels: [],

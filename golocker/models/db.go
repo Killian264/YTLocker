@@ -36,10 +36,10 @@ type Playlist struct {
 	Description string `gorm:"type:varchar(512);not null;"`
 	Color       string `gorm:"type:varchar(256);not null;"`
 
-	UserID    uint64
-	AccountID uint64 `gorm:"index"`
+	Active bool
 
-	YoutubeAccount YoutubeAccount `gorm:"foreignkey:ID;references:account_id"`
+	UserID           uint64
+	YoutubeAccountID uint64
 
 	Videos     []Video     `gorm:"many2many:playlist_video;"`
 	Channels   []Channel   `gorm:"many2many:playlist_channel;"`

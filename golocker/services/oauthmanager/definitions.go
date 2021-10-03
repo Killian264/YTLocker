@@ -1,7 +1,6 @@
 package oauthmanager
 
 import (
-	"github.com/Killian264/YTLocker/golocker/data"
 	"github.com/Killian264/YTLocker/golocker/helpers/parsers"
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/Killian264/YTLocker/golocker/services/ytservice"
@@ -15,15 +14,17 @@ type IOauthManagerData interface {
 
 	GetAccount(accountId uint64) (models.YoutubeAccount, error)
 	GetAccountByEmail(email string) (models.YoutubeAccount, error)
-	GetAccountFromToken(token models.YoutubeToken) (models.YoutubeAccount, error)
 	GetUserYoutubeAccounts(user models.User) ([]models.YoutubeAccount, error)
-	UpdateAccount(account models.YoutubeAccount) (models.YoutubeAccount, error)
+	UpdateAccount(account models.YoutubeAccount, token models.YoutubeToken) (models.YoutubeAccount, error)
 }
 
 type IYoutubeService interface {
-	Initialize(config oauth2.Config, token oauth2.Token) error
+	Initialize(config oauth2.Config, token oauth2.Token) (oauth2.Token, error)
 	GetUser() (models.OAuthUserInfo, error)
 	GetChannel() (*youtube.Channel, error)
+	Create(title string, description string) (*youtube.Playlist, error)
+	Insert(playlistID string, videoID string) error
+	GetPlaylistVideos(playlistId string) ([]string, error)
 }
 
 // OauthManager manages oauth information
@@ -34,6 +35,11 @@ type OauthManager struct {
 	token   oauth2.Token
 	account models.YoutubeAccount
 }
+
+var (
+	PERMISSION_LEVEL_VIEW   = "view"
+	PERMISSION_LEVEL_MANAGE = "manage"
+)
 
 // NewOauthManager creates an oauth manager
 // secretsDir - the file directory to read the secrets from
@@ -68,9 +74,11 @@ func NewFakeOauthManager(data IOauthManagerData) *OauthManager {
 		Expiry:       "2021-04-13T23:30:06.1139442-05:00",
 	}
 
+	ytplaylistFake := ytservice.NewYTPlaylistFake()
+
 	manager := &OauthManager{
 		data:    data,
-		youtube: &ytservice.YTPlaylistFake{},
+		youtube: ytplaylistFake,
 	}
 
 	manager.initializeBaseData(config, token, "https://ytlocker.com/")
@@ -82,12 +90,9 @@ func (m *OauthManager) initializeBaseData(config models.YoutubeClientConfig, tok
 	m.config = parsers.ParseYoutubeClient(config)
 	m.token = parsers.ParseYoutubeToken(token)
 
-	account, err := m.data.GetAccountFromToken(token)
-	if err != nil && err == data.ErrorNotFound {
-		account, err = m.CreateAccount(m.token, "manage")
-		if err != nil {
-			panic("failed to create token account err: " + err.Error())
-		}
+	account, err := m.GetLoginAccount(m.token, PERMISSION_LEVEL_MANAGE)
+	if err != nil {
+		panic(err)
 	}
 
 	m.account = account

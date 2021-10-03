@@ -8,6 +8,8 @@ import { usePlaylist } from "../hooks/api/usePlaylist";
 import { useAccountList } from "../hooks/api/useAccountList";
 import { LoadingList } from "../components/LoadingList";
 import { useAccount } from "../hooks/api/useAccount";
+import { usePlaylistCopy } from "../hooks/api/usePlaylistCopy";
+import { usePlaylistRefresh } from "../hooks/api/usePlaylistRefresh";
 
 export interface PlaylistViewControllerProps {
 	className?: string;
@@ -29,6 +31,10 @@ export const PlaylistViewController: React.FC<PlaylistViewControllerProps> = ({
 
 	const deletePlaylist = usePlaylistDelete();
 	const updatePlaylist = usePlaylistUpdate();
+	const copyPlaylist = usePlaylistCopy();
+	const refreshPlaylist = usePlaylistRefresh();
+
+	console.log("loaded", isLoadingAccount, account, playlist === null ? 0 : playlist.accountId);
 
 	if (
 		isLoadingPlaylist ||
@@ -53,7 +59,7 @@ export const PlaylistViewController: React.FC<PlaylistViewControllerProps> = ({
 				playlists={playlists}
 				accounts={accounts}
 				CreateClick={(title, description, color) => {
-					updatePlaylist(playlist.id, title, description, color);
+					updatePlaylist(playlist.id, title, description, color, true);
 				}}
 				BackClick={swap}
 			></PlaylistCreateCard>
@@ -71,8 +77,21 @@ export const PlaylistViewController: React.FC<PlaylistViewControllerProps> = ({
 				deletePlaylist(playlistId);
 				BackClick();
 			}}
-			PauseClick={() => {}}
-			CopyClick={() => {}}
+			PauseClick={() => {
+				updatePlaylist(
+					playlist.id,
+					playlist.title,
+					playlist.description,
+					playlist.color,
+					!playlist.isActive
+				);
+			}}
+			CopyClick={() => {
+				copyPlaylist(playlist.id);
+			}}
+			RefreshClick={() => {
+				refreshPlaylist(playlist.id);
+			}}
 			BackClick={BackClick}
 		></PlaylistView>
 	);

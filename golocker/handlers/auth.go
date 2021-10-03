@@ -62,31 +62,6 @@ func CreatePlaylistAuthenticator(s *services.Services) func(next ServiceHandler)
 	}
 }
 
-// CreateUserAuthenticator returns a route wrapper that authenticates the user and adds them to the session
-func CreateAccountAuthenticator(s *services.Services) func(next ServiceHandler) ServiceHandler {
-	return func(next ServiceHandler) ServiceHandler {
-		return func(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
-			idStr := mux.Vars(r)["account_id"]
-
-			id, err := strconv.ParseUint(idStr, 10, 64)
-			if err != nil {
-				return NewResponse(http.StatusForbidden, nil, "invalid account id")
-			}
-
-			user := GetUserFromRequest(r)
-
-			account, err := s.OauthManager.GetUserAccount(user, id)
-			if err != nil {
-				return NewResponse(http.StatusForbidden, nil, "failed to get account")
-			}
-
-			context.Set(r, "account", account)
-
-			return next(w, r, s)
-		}
-	}
-}
-
 // CreateUserAuthenticator returns a route wrapper that authenticate the admin bearer
 func CreateAdminAuthenticator(s *services.Services, bearer string) func(next Handler) Handler {
 	return func(next Handler) Handler {

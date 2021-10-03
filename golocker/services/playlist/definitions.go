@@ -10,14 +10,18 @@ import (
 )
 
 type IYTPlaylist interface {
-	Initialize(config oauth2.Config, token oauth2.Token) error
+	Initialize(config oauth2.Config, token oauth2.Token) (oauth2.Token, error)
+	GetUser() (models.OAuthUserInfo, error)
+	GetChannel() (*youtube.Channel, error)
 	Create(title string, description string) (*youtube.Playlist, error)
 	Insert(playlistID string, videoID string) error
+	GetPlaylistVideos(playlistId string) ([]string, error)
 }
 
 type IOauthManager interface {
-	GetBaseConfig() oauth2.Config
-	GetBaseToken() oauth2.Token
+	GetAccountById(accountID uint64) (models.YoutubeAccount, error)
+
+	InitializeYTService(service oauthmanager.IYoutubeService, accountId uint64) (oauthmanager.IYoutubeService, error)
 }
 
 type IPlaylistManagerData interface {
@@ -33,6 +37,7 @@ type IPlaylistManagerData interface {
 	GetThumbnails(ID uint64, ownerType string) ([]models.Thumbnail, error)
 
 	NewPlaylistVideo(playlistID uint64, videoID uint64) error
+	RemovePlaylistVideo(playlistID uint64, videoID uint64) error
 	NewPlaylistChannel(playlistID uint64, channelID uint64) error
 	RemovePlaylistChannel(playlistID uint64, channelID uint64) error
 
@@ -41,6 +46,10 @@ type IPlaylistManagerData interface {
 	GetAllUserPlaylists(userID uint64) ([]models.Playlist, error)
 
 	GetLastestPlaylistVideos(userID uint64) ([]uint64, error)
+
+	GetPlaylistForCopy(playlist models.Playlist) (models.Playlist, error)
+
+	GetAllPlaylistVideoYoutubeIds(ID uint64) ([]models.Playlist, error)
 }
 
 // PlaylistManager manages playlists
@@ -52,11 +61,6 @@ type PlaylistManager struct {
 
 // NewPlaylist creates a new playlist
 func NewPlaylist(yt IYTPlaylist, oauth IOauthManager, data IPlaylistManagerData) *PlaylistManager {
-	config := oauth.GetBaseConfig()
-	token := oauth.GetBaseToken()
-
-	yt.Initialize(config, token)
-
 	return &PlaylistManager{
 		playlist: yt,
 		oauth:    oauth,
@@ -68,7 +72,7 @@ func NewPlaylist(yt IYTPlaylist, oauth IOauthManager, data IPlaylistManagerData)
 // NOTE: These secrets are fake
 func NewFakePlaylist(data *data.Data) *PlaylistManager {
 	return NewPlaylist(
-		&ytservice.YTPlaylistFake{},
+		ytservice.NewYTPlaylistFake(),
 		oauthmanager.NewFakeOauthManager(data),
 		data,
 	)

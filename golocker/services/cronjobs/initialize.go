@@ -28,19 +28,25 @@ func NewCronJobManager(youtube *ytmanager.YoutubeManager, playlist *playlist.Pla
 
 	manager := &CronJobManager{
 		InsertVideosJob: func() {
+			logger.Print("Starting Insert Videos: --------------")
 			job.Run()
+			logger.Print("Finished Insert Videos: --------------")
 		},
 		ResubscribeAllSubscriptions: func() {
+			logger.Print("Starting Resubscribe: ----------------")
 			err := subscriber.ResubscribeAll()
 			if err != nil {
 				logger.Print(err)
 			}
+			logger.Print("Finished Resubscribe: ----------------")
 		},
 		CheckForMissedUploads: func() {
+			logger.Print("Starting Missed Uploads: -------------")
 			err := youtube.CheckForMissedUploads(logger)
 			if err != nil {
 				logger.Print(err)
 			}
+			logger.Print("Finished Missed Uploads: -------------")
 		},
 		runner: cron.New(),
 		logger: log.New(os.Stdout, "Cron: ", log.Ldate|log.Ltime),
@@ -53,21 +59,15 @@ func NewCronJobManager(youtube *ytmanager.YoutubeManager, playlist *playlist.Pla
 
 func (m CronJobManager) run() {
 	m.runner.AddFunc("@every 2m", func() {
-		m.logger.Print("Starting Insert Videos: --------------")
 		m.InsertVideosJob()
-		m.logger.Print("Finished Insert Videos: --------------")
 	})
 
 	m.runner.AddFunc("@weekly", func() {
-		m.logger.Print("Starting Resubscribe: ----------------")
 		m.ResubscribeAllSubscriptions()
-		m.logger.Print("Finished Resubscribe: ----------------")
 	})
 
 	m.runner.AddFunc("@every 6h", func() {
-		m.logger.Print("Starting Missed Uploads: -------------")
 		m.CheckForMissedUploads()
-		m.logger.Print("Finished Missed Uploads: -------------")
 	})
 
 	go m.runner.Run()

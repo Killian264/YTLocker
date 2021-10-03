@@ -113,7 +113,8 @@ func (s *YoutubeManager) CheckForMissedUploads(l *log.Logger) error {
 
 		response, err := s.yt.GetLastVideosFromChannel(channel.YoutubeID, "", after)
 		if err != nil {
-			return err
+			l.Printf("MissedUploads: Error getting channel videos: %v", err)
+			continue
 		}
 
 		videos := parsers.ParseSearchResponseIntoVideos(response)

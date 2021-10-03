@@ -37,7 +37,7 @@ func (d *Data) PlaylistColorIsValid(userID uint64, color string) (bool, uint64, 
 
 	result := d.db.Where("user_id = ? AND color = ?", userID, color).First(&playlist)
 
-	if(result.Error == gorm.ErrRecordNotFound){
+	if result.Error == gorm.ErrRecordNotFound {
 		return true, 0, nil
 	}
 
@@ -49,16 +49,32 @@ func (d *Data) PlaylistColorIsValid(userID uint64, color string) (bool, uint64, 
 }
 
 func (d *Data) UpdatePlaylist(playlist models.Playlist) (models.Playlist, error) {
-	result := d.db.Model(&playlist).Select("Title", "Description", "Color").Updates(playlist)
+	result := d.db.Model(&playlist).Select("Title", "Description", "Color", "Active").Updates(playlist)
 
-	if(result.Error != nil){
+	if result.Error != nil {
 		return models.Playlist{}, result.Error
 	}
 
 	return d.GetPlaylist(playlist.ID)
 }
 
-func (d *Data) DeletePlaylist(ID uint64) (error) {
+// what a mess
+func (d *Data) GetPlaylistForCopy(playlist models.Playlist) (models.Playlist, error) {
+	result := d.db.Model(&playlist).Preload("Channels").Find(&playlist)
+	if result.Error != nil {
+		return models.Playlist{}, result.Error
+	}
+
+	playlist.ID = d.rand.ID()
+
+	for _, channel := range playlist.Channels {
+		channel.ID = d.rand.ID()
+	}
+
+	return playlist, result.Error
+}
+
+func (d *Data) DeletePlaylist(ID uint64) error {
 	result := d.db.Delete(&models.Playlist{}, ID)
 
 	return result.Error
@@ -69,6 +85,13 @@ func (d *Data) NewPlaylistVideo(playlistID uint64, videoID uint64) error {
 	video := &models.Video{ID: videoID}
 
 	return d.db.Model(playlist).Association("Videos").Append(video)
+}
+
+func (d *Data) RemovePlaylistVideo(playlistID uint64, videoID uint64) error {
+	playlist := &models.Playlist{ID: playlistID}
+	video := &models.Video{ID: videoID}
+
+	return d.db.Model(playlist).Association("Videos").Delete(video)
 }
 
 func (d *Data) NewPlaylistChannel(playlistID uint64, channelID uint64) error {
@@ -96,7 +119,7 @@ func (d *Data) GetAllPlaylistsSubscribedTo(channel models.Channel) ([]uint64, er
 		return []uint64{}, removeNotFound(result.Error)
 	}
 
-	return parseOnlyIDArray(playlists), nil;
+	return parseOnlyIDArray(playlists), nil
 }
 
 func (d *Data) PlaylistHasVideo(playlistID uint64, videoID uint64) (bool, error) {
@@ -131,17 +154,16 @@ func (d *Data) GetAllPlaylistVideos(ID uint64) ([]uint64, error) {
 		JOIN videos AS V
 			ON PV.video_id = V.id
 		WHERE P.id = ?
-		ORDER BY V.created_at DESC;`, 
+		ORDER BY V.created_at DESC;`,
 		ID,
-	).Scan(&videos);
+	).Scan(&videos)
 
 	if removeNotFound(result.Error) != nil {
 		return nil, result.Error
 	}
 
-	return parseOnlyIDArray(videos), nil;
+	return parseOnlyIDArray(videos), nil
 }
-
 
 func (d *Data) GetAllPlaylistChannels(ID uint64) ([]uint64, error) {
 	channels := []OnlyID{}
@@ -150,15 +172,15 @@ func (d *Data) GetAllPlaylistChannels(ID uint64) ([]uint64, error) {
 		`SELECT C.channel_id AS id FROM playlists P 
 		JOIN playlist_channel C
 			ON P.id = C.playlist_id
-		WHERE P.id = ?;`, 
+		WHERE P.id = ?;`,
 		ID,
-	).Scan(&channels);
+	).Scan(&channels)
 
 	if removeNotFound(result.Error) != nil {
 		return nil, result.Error
 	}
 
-	return parseOnlyIDArray(channels), nil;
+	return parseOnlyIDArray(channels), nil
 }
 
 func (d *Data) GetLastestPlaylistVideos(userID uint64) ([]uint64, error) {
@@ -178,11 +200,31 @@ func (d *Data) GetLastestPlaylistVideos(userID uint64) ([]uint64, error) {
 		ORDER BY V.created_at DESC
 		LIMIT 30
 		;`, userID,
-	).Scan(&videos);
+	).Scan(&videos)
 
 	if removeNotFound(result.Error) != nil {
 		return nil, result.Error
 	}
 
-	return parseOnlyIDArray(videos), nil;
+	return parseOnlyIDArray(videos), nil
+}
+
+// GetAllPlaylistVideoYoutubeIds gets the actual youtubeids
+func (d *Data) GetAllPlaylistVideoYoutubeIds(ID uint64) ([]models.Playlist, error) {
+	videos := []models.Playlist{}
+
+	result := d.db.Raw(
+		`SELECT 
+			PV.video_id AS id,
+			V.youtube_id AS youtube_id
+		FROM playlists P 
+		JOIN playlist_video PV
+			ON P.id = PV.playlist_id
+		JOIN videos AS V
+			ON PV.video_id = V.id
+		WHERE P.id = ?`,
+		ID,
+	).Scan(&videos)
+
+	return videos, result.Error
 }

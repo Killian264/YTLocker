@@ -162,6 +162,8 @@ func InitializeRoutes(serviceContainer *services.Services, cronjobContainer *cro
 	router.HandleFunc("/playlist/{playlist_id}/subscribe/{channel_id}", Errors(Injector(UserAuth(PlaylistAuth(handlers.PlaylistAddSubscription)))))
 	router.HandleFunc("/playlist/{playlist_id}/unsubscribe/{channel_id}", Errors(Injector(UserAuth(PlaylistAuth(handlers.PlaylistRemoveSubscription)))))
 	router.HandleFunc("/playlist/{playlist_id}/delete", Errors(Injector(UserAuth(PlaylistAuth(handlers.PlaylistDelete)))))
+	router.HandleFunc("/playlist/{playlist_id}/copy", Errors(Injector(UserAuth(PlaylistAuth(handlers.PlaylistCopy)))))
+	router.HandleFunc("/playlist/{playlist_id}/refresh", Errors(Injector(UserAuth(PlaylistAuth(handlers.PlaylistRefresh)))))
 
 	router.HandleFunc("/video/{video_id}", Errors(Injector(UserAuth(handlers.GetVideo))))
 	router.HandleFunc("/channel/search", Errors(Injector(UserAuth(handlers.SearchChannel))))
@@ -181,6 +183,10 @@ func InitializeRoutes(serviceContainer *services.Services, cronjobContainer *cro
 
 	router.HandleFunc("/admin/update/subscriptions", AdminAuth(func(rw http.ResponseWriter, r *http.Request) {
 		cronjobContainer.ResubscribeAllSubscriptions()
+	}))
+
+	router.HandleFunc("/admin/insert/videos", AdminAuth(func(rw http.ResponseWriter, r *http.Request) {
+		cronjobContainer.InsertVideosJob()
 	}))
 }
 

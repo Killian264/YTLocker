@@ -26,10 +26,14 @@ func PlaylistCreate(w http.ResponseWriter, r *http.Request, s *services.Services
 		return NewResponse(http.StatusBadRequest, nil, errorString)
 	}
 
-	_, err = s.OauthManager.GetUserAccount(user, playlist.AccountID)
+	playlist.Active = true
+
+	account, err := s.OauthManager.GetUserAccount(user, playlist.YoutubeAccountID)
 	if err != nil {
 		return NewResponse(http.StatusBadRequest, nil, "invalid account id")
 	}
+
+	playlist.YoutubeAccountID = account.ID
 
 	created, err := s.Playlist.New(playlist, user)
 	if err != nil {
@@ -57,10 +61,33 @@ func PlaylistUpdate(w http.ResponseWriter, r *http.Request, s *services.Services
 	playlistToUpdate.Title = fieldsToUpdate.Title
 	playlistToUpdate.Description = fieldsToUpdate.Description
 	playlistToUpdate.Color = fieldsToUpdate.Color
+	playlistToUpdate.Active = fieldsToUpdate.Active
 
 	updatedPlaylist, err := s.Playlist.Update(playlistToUpdate)
 
 	return NewResponse(http.StatusOK, updatedPlaylist, "")
+}
+
+func PlaylistCopy(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
+	playlist := GetPlaylistFromRequest(r)
+
+	playlist, err := s.Playlist.CopyPlaylist(playlist)
+	if err != nil {
+		return BlankResponse(err)
+	}
+
+	return NewResponse(http.StatusOK, playlist, "")
+}
+
+func PlaylistRefresh(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
+	playlist := GetPlaylistFromRequest(r)
+
+	playlist, err := s.Playlist.RefreshPlaylist(playlist)
+	if err != nil {
+		return BlankResponse(err)
+	}
+
+	return NewResponse(http.StatusOK, playlist, "")
 }
 
 type PlaylistListItem struct {

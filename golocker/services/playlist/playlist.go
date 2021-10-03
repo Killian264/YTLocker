@@ -9,6 +9,7 @@ import (
 )
 
 // New creates a new playlist
+// TODO: Add unit tests to s.playlist.Initialize
 func (s *PlaylistManager) New(playlist models.Playlist, user models.User) (models.Playlist, error) {
 	isValidColor, _, err := s.data.PlaylistColorIsValid(user.ID, playlist.Color)
 	if err != nil {
@@ -19,9 +20,14 @@ func (s *PlaylistManager) New(playlist models.Playlist, user models.User) (model
 		return models.Playlist{}, fmt.Errorf("Duplicate playlist colors are not allowed.")
 	}
 
-	ytPlaylist, err := s.playlist.Create(playlist.Title, playlist.Description)
+	playlistService, err := s.oauth.InitializeYTService(s.playlist, playlist.YoutubeAccountID)
+	if err != nil {
+		return models.Playlist{}, err
+	}
+
+	ytPlaylist, err := playlistService.Create(playlist.Title, playlist.Description)
 	if err != nil || ytPlaylist == nil {
-		return models.Playlist{}, nil
+		return models.Playlist{}, err
 	}
 
 	playlist.YoutubeID = ytPlaylist.Id
@@ -59,15 +65,21 @@ func (s *PlaylistManager) Update(playlist models.Playlist) (models.Playlist, err
 }
 
 // Insert adds a video to a playlist
+// TODO: Add unit tests to s.playlist.Initialize
 func (s *PlaylistManager) Insert(playlist models.Playlist, video models.Video) error {
-	err := s.playlist.Insert(playlist.YoutubeID, video.YoutubeID)
+	playlistService, err := s.oauth.InitializeYTService(s.playlist, playlist.YoutubeAccountID)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to initialize ytservice: " + err.Error())
+	}
+
+	err = playlistService.Insert(playlist.YoutubeID, video.YoutubeID)
+	if err != nil {
+		return fmt.Errorf("failed to insert video on youtube: " + err.Error())
 	}
 
 	err = s.data.NewPlaylistVideo(playlist.ID, video.ID)
-	if err == nil {
-		return err
+	if err != nil {
+		return fmt.Errorf("failed to create playlist video: " + err.Error())
 	}
 
 	return nil
@@ -87,18 +99,27 @@ func (s *PlaylistManager) Delete(playlist models.Playlist) error {
 func (s *PlaylistManager) ProcessNewVideo(channel models.Channel, video models.Video) error {
 	ids, err := s.data.GetAllPlaylistsSubscribedTo(channel)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get playlists subscribed to channel: " + err.Error())
 	}
 
 	for _, id := range ids {
 		playlist, err := s.Get(id)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to get playlist: " + err.Error())
+		}
+
+		if !playlist.Active {
+			continue
+		}
+
+		// playlist created after video
+		if playlist.CreatedAt.After(video.CreatedAt) {
+			continue
 		}
 
 		exists, err := s.data.PlaylistHasVideo(playlist.ID, video.ID)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to check if playlist has video: " + err.Error())
 		}
 
 		if exists {
@@ -107,7 +128,7 @@ func (s *PlaylistManager) ProcessNewVideo(channel models.Channel, video models.V
 
 		err = s.Insert(playlist, video)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to insert video: " + err.Error())
 		}
 	}
 
@@ -153,4 +174,62 @@ func (s *PlaylistManager) GetAllThumbnails(playlist models.Playlist) ([]models.T
 // GetLastestPlaylistVideos gets the last 30 videos for a user
 func (s *PlaylistManager) GetLastestPlaylistVideos(user models.User) ([]uint64, error) {
 	return s.data.GetLastestPlaylistVideos(user.ID)
+}
+
+// CopyPlaylist copies a playlist, videos are not copied
+func (s *PlaylistManager) CopyPlaylist(playlist models.Playlist) (models.Playlist, error) {
+	playlist, err := s.data.GetPlaylistForCopy(playlist)
+	if err != nil {
+		return models.Playlist{}, err
+	}
+
+	playlistService, err := s.oauth.InitializeYTService(s.playlist, playlist.YoutubeAccountID)
+	if err != nil {
+		return models.Playlist{}, err
+	}
+
+	ytPlaylist, err := playlistService.Create(playlist.Title, playlist.Description)
+	if err != nil || ytPlaylist == nil {
+		return models.Playlist{}, err
+	}
+
+	playlist.YoutubeID = ytPlaylist.Id
+	playlist.Thumbnails = parsers.ParseYTThumbnails(ytPlaylist.Snippet.Thumbnails)
+
+	return s.data.NewPlaylist(playlist.UserID, playlist)
+}
+
+// CopyPlaylist copies a playlist, videos are not copied
+func (s *PlaylistManager) RefreshPlaylist(playlist models.Playlist) (models.Playlist, error) {
+	playlistService, err := s.oauth.InitializeYTService(s.playlist, playlist.YoutubeAccountID)
+	if err != nil {
+		return models.Playlist{}, err
+	}
+
+	allFoundVideos, err := playlistService.GetPlaylistVideos(playlist.YoutubeID)
+	if err != nil {
+		return models.Playlist{}, err
+	}
+
+	allSavedVideos, err := s.data.GetAllPlaylistVideoYoutubeIds(playlist.ID)
+	if err != nil {
+		return models.Playlist{}, err
+	}
+
+	foundVideosMap := map[string]bool{}
+	for _, video := range allFoundVideos {
+		foundVideosMap[video] = true
+	}
+
+	for _, video := range allSavedVideos {
+		_, exist := foundVideosMap[video.YoutubeID]
+		if !exist {
+			err = s.data.RemovePlaylistVideo(playlist.ID, video.ID)
+			if err != nil {
+				return models.Playlist{}, err
+			}
+		}
+	}
+
+	return s.data.GetPlaylist(playlist.UserID)
 }

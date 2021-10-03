@@ -3,6 +3,7 @@ package ytservice
 import (
 	"fmt"
 	"math/rand"
+	"strings"
 	"time"
 
 	"github.com/Killian264/YTLocker/golocker/models"
@@ -109,23 +110,63 @@ func (s *YTSerivceFake) GetLastVideosFromChannel(channelID string, pageToken str
 }
 
 type YTPlaylistFake struct {
-	initalized  bool
-	timesCalled int
+	initalized bool
+	email      string
+	hashmap    map[string]string
 }
 
-func (s *YTPlaylistFake) Initialize(config oauth2.Config, token oauth2.Token) error {
-	s.initalized = true
-	s.timesCalled = 1
+func NewYTPlaylistFake() *YTPlaylistFake {
+	baseAccessToken := "sa23.345234524623sdfasdfq-qegehgower9505034jfeworrjwertw_qqwerjfldssgert345sdgdgew-bheiyqeotleqjrljdfluao23423_QwekjfuI023kjasdfwer"
 
-	return nil
+	hashmap := map[string]string{
+		baseAccessToken: "dev-locker@ytlocker.com",
+	}
+
+	return &YTPlaylistFake{
+		hashmap: hashmap,
+	}
+}
+
+func (s *YTPlaylistFake) Initialize(config oauth2.Config, token oauth2.Token) (oauth2.Token, error) {
+	s.initalized = true
+	s.email = ""
+
+	if token.AccessToken == "" || token.TokenType == "" {
+		return oauth2.Token{}, fmt.Errorf("Invalid token")
+	}
+
+	email, emailFound := s.hashmap[token.AccessToken]
+
+	if !emailFound {
+		email = "killian@ytlocker.com" + fmt.Sprint(rand.Int())
+		s.hashmap[token.AccessToken] = email
+	}
+
+	// is expired
+	if token.Expiry.Before(time.Now()) {
+		if token.RefreshToken == "" {
+			return oauth2.Token{}, fmt.Errorf("Token was expired but did not have refresh token")
+		}
+
+		token.AccessToken = "2395034850394609158-6980349076032958-12358-4315=345814598-12" + fmt.Sprint(rand.Int())
+		token.Expiry = time.Now().AddDate(0, 0, 1)
+
+		s.hashmap[token.AccessToken] = email
+	}
+
+	s.email = email
+
+	return token, nil
 }
 
 // TODO: Make actual fake implementation
 func (s *YTPlaylistFake) GetUser() (models.OAuthUserInfo, error) {
-	s.timesCalled += 1
+	if !s.initalized {
+		panic("initialize must be ran on playlist")
+	}
 
 	return models.OAuthUserInfo{
-		Email:         "killian@ytlocker.com" + fmt.Sprint(rand.Int()),
+		Email:         s.email,
 		VerifiedEmail: true,
 		Picture:       "ytlocker.com" + fmt.Sprint(rand.Int()),
 	}, nil
@@ -133,10 +174,13 @@ func (s *YTPlaylistFake) GetUser() (models.OAuthUserInfo, error) {
 
 // TODO: Make actual fake implementation
 func (s *YTPlaylistFake) GetChannel() (*youtube.Channel, error) {
-	s.timesCalled += 1
+	if !s.initalized {
+		panic("initialize must be ran on playlist")
+	}
+
 	return &youtube.Channel{
 		Snippet: &youtube.ChannelSnippet{
-			Title: "Killian's Channel" + fmt.Sprint(rand.Int()),
+			Title: strings.SplitAfter(s.email, "@")[0],
 			Thumbnails: &youtube.ThumbnailDetails{
 				Standard: &youtube.Thumbnail{
 					Url:    "ytlocker.com",
@@ -171,6 +215,10 @@ func (s *YTPlaylistFake) Insert(playlistID string, videoID string) error {
 	}
 
 	return nil
+}
+
+func (s *YTPlaylistFake) GetPlaylistVideos(playlistId string) ([]string, error) {
+	return []string{}, nil
 }
 
 func getThumbnails() youtube.ThumbnailDetails {

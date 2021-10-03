@@ -64,6 +64,11 @@ func InMemoryMySQLConnect() *Data {
 		rand: DataRand(&ActualRand{}),
 	}
 
+	err = data.createTables()
+	if err != nil {
+		panic("error clearing tables: " + err.Error())
+	}
+
 	err = data.dropTables()
 	if err != nil {
 		panic("error initializing db: " + err.Error())
@@ -128,6 +133,7 @@ func (d *Data) createTables() error {
 		&models.YoutubeToken{},
 		&models.SubscriptionWorkUnit{},
 		&models.Session{},
+		&models.YoutubeAccount{},
 	)
 }
 
@@ -143,6 +149,7 @@ func (d *Data) dropTables() error {
 		&models.YoutubeToken{},
 		&models.SubscriptionWorkUnit{},
 		&models.Session{},
+		&models.YoutubeAccount{},
 	)
 }
 

@@ -24,12 +24,12 @@ type YTPlaylist struct {
 // Initalize sets the oauth and token information for the next requests.
 // Config data must match the playlist that is being inserted into
 // Token data should be app level information
-func (s *YTPlaylist) Initialize(config oauth2.Config, token oauth2.Token) error {
+func (s *YTPlaylist) Initialize(config oauth2.Config, token oauth2.Token) (oauth2.Token, error) {
 	client := config.Client(context.Background(), &token)
 
 	service, err := youtube.NewService(oauth2.NoContext, option.WithHTTPClient(client))
 	if err != nil {
-		return err
+		return token, err
 	}
 
 	s.playlists = youtube.NewPlaylistsService(service)
@@ -37,7 +37,7 @@ func (s *YTPlaylist) Initialize(config oauth2.Config, token oauth2.Token) error 
 	s.channels = youtube.NewChannelsService(service)
 	s.token = token
 
-	return nil
+	return token, nil
 }
 
 // GetUser gets the user information
@@ -127,4 +127,38 @@ func (s *YTPlaylist) Insert(playlistID string, videoID string) error {
 	}
 
 	return err
+}
+
+// GetPlaylistVideos gets all the videos in a playlist
+// returns array of playlist video id's, error
+func (s *YTPlaylist) GetPlaylistVideos(playlistId string) ([]string, error) {
+	call := s.items.List([]string{"snippet"})
+	call.PlaylistId(playlistId)
+	call.MaxResults(50)
+
+	results := []string{}
+	pageToken := ""
+
+	for true {
+		if pageToken != "" {
+			call.PageToken(pageToken)
+		}
+
+		response, err := call.Do()
+		if err != nil {
+			return []string{}, err
+		}
+
+		for _, video := range response.Items {
+			results = append(results, video.Id)
+		}
+
+		pageToken = response.NextPageToken
+
+		if pageToken == "" {
+			return results, nil
+		}
+	}
+
+	return []string{}, nil
 }

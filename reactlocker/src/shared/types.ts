@@ -22,6 +22,7 @@ export interface Playlist {
 	accountId: number;
 	channels: number[];
 	videos: number[];
+	isActive: boolean;
 	created: Date;
 	color: Color;
 }

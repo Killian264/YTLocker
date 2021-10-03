@@ -4,7 +4,6 @@ import { useAccountList } from "./useAccountList";
 export const useAccount = (id: number, enabled = true): [boolean, Account | null] => {
 	const [isLoadingAccounts, accounts] = useAccountList();
 
-
 	let result: [boolean, Account | null] = [true, null];
 
 	if (isLoadingAccounts || accounts === []) {

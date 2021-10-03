@@ -6,7 +6,7 @@ import { Card } from "./Card";
 import { ColorBadge } from "./ColorBadge";
 import { Dropdown } from "./Dropdown";
 import { Modal } from "./Modal";
-import { Cancel, Cog, Copy, ExternalLink, Pause, SvgBox, Trash } from "./Svg";
+import { Cancel, Cog, Copy, ExternalLink, Pause, Reload, SvgBox, Trash } from "./Svg";
 import { TextBox } from "./TextBox";
 
 export interface PlaylistViewProps {
@@ -18,6 +18,7 @@ export interface PlaylistViewProps {
 	DeleteClick: () => void;
 	PauseClick: () => void;
 	CopyClick: () => void;
+	RefreshClick: () => void;
 	BackClick: () => void;
 }
 
@@ -30,18 +31,13 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 	DeleteClick,
 	PauseClick,
 	CopyClick,
+	RefreshClick,
 	BackClick,
 }) => {
 	const [isOpenDelete, setIsOpenDelete] = useState(false);
 	const [isOpenPause, setIsOpenPause] = useState(false);
 	const [isOpenCopy, setIsOpenCopy] = useState(false);
-
-	const accountDropdownItems = accounts.map((account) => {
-		return {
-			title: account.username,
-			value: account.id,
-		};
-	});
+	const [isOpenRefresh, setIsOpenRefresh] = useState(false);
 
 	let deleteModal = (
 		<Modal
@@ -88,11 +84,28 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 		/>
 	);
 
+	let refreshModal = (
+		<Modal
+			header={"Are you sure?"}
+			body={
+				"Refreshing will refresh the playlist to match what is on Youtube. Only needs to be ran after a user manually updates a playlist."
+			}
+			AcceptClick={() => {
+				RefreshClick();
+				setIsOpenRefresh(false);
+			}}
+			RejectClick={() => {
+				setIsOpenCopy(false);
+			}}
+		/>
+	);
+
 	return (
 		<div>
 			{isOpenDelete ? deleteModal : <div></div>}
 			{isOpenPause ? pauseModal : <div></div>}
 			{isOpenCopy ? copyModal : <div></div>}
+			{isOpenRefresh ? refreshModal : <div></div>}
 			<Card className={`${className} flex flex-col`}>
 				<div className="flex justify-between -mb-2 -mt-2">
 					<div className="text-2xl font-semibold mt-auto">
@@ -123,9 +136,15 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 									{playlist.title}
 								</span>
 								<div className="my-auto ml-2">
-									<SvgBox className={`flex text-green-300 border-green-300`}>
-										<span className="text-md font-semibold mx-1">Active</span>
-									</SvgBox>
+									{playlist.isActive ? (
+										<SvgBox className={`flex text-green-300 border-green-300`}>
+											<span className="text-md font-semibold mx-1">Active</span>
+										</SvgBox>
+									) : (
+										<SvgBox className={`flex text-black border-black`}>
+											<span className="text-md font-semibold mx-1">Paused</span>
+										</SvgBox>
+									)}
 								</div>
 								<div className="m-auto ml-3 mt-3">
 									<ColorBadge color={playlist.color}></ColorBadge>
@@ -135,7 +154,7 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 								className="mt-3 mb-2 sm:m-0"
 								defaultSelected={account.username}
 								title="Account Selection"
-								items={accountDropdownItems}
+								items={[]}
 								disabled={true}
 							></Dropdown>
 						</div>
@@ -152,6 +171,17 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 						Back
 					</Button>
 					<div className="flex gap-2 my-auto">
+						<div className="gap-2 flex">
+							<SvgBox
+								className={`p-0.5 flex`}
+								onClick={() => {
+									setIsOpenRefresh(true);
+								}}
+							>
+								<Reload size={24}></Reload>
+								<span className="font-semibold mx-1">Refresh</span>
+							</SvgBox>
+						</div>
 						<div className="gap-2 flex">
 							<SvgBox
 								className={`p-0.5 flex`}
