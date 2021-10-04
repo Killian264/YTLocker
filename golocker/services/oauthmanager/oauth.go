@@ -16,8 +16,8 @@ func (m *OauthManager) GetBaseConfig() oauth2.Config {
 }
 
 // GetBaseYoutubeAccount gets the base ytlocker account that should be added to every user
-func (m *OauthManager) GetBaseYoutubeAccount() models.YoutubeAccount {
-	return m.account
+func (m *OauthManager) GetBaseYoutubeAccount() (models.YoutubeAccount, error) {
+	return m.GetAccountByEmail("dev-locker@ytlocker.com")
 }
 
 func (m *OauthManager) InitializeYTService(service IYoutubeService, accountId uint64) (IYoutubeService, error) {

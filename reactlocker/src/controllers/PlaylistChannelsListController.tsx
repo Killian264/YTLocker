@@ -62,7 +62,7 @@ export const PlaylistChannelListController: React.FC<PlaylistChannelListControll
 					<div className="flex gap-2">
 						{mode === "normal" && (
 							<SvgBox
-								className={`border-green-500 p-0.5`}
+								className={`border-green-500 p-0.5 cursor-pointer`}
 								onClick={() => {
 									setMode("create");
 								}}
@@ -70,7 +70,7 @@ export const PlaylistChannelListController: React.FC<PlaylistChannelListControll
 								<Plus className="text-green-500" size={24}></Plus>
 							</SvgBox>
 						)}
-						<SvgBox className={`${color} p-0.5`} onClick={swap}>
+						<SvgBox className={`${color} p-0.5 cursor-pointer`} onClick={swap}>
 							{mode === "normal" ? (
 								<Cog className="text-primary-200" size={24}></Cog>
 							) : (

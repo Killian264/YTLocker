@@ -20,7 +20,8 @@ func Test_Get_Base_Methods(t *testing.T) {
 	service, service2 := createMockServices2()
 
 	config := service.GetBaseConfig()
-	account := service.GetBaseYoutubeAccount()
+	account, err := service.GetBaseYoutubeAccount()
+	assert.Nil(t, err)
 
 	assert.NotEmpty(t, config)
 	assert.NotEmpty(t, account)
@@ -29,7 +30,8 @@ func Test_Get_Base_Methods(t *testing.T) {
 
 	// There should only be one base account
 	config2 := service2.GetBaseConfig()
-	account2 := service2.GetBaseYoutubeAccount()
+	account2, err := service2.GetBaseYoutubeAccount()
+	assert.Nil(t, err)
 
 	assert.Equal(t, account.ID, account2.ID)
 	assert.Equal(t, config.ClientID, config2.ClientID)

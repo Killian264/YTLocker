@@ -1,7 +1,7 @@
 import React from "react";
 import { Color, Video } from "../shared/types";
 import { ColorBadge } from "./ColorBadge";
-import { RightArrow } from "./Svg";
+import { ExternalLink } from "./Svg";
 
 export interface VideoListItemProps {
 	className?: string;
@@ -54,8 +54,8 @@ export const VideoListItem: React.FC<VideoListItemProps> = ({ video, className, 
 					</div>
 				</div>
 			</div>
-			<div className="mr-2 my-auto select-none ml-4">
-				<RightArrow size={24}></RightArrow>
+			<div className="mr-2 ml-4 my-auto select-none ml-4">
+				<ExternalLink size={24}></ExternalLink>
 			</div>
 		</div>
 	);

@@ -31,7 +31,7 @@ export const PlaylistListItem: React.FC<PlaylistItemProps> = ({ playlist, classN
 					</div>
 				</div>
 			</div>
-			<div className="mr-2 my-auto select-none">
+			<div className="mr-2 ml-4 my-auto select-none">
 				<RightArrow size={24}></RightArrow>
 			</div>
 		</div>

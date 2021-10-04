@@ -42,7 +42,7 @@ export const PlaylistsListController: React.FC<PlaylistsListControllerProps> = (
 				<div className="text-2xl font-semibold">
 					<span className="leading-none -mt-0.5">Playlists</span>
 				</div>
-				<SvgBox className={`border-green-500 p-0.5`} onClick={CreatePlaylistClick}>
+				<SvgBox className={`border-green-500 p-0.5 cursor-pointer`} onClick={CreatePlaylistClick}>
 					<Plus className="text-green-500" size={24}></Plus>
 				</SvgBox>
 			</div>

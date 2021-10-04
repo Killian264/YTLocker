@@ -30,7 +30,15 @@ export const ColorSelector: React.FC<ColorSelectorProps> = ({
 			if (disabled.includes(color)) {
 				status = "disabled";
 			}
-			return <ColorBadge key={index} status={status} onClick={onClick} color={color}></ColorBadge>;
+			return (
+				<ColorBadge
+					className={status === "none" ? "cursor-pointer" : ""}
+					key={index}
+					status={status}
+					onClick={onClick}
+					color={color}
+				></ColorBadge>
+			);
 		});
 
 	return <div className={`${className} flex gap-4`}>{badges}</div>;

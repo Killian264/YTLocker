@@ -1,6 +1,7 @@
 package oauthmanager
 
 import (
+	"github.com/Killian264/YTLocker/golocker/data"
 	"github.com/Killian264/YTLocker/golocker/helpers/parsers"
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/Killian264/YTLocker/golocker/services/ytservice"
@@ -32,7 +33,6 @@ type OauthManager struct {
 	data    IOauthManagerData
 	youtube IYoutubeService
 	config  oauth2.Config
-	token   oauth2.Token
 	account models.YoutubeAccount
 }
 
@@ -81,6 +81,11 @@ func NewFakeOauthManager(data IOauthManagerData) *OauthManager {
 		youtube: ytplaylistFake,
 	}
 
+	_, err := manager.GetLoginAccount(parsers.ParseYoutubeToken(token), PERMISSION_LEVEL_MANAGE)
+	if err != nil {
+		panic(err)
+	}
+
 	manager.initializeBaseData(config, token, "https://ytlocker.com/")
 
 	return manager
@@ -88,10 +93,12 @@ func NewFakeOauthManager(data IOauthManagerData) *OauthManager {
 
 func (m *OauthManager) initializeBaseData(config models.YoutubeClientConfig, token models.YoutubeToken, redirectUrl string) {
 	m.config = parsers.ParseYoutubeClient(config)
-	m.token = parsers.ParseYoutubeToken(token)
 
-	account, err := m.GetLoginAccount(m.token, PERMISSION_LEVEL_MANAGE)
-	if err != nil {
+	account, err := m.GetBaseYoutubeAccount()
+	if err == data.ErrorNotFound {
+		panic("base youtube account is not set")
+	}
+	if err != nil && err != data.ErrorNotFound {
 		panic(err)
 	}
 

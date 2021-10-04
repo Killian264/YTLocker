@@ -79,9 +79,15 @@ func OAuthAuthenticateCallback(w http.ResponseWriter, r *http.Request, s *servic
 		if len(accountList) == 0 {
 			err = s.OauthManager.LinkAccount(user, account)
 			if err != nil {
-				return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to link base account: "+err.Error(), url.Values{})
+				return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to link login account: "+err.Error(), url.Values{})
 			}
-			err = s.OauthManager.LinkAccount(user, s.OauthManager.GetBaseYoutubeAccount())
+
+			baseAccount, err := s.OauthManager.GetBaseYoutubeAccount()
+			if err != nil {
+				return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to get base account: "+err.Error(), url.Values{})
+			}
+
+			err = s.OauthManager.LinkAccount(user, baseAccount)
 			if err != nil {
 				return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to link base account: "+err.Error(), url.Values{})
 			}

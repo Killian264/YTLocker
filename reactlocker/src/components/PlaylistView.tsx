@@ -6,7 +6,7 @@ import { Card } from "./Card";
 import { ColorBadge } from "./ColorBadge";
 import { Dropdown } from "./Dropdown";
 import { Modal } from "./Modal";
-import { Cancel, Cog, Copy, ExternalLink, Pause, Reload, SvgBox, Trash } from "./Svg";
+import { Cog, Copy, ExternalLink, Pause, Play, Reload, SvgBox, Trash } from "./Svg";
 import { TextBox } from "./TextBox";
 
 export interface PlaylistViewProps {
@@ -112,7 +112,7 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 						<span className="leading-none -mt-0.5">View Playlist</span>
 					</div>
 					<div className="flex gap-2">
-						<SvgBox className={`border-primary-200 p-0.5`} onClick={EditClick}>
+						<SvgBox className={`border-primary-200 p-0.5 cursor-pointer`} onClick={EditClick}>
 							<Cog className="text-primary-200" size={24}></Cog>
 						</SvgBox>
 					</div>
@@ -130,7 +130,7 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 				</a>
 				<div className="flex gap-2 mt-3">
 					<div className="flex-grow">
-						<div className="flex flex-row flex gap-2 justify-between">
+						<div className="flex flex-col sm:flex-row gap-2 justify-between">
 							<div className="flex">
 								<span className="md:text-2xl text-2xl font-semibold block my-auto">
 									{playlist.title}
@@ -159,21 +159,21 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 							></Dropdown>
 						</div>
 						<TextBox
-							className="my-3"
+							className="my-3 h-24"
 							disabled={true}
 							placeholder="Description"
 							value={playlist.description}
 						></TextBox>
 					</div>
 				</div>
-				<div className="flex justify-between mt-auto pt-1">
-					<Button size="medium" color="secondary" onClick={BackClick}>
+				<div className="flex flex-col md:flex-row flex-col-reverse justify-between mt-auto pt-1">
+					<Button className="mt-6 md:mt-0" size="medium" color="secondary" onClick={BackClick}>
 						Back
 					</Button>
-					<div className="flex gap-2 my-auto">
+					<div className="flex flex-wrap md:flex-nowrap my-auto gap-4 md:gap-4">
 						<div className="gap-2 flex">
 							<SvgBox
-								className={`p-0.5 flex`}
+								className={`p-0.5 flex cursor-pointer`}
 								onClick={() => {
 									setIsOpenRefresh(true);
 								}}
@@ -184,7 +184,7 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 						</div>
 						<div className="gap-2 flex">
 							<SvgBox
-								className={`p-0.5 flex`}
+								className={`p-0.5 flex cursor-pointer`}
 								onClick={() => {
 									setIsOpenCopy(true);
 								}}
@@ -195,18 +195,20 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 						</div>
 						<div className="gap-2 flex">
 							<SvgBox
-								className={`p-0.5 flex`}
+								className={`p-0.5 flex cursor-pointer`}
 								onClick={() => {
 									setIsOpenPause(true);
 								}}
 							>
-								<Pause size={24}></Pause>
-								<span className="font-semibold mr-1">Pause</span>
+								{playlist.isActive ? <Pause size={24}></Pause> : <Play size={24}></Play>}
+								<span className="font-semibold mr-1">
+									{playlist.isActive ? "Pause Uploads" : "Resume Uploads"}
+								</span>
 							</SvgBox>
 						</div>
 						<div className="gap-2 flex">
 							<SvgBox
-								className={`p-0.5 flex text-red-500 border-red-500`}
+								className={`p-0.5 flex text-red-500 border-red-500 cursor-pointer`}
 								onClick={() => {
 									setIsOpenDelete(true);
 								}}

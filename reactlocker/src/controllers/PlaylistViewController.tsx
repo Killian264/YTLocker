@@ -34,8 +34,6 @@ export const PlaylistViewController: React.FC<PlaylistViewControllerProps> = ({
 	const copyPlaylist = usePlaylistCopy();
 	const refreshPlaylist = usePlaylistRefresh();
 
-	console.log("loaded", isLoadingAccount, account, playlist === null ? 0 : playlist.accountId);
-
 	if (
 		isLoadingPlaylist ||
 		isLoadingAccount ||

@@ -36,7 +36,7 @@ export const PlaylistCreateCard: React.FC<ChannelSubscribeCardProps> = ({
 			return account.permissionLevel === "manage";
 		})
 		.map((account) => {
-			if (editPlaylist !== null && account.id == editPlaylist.accountId) {
+			if (editPlaylist !== null && account.id === editPlaylist.accountId) {
 				defaultSelected = account.username;
 			}
 

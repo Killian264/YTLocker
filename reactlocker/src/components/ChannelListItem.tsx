@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Channel, Color } from "../shared/types";
 import { ColorBadge } from "./ColorBadge";
 import { Modal } from "./Modal";
-import { RightArrow, Trash } from "./Svg";
+import { ExternalLink, Trash } from "./Svg";
 
 export interface ChannelListItemProps {
 	className?: string;
@@ -73,7 +73,7 @@ export const ChannelListItem: React.FC<ChannelListItemProps> = ({
 					</div>
 				</div>
 				<div className="mr-2 my-auto select-none ml-4">
-					{mode === "normal" && <RightArrow size={24}></RightArrow>}
+					{mode === "normal" && <ExternalLink size={24}></ExternalLink>}
 					{mode === "delete" && <Trash size={24}></Trash>}
 				</div>
 			</div>
