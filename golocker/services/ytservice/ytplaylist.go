@@ -150,7 +150,7 @@ func (s *YTPlaylist) GetPlaylistVideos(playlistId string) ([]string, error) {
 		}
 
 		for _, video := range response.Items {
-			results = append(results, video.Id)
+			results = append(results, video.Snippet.ResourceId.VideoId)
 		}
 
 		pageToken = response.NextPageToken
