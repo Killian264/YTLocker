@@ -61,7 +61,7 @@ func NewServices(logger *log.Logger) *services.Services {
 		dataService,
 		playlistHelperService,
 		"secrets/",
-		"http://localhost:8080/"+"user/oauth/callback",
+		os.Getenv("GO_API_URL")+"user/oauth/callback",
 	)
 
 	youtubeManagerService := ytmanager.NewYoutubeManager(
