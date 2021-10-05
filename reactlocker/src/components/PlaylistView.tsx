@@ -13,7 +13,6 @@ export interface PlaylistViewProps {
 	className?: string;
 	playlist: Playlist;
 	account: Account;
-	accounts: Account[];
 	EditClick: () => void;
 	DeleteClick: () => void;
 	PauseClick: () => void;
@@ -26,7 +25,6 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({
 	className,
 	playlist,
 	account,
-	accounts,
 	EditClick,
 	DeleteClick,
 	PauseClick,

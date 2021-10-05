@@ -22,6 +22,9 @@ type IUserData interface {
 
 	NewUserSession(user models.User, session models.Session) (models.Session, error)
 	GetSession(bearer string) (models.Session, error)
+
+	NewTemporarySession(bearer string) (models.TemporarySession, error)
+	GetTemporarySession(bearer string) (models.TemporarySession, error)
 }
 
 func NewUser(data IUserData) *User {
@@ -51,7 +54,17 @@ func (u *User) GetUserFromBearer(bearer string) (models.User, error) {
 }
 
 // Login returns the user, bearer, error
-func (u *User) Login(userInfo models.User) (models.User, error) {
+func (u *User) Login(userInfo models.User, bearer string) (models.User, error) {
+	tempSession, err := u.data.GetTemporarySession(bearer)
+	if err != nil {
+		return models.User{}, err
+	}
+
+	// older than 5 minutes
+	if tempSession.CreatedAt.Before(time.Now().Add(time.Minute * 5 * -1)) {
+		return models.User{}, fmt.Errorf("temp session is too old")
+	}
+
 	user, err := u.GetUserFromEmail(userInfo.Email)
 	if err != nil && err != data.ErrorNotFound {
 		return models.User{}, err
@@ -72,8 +85,9 @@ func (u *User) Login(userInfo models.User) (models.User, error) {
 		}
 	}
 
-	session, err := u.RefreshSession(user)
+	session, err := u.data.NewUserSession(user, models.Session{Bearer: bearer})
 	user.Session = session
+
 	return user, err
 }
 
@@ -95,6 +109,22 @@ func (u *User) RefreshSession(user models.User) (models.Session, error) {
 
 	return session, nil
 }
+
+// GenerateTemporarySessionBearer creates a temporary session variable needed for login
+func (u *User) GenerateTemporarySessionBearer() (string, error) {
+	bearer, err := generateSecret()
+	if err != nil {
+		return "", err
+	}
+
+	_, err = u.data.NewTemporarySession(bearer)
+	if err != nil {
+		return "", err
+	}
+
+	return bearer, nil
+}
+
 func generateSecret() (string, error) {
 	h := sha256.New()
 	b := make([]byte, 64)

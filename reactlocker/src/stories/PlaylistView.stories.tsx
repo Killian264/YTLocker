@@ -48,7 +48,6 @@ const Mocked: Story<PlaylistViewProps> = ({ ...props }) => {
 			RefreshClick={() => {}}
 			playlist={playlist}
 			account={account}
-			accounts={[account]}
 		></PlaylistView>
 	);
 };

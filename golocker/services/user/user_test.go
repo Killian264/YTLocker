@@ -17,7 +17,10 @@ var validUser = models.User{
 func Test_Login(t *testing.T) {
 	service := createMockServices()
 
-	user, err := service.Login(validUser)
+	bearer, err := service.GenerateTemporarySessionBearer()
+	assert.Nil(t, err)
+
+	user, err := service.Login(validUser, bearer)
 	assert.Nil(t, err)
 	assert.NotEmpty(t, user)
 	assert.NotEmpty(t, user.Session.Bearer)
@@ -26,7 +29,8 @@ func Test_Login(t *testing.T) {
 func Test_RefreshSession(t *testing.T) {
 	service := createMockServices()
 
-	user, _ := service.Login(validUser)
+	bearer, _ := service.GenerateTemporarySessionBearer()
+	user, _ := service.Login(validUser, bearer)
 
 	session, err := service.RefreshSession(user)
 	assert.Nil(t, err)
@@ -42,7 +46,8 @@ func Test_RefreshSession(t *testing.T) {
 func Test_GetUserFromBearer(t *testing.T) {
 	service := createMockServices()
 
-	expected, _ := service.Login(validUser)
+	bearer, _ := service.GenerateTemporarySessionBearer()
+	expected, _ := service.Login(validUser, bearer)
 
 	actual, err := service.GetUserFromBearer(expected.Session.Bearer)
 	assert.Nil(t, err)
@@ -52,6 +57,20 @@ func Test_GetUserFromBearer(t *testing.T) {
 
 	actual, err = service.GetUserFromBearer(expected.Session.Bearer)
 	assert.NotNil(t, err)
+}
+
+func Test_GenerateTemporarySessionBearer(t *testing.T) {
+	service := createMockServices()
+
+	one, err := service.GenerateTemporarySessionBearer()
+	assert.Nil(t, err)
+	assert.NotEmpty(t, one, "")
+
+	two, err := service.GenerateTemporarySessionBearer()
+	assert.Nil(t, err)
+	assert.NotEmpty(t, two, "")
+
+	assert.NotEqual(t, one, two)
 }
 
 func createMockServices() *User {

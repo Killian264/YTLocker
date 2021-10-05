@@ -134,6 +134,7 @@ func (d *Data) createTables() error {
 		&models.SubscriptionWorkUnit{},
 		&models.Session{},
 		&models.YoutubeAccount{},
+		&models.TemporarySession{},
 	)
 }
 
@@ -150,6 +151,7 @@ func (d *Data) dropTables() error {
 		&models.SubscriptionWorkUnit{},
 		&models.Session{},
 		&models.YoutubeAccount{},
+		&models.TemporarySession{},
 	)
 }
 

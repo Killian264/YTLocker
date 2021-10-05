@@ -10,6 +10,16 @@ type BearerResponse struct {
 	Bearer string
 }
 
+// UserSessionCreate creates a session required for oauth
+func UserSessionCreate(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
+	bearer, err := s.User.GenerateTemporarySessionBearer()
+	if err != nil {
+		return NewResponse(http.StatusBadRequest, nil, "failed to create temp session")
+	}
+
+	return NewResponse(http.StatusOK, BearerResponse{Bearer: bearer}, "")
+}
+
 // UserSessionRefresh refreshes a user session while they are logged in
 func UserSessionRefresh(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
 	user := GetUserFromRequest(r)

@@ -47,16 +47,18 @@ var handler = func(w http.ResponseWriter, r *http.Request, s *service.Services) 
 }
 
 func Test_User_Authenticator(t *testing.T) {
-	services := service.NewMockServices()
-	Authenticator := CreateUserAuthenticator(services)
+	s := service.NewMockServices()
+	Authenticator := CreateUserAuthenticator(s)
 
-	expected, _ := services.User.Login(user)
+	bearer, _ := s.User.GenerateTemporarySessionBearer()
+
+	expected, _ := s.User.Login(user, bearer)
 
 	req, _ := http.NewRequest("GET", "/user/information/", nil)
 	req.Header["Authorization"] = []string{expected.Session.Bearer}
 
 	fake := FakeRequest{
-		Services: services,
+		Services: s,
 		Route:    "/user/information/",
 		Request:  req,
 		Handler:  Authenticator(handler),
@@ -70,16 +72,18 @@ func Test_User_Authenticator(t *testing.T) {
 }
 
 func Test_User_Authenticator_Fails(t *testing.T) {
-	services := service.NewMockServices()
-	Authenticator := CreateUserAuthenticator(services)
+	s := service.NewMockServices()
+	Authenticator := CreateUserAuthenticator(s)
 
-	services.User.Login(user)
+	bearer, _ := s.User.GenerateTemporarySessionBearer()
+
+	s.User.Login(user, bearer)
 
 	req, _ := http.NewRequest("GET", "/user/information/", nil)
 	req.Header["Authorization"] = []string{"banans"}
 
 	fake := FakeRequest{
-		Services: services,
+		Services: s,
 		Route:    "/user/information/",
 		Request:  req,
 		Handler:  Authenticator(handler),
@@ -94,8 +98,10 @@ func Test_User_Authenticator_Fails(t *testing.T) {
 func Test_Playlist_Authenticator(t *testing.T) {
 	s := service.NewMockServices()
 
-	savedUser1, _ := s.User.Login(user)
-	savedUser2, _ := s.User.Login(user2)
+	bearer, _ := s.User.GenerateTemporarySessionBearer()
+
+	savedUser1, _ := s.User.Login(user, bearer)
+	savedUser2, _ := s.User.Login(user2, bearer)
 
 	playlist, _ := s.Playlist.New(playlist, savedUser1)
 

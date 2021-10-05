@@ -18,6 +18,7 @@ type Config struct {
 	WebBaseUrl     string
 	WebLoginUrl    string
 	WebRedirectUrl string
+	EncryptionKey  string
 }
 
 // Services to be injected into handlers and cron jobs

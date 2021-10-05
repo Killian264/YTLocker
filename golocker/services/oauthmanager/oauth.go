@@ -59,10 +59,16 @@ func (m *OauthManager) GetLoginAccount(token oauth2.Token, permissionLevel strin
 		return models.YoutubeAccount{}, err
 	}
 	if err == nil {
+		// never overwrite a permission level manage account with a permission level view token
+		if permissionLevel == PERMISSION_LEVEL_VIEW && account.PermissionLevel == PERMISSION_LEVEL_MANAGE {
+			return account, nil
+		}
+
 		account, err := m.RefreshToken(account, token, permissionLevel)
 		if err != nil {
 			return models.YoutubeAccount{}, err
 		}
+
 		return account, nil
 	}
 

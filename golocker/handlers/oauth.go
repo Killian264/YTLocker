@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Killian264/YTLocker/golocker/data"
+	"github.com/Killian264/YTLocker/golocker/helpers"
 	"github.com/Killian264/YTLocker/golocker/models"
 	"github.com/Killian264/YTLocker/golocker/services"
 	"golang.org/x/oauth2"
@@ -20,8 +21,13 @@ type stateDetails struct {
 
 func OAuthAuthenticate(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
 	bearer := r.URL.Query().Get("bearer")
+	scope := r.FormValue("scope")
 
-	scopes, accessType, _ := getOAuthDetails(bearer)
+	scopes, accessType, scope := getOAuthDetails(scope)
+
+	if scope == "view" {
+		bearer += "VIEWVIEWVIEW"
+	}
 
 	config := s.OauthManager.GetBaseConfig()
 
@@ -32,7 +38,7 @@ func OAuthAuthenticate(w http.ResponseWriter, r *http.Request, s *services.Servi
 	parameters.Add("redirect_uri", config.RedirectURL)
 	parameters.Add("response_type", "code")
 	parameters.Add("include_granted_scopes", "true")
-	parameters.Add("state", bearer)
+	parameters.Add("state", helpers.EncryptString(bearer, s.Config.EncryptionKey))
 
 	return createOAuthRedirect(google.Endpoint.AuthURL, "", parameters)
 }
@@ -41,12 +47,16 @@ func OAuthAuthenticate(w http.ResponseWriter, r *http.Request, s *services.Servi
 // uses that to log you in
 
 func OAuthAuthenticateCallback(w http.ResponseWriter, r *http.Request, s *services.Services) Response {
+	bearer := helpers.DecryptString(r.FormValue("state"), s.Config.EncryptionKey)
 	code := r.FormValue("code")
-	bearer := r.FormValue("state")
+
+	scope := "manage"
+	if strings.Contains(bearer, "VIEWVIEWVIEW") {
+		bearer = strings.Replace(bearer, "VIEWVIEWVIEW", "", -1)
+		scope = "view"
+	}
 
 	config := s.OauthManager.GetBaseConfig()
-
-	_, _, scope := getOAuthDetails(bearer)
 
 	token, err := config.Exchange(oauth2.NoContext, code)
 	if err != nil {
@@ -59,14 +69,14 @@ func OAuthAuthenticateCallback(w http.ResponseWriter, r *http.Request, s *servic
 	}
 
 	// user login
-	if bearer == "" {
+	if scope == "view" {
 		user := models.User{
 			Username: account.Username,
 			Email:    account.Email,
 			Picture:  account.Picture,
 		}
 
-		user, err := s.User.Login(user)
+		user, err := s.User.Login(user, bearer)
 		if err != nil {
 			return createOAuthRedirect(s.Config.WebRedirectUrl, "failed to login: "+err.Error(), url.Values{})
 		}
@@ -93,9 +103,7 @@ func OAuthAuthenticateCallback(w http.ResponseWriter, r *http.Request, s *servic
 			}
 		}
 
-		parameters := url.Values{}
-		parameters.Add("bearer", user.Session.Bearer)
-		return createOAuthRedirect(s.Config.WebRedirectUrl, "", parameters)
+		return createOAuthRedirect(s.Config.WebRedirectUrl, "", url.Values{})
 	}
 
 	// add account to user
@@ -133,12 +141,11 @@ func createOAuthRedirect(rawurl string, message string, params url.Values) Respo
 	return NewRedirectResponse(URL.String(), message)
 }
 
-func getOAuthDetails(bearer string) ([]string, string, string) {
+func getOAuthDetails(scope string) ([]string, string, string) {
 	scopes := []string{"https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/youtube.readonly"}
 	accessType := "online"
-	scope := "view"
 
-	if bearer != "" {
+	if scope != "view" {
 		scopes = append(scopes, "https://www.googleapis.com/auth/youtube")
 		accessType = "offline"
 		scope = "manage"

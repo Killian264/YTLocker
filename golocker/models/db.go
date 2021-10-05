@@ -141,3 +141,9 @@ type SubscriptionWorkUnit struct {
 	VideoID   uint64 `gorm:"not null;"`
 	Status    string `gorm:"type:varchar(32);not null;"`
 }
+
+type TemporarySession struct {
+	ID        uint64
+	Bearer    string `gorm:"type:varchar(256);not null;"`
+	CreatedAt time.Time
+}

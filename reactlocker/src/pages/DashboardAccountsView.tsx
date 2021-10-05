@@ -4,9 +4,11 @@ import { GoogleOAuthCard } from "../components/GoogleOauthCard";
 import { BeforeLinkingInfo, BaseAccountInfo } from "../components/InfoCards";
 import { LoadingListItem } from "../components/LoadingListItem";
 import { useAccountList } from "../hooks/api/useAccountList";
+import { useBearer } from "../hooks/useBearer";
 
 export const DashboardAccountsView: React.FC<{}> = () => {
 	const [isLoadingAccounts, accounts] = useAccountList();
+	const [bearer] = useBearer("");
 
 	let items = [<LoadingListItem key={1}></LoadingListItem>, <LoadingListItem key={2}></LoadingListItem>];
 
@@ -32,7 +34,11 @@ export const DashboardAccountsView: React.FC<{}> = () => {
 				</div>
 				<div className="lg:w-1/3">
 					<div className="flex flex-col md:flex-row lg:flex-col gap-8 items-start">
-						<GoogleOAuthCard className="mx-auto flex-grow" type="link"></GoogleOAuthCard>
+						<GoogleOAuthCard
+							bearer={bearer}
+							className="mx-auto flex-grow"
+							type="link"
+						></GoogleOAuthCard>
 						<BaseAccountInfo></BaseAccountInfo>
 					</div>
 				</div>

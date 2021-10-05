@@ -52,6 +52,27 @@ func (d *Data) NewUserSession(user models.User, session models.Session) (models.
 	return session, err
 }
 
+// GetTemporarySession gets a temporary session
+func (d *Data) GetTemporarySession(bearer string) (models.TemporarySession, error) {
+	session := models.TemporarySession{}
+
+	result := d.db.Where("bearer = ?", bearer).First(&session)
+
+	return session, result.Error
+}
+
+// NewTemporarySession creates a new temporary session
+func (d *Data) NewTemporarySession(bearer string) (models.TemporarySession, error) {
+	session := models.TemporarySession{
+		ID:     d.rand.ID(),
+		Bearer: bearer,
+	}
+
+	result := d.db.Create(&session)
+
+	return session, result.Error
+}
+
 // GetSession returns the session associated with the bearer if it is the current user session
 func (d *Data) GetSession(bearer string) (models.Session, error) {
 	passed := models.Session{}

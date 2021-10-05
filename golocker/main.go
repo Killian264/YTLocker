@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"net/http"
@@ -94,6 +96,7 @@ func NewServices(logger *log.Logger) *services.Services {
 		WebBaseUrl:     os.Getenv("WEB_URL"),
 		WebLoginUrl:    os.Getenv("WEB_URL") + "/login",
 		WebRedirectUrl: os.Getenv("WEB_URL") + "/redirect",
+		EncryptionKey:  GenerateEncryptionKey(),
 	}
 
 	serviceContainer := &services.Services{
@@ -111,6 +114,15 @@ func NewServices(logger *log.Logger) *services.Services {
 	InitializeRoutes(serviceContainer, cronjobContainer, os.Getenv("ADMIN_BEARER"))
 
 	return serviceContainer
+}
+
+func GenerateEncryptionKey() string {
+	bytes := make([]byte, 32) //generate a random 32 byte key for AES-256
+	if _, err := rand.Read(bytes); err != nil {
+		panic(err.Error())
+	}
+
+	return hex.EncodeToString(bytes)
 }
 
 // InitializeDatabase creates DB Connection for app
@@ -153,6 +165,7 @@ func InitializeRoutes(serviceContainer *services.Services, cronjobContainer *cro
 	router.HandleFunc("/user/information", Errors(Injector(UserAuth(handlers.UserInformation))))
 	router.HandleFunc("/user/oauth/login", Errors(Injector(handlers.OAuthAuthenticate)))
 	router.HandleFunc("/user/oauth/callback", Errors(Injector(handlers.OAuthAuthenticateCallback)))
+	router.HandleFunc("/user/session/create", Errors(Injector(handlers.UserSessionCreate)))
 	router.HandleFunc("/user/session/refresh", Errors(Injector(UserAuth(handlers.UserSessionRefresh))))
 
 	router.HandleFunc("/playlist/create", Errors(Injector(UserAuth(handlers.PlaylistCreate))))

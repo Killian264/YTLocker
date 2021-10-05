@@ -189,7 +189,12 @@ func createMockServices() *OauthManager {
 
 	userService := user.NewUser(db)
 
-	createdUser, err := userService.Login(validUser)
+	bearer, err := userService.GenerateTemporarySessionBearer()
+	if err != nil {
+		panic("err should not happen")
+	}
+
+	createdUser, err := userService.Login(validUser, bearer)
 	if err != nil {
 		panic("err should not happen")
 	}
@@ -208,7 +213,17 @@ func createMockServices2() (*OauthManager, *OauthManager) {
 
 	userService := user.NewUser(db)
 
-	validUser, _ = userService.Login(validUser)
+	bearer, err := userService.GenerateTemporarySessionBearer()
+	if err != nil {
+		panic("err should not happen")
+	}
+
+	createdUser, err := userService.Login(validUser, bearer)
+	if err != nil {
+		panic("err should not happen")
+	}
+
+	validUser = createdUser
 
 	service := NewFakeOauthManager(
 		db,

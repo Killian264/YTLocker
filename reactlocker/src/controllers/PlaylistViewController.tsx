@@ -69,7 +69,6 @@ export const PlaylistViewController: React.FC<PlaylistViewControllerProps> = ({
 			className={className}
 			playlist={playlist}
 			account={account}
-			accounts={accounts}
 			EditClick={swap}
 			DeleteClick={() => {
 				deletePlaylist(playlistId);

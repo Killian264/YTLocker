@@ -50,7 +50,10 @@ func Test_Run(t *testing.T) {
 
 	job := NewInsertVideosJob(managerService, playlistService, data, log.New(os.Stdout, "Test: ", log.Lshortfile))
 
-	user, err := userService.Login(testUserModel)
+	bearer, err := userService.GenerateTemporarySessionBearer()
+	assert.Nil(t, err)
+
+	user, err := userService.Login(testUserModel, bearer)
 	assert.Nil(t, err)
 
 	account, err := data.NewYoutubeAccount(testAccountModel)
