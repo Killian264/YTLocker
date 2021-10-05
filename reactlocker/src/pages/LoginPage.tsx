@@ -14,11 +14,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({ className, history }) => {
 	const [bearer, setBearer] = useBearer("");
 
 	useEffect(() => {
+		if (!isLoading) {
+			return;
+		}
 		axios.post("/user/session/create", {}, {}).then((response) => {
 			setBearer(response.data.Data.Bearer);
 			setLoading(false);
 		});
-	}, [setBearer]);
+	}, [setBearer, isLoading]);
 
 	return (
 		<>
