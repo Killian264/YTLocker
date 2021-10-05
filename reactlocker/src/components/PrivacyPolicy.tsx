@@ -104,7 +104,11 @@ export const PrivacyPolicy: React.FC<ClassNameProp> = ({ className, OnBack }) =>
 				<li className="list-disc ml-8">
 					<p className="pb-3 pt-3">
 						<strong>Website</strong> refers to YTLocker, accessible from{" "}
-						<a href="https://ytlocker.com/" rel="external nofollow noopener" target="_blank">
+						<a
+							href="https://ytlocker.com/"
+							rel="external nofollow noopener noreferrer"
+							target="_blank"
+						>
 							https://ytlocker.com/
 						</a>
 					</p>

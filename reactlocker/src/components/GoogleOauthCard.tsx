@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { DROPLET_BASE } from "../shared/env";
 import { Link } from "./Link";
-import { Modal } from "./Modal";
 import { PrivacyPolicy } from "./PrivacyPolicy";
 import { TermsofService } from "./TermsofService";
 
@@ -21,7 +20,7 @@ export const GoogleOAuthCard: React.FC<GoogleOAuthCardProps> = ({
 	const [showTermsOfService, setShowTermsOfService] = useState(false);
 	const [showPrivacyPolicy, setPrivacyPolicy] = useState(false);
 	let link =
-		DROPLET_BASE + `/user/oauth/login?bearer=${bearer}&scope=${type == "link" ? "manage" : "view"}`;
+		DROPLET_BASE + `/user/oauth/login?bearer=${bearer}&scope=${type === "link" ? "manage" : "view"}`;
 
 	let text = type === "login" ? "Log in with Google" : "Link Google Account";
 

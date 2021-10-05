@@ -18,7 +18,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ className, history }) => {
 			setBearer(response.data.Data.Bearer);
 			setLoading(false);
 		});
-	}, []);
+	}, [setBearer]);
 
 	return (
 		<>
