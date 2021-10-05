@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { DROPLET_BASE } from "../shared/env";
 import { Link } from "./Link";
+import { Modal } from "./Modal";
+import { PrivacyPolicy } from "./PrivacyPolicy";
+import { TermsofService } from "./TermsofService";
 
 export interface GoogleOAuthCardProps {
 	className?: string;
@@ -15,6 +18,8 @@ export const GoogleOAuthCard: React.FC<GoogleOAuthCardProps> = ({
 	bearer,
 	loading = false,
 }) => {
+	const [showTermsOfService, setShowTermsOfService] = useState(false);
+	const [showPrivacyPolicy, setPrivacyPolicy] = useState(false);
 	let link =
 		DROPLET_BASE + `/user/oauth/login?bearer=${bearer}&scope=${type == "link" ? "manage" : "view"}`;
 
@@ -24,30 +29,74 @@ export const GoogleOAuthCard: React.FC<GoogleOAuthCardProps> = ({
 		text = "Loading ...";
 	}
 
-	return (
-		<div className={`${className} bg-primary-700 p-10 pt-8 rounded-md max-w-sm`}>
-			<span className="text-2xl font-bold">{type === "login" ? "Welcome" : "Link Account"}</span>
-			<div className="mt-2 mx-1 text-sm">
-				{type === "login"
-					? "An account can manage multiple Youtube accounts. "
-					: "Please read 'Before Linking' before linking an account. "}
-				See our <Link className="text-accent underline">Terms of Service</Link> and{" "}
-				<Link className="text-accent underline">Privacy Policy</Link>.
-			</div>
-			<div
-				className="bg-primary-600 p-2 rounded mt-5 flex justify-center cursor-pointer"
-				onClick={() => {
-					if (!loading) {
-						document.location.href = link;
-					}
+	let terms = <></>;
+	let privacy = <></>;
+
+	if (showTermsOfService) {
+		terms = (
+			<TermsofService
+				OnBack={() => {
+					setShowTermsOfService(false);
 				}}
-			>
-				<div>
-					<GoogleSVG />
+			></TermsofService>
+		);
+	}
+
+	if (showPrivacyPolicy) {
+		privacy = (
+			<PrivacyPolicy
+				OnBack={() => {
+					setPrivacyPolicy(false);
+				}}
+			></PrivacyPolicy>
+		);
+	}
+
+	return (
+		<>
+			<>{terms}</>
+			<>{privacy}</>
+			<div className={`${className} bg-primary-700 p-10 pt-8 rounded-md max-w-sm`}>
+				<span className="text-2xl font-bold">{type === "login" ? "Welcome" : "Link Account"}</span>
+				<div className="mt-2 mx-1 text-sm">
+					{type === "login"
+						? "An account can manage multiple Youtube accounts. "
+						: "Please read 'Before Linking' before linking an account. "}
+					See our{" "}
+					<Link
+						onClick={() => {
+							setShowTermsOfService(true);
+						}}
+						className="text-accent underline"
+					>
+						Terms of Service
+					</Link>{" "}
+					and{" "}
+					<Link
+						onClick={() => {
+							setPrivacyPolicy(true);
+						}}
+						className="text-accent underline"
+					>
+						Privacy Policy
+					</Link>
+					.
 				</div>
-				<div className="my-auto ml-2 text-lg font-semibold">{text}</div>
+				<div
+					className="bg-primary-600 p-2 rounded mt-5 flex justify-center cursor-pointer"
+					onClick={() => {
+						if (!loading) {
+							document.location.href = link;
+						}
+					}}
+				>
+					<div>
+						<GoogleSVG />
+					</div>
+					<div className="my-auto ml-2 text-lg font-semibold">{text}</div>
+				</div>
 			</div>
-		</div>
+		</>
 	);
 };
 
